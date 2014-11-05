@@ -1,0 +1,125 @@
+{-# LINE 1 "templates/wrappers.hs" #-}
+{-# LINE 1 "templates/wrappers.hs" #-}
+{-# LINE 1 "<built-in>" #-}
+{-# LINE 1 "templates/wrappers.hs" #-}
+-- -----------------------------------------------------------------------------
+-- Alex wrapper code.
+--
+-- This code is in the PUBLIC DOMAIN; you may copy it freely and use
+-- it for any purpose whatsoever.
+
+import Data.Word (Word8)
+
+
+import qualified Data.Char
+import qualified Data.ByteString.Lazy     as ByteString
+import qualified Data.ByteString.Internal as ByteString (w2c)
+
+
+{-# LINE 47 "templates/wrappers.hs" #-}
+
+type Byte = Word8
+
+-- -----------------------------------------------------------------------------
+-- The input type
+
+
+{-# LINE 72 "templates/wrappers.hs" #-}
+
+
+{-# LINE 92 "templates/wrappers.hs" #-}
+
+
+type AlexInput = (Char,
+                  ByteString.ByteString)
+
+alexInputPrevChar :: AlexInput -> Char
+alexInputPrevChar (c,_) = c
+
+alexGetByte (_, cs)
+   | ByteString.null cs = Nothing
+   | otherwise          = Just (ByteString.head cs,
+                                (ByteString.w2c $ ByteString.head cs,
+                                 ByteString.tail cs))
+
+
+
+{-# LINE 121 "templates/wrappers.hs" #-}
+
+-- -----------------------------------------------------------------------------
+-- Token positions
+
+-- `Posn' records the location of a token in the input text.  It has three
+-- fields: the address (number of chacaters preceding the token), line number
+-- and column of a token within the file. `start_pos' gives the position of the
+-- start of the file and `eof_pos' a standard encoding for the end of file.
+-- `move_pos' calculates the new position after traversing a given character,
+-- assuming the usual eight character tab stops.
+
+
+{-# LINE 144 "templates/wrappers.hs" #-}
+
+-- -----------------------------------------------------------------------------
+-- Default monad
+
+
+{-# LINE 242 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- Monad (with ByteString input)
+
+
+{-# LINE 333 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- Basic wrapper
+
+
+{-# LINE 360 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- Basic wrapper, ByteString version
+
+
+
+-- alexScanTokens :: String -> [token]
+alexScanTokens str = go ('\n',str)
+  where go inp@(_,str) =
+          case alexScan inp 0 of
+                AlexEOF -> []
+                AlexError _ -> error "lexical error"
+                AlexSkip  inp' len     -> go inp'
+                AlexToken inp'@(_,str') _ act -> act (ByteString.take len str) : go inp'
+                 where len = ByteString.length str - ByteString.length str'
+
+
+
+
+{-# LINE 392 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- Posn wrapper
+
+-- Adds text positions to the basic model.
+
+
+{-# LINE 409 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- Posn wrapper, ByteString version
+
+
+{-# LINE 424 "templates/wrappers.hs" #-}
+
+
+-- -----------------------------------------------------------------------------
+-- GScan wrapper
+
+-- For compatibility with previous versions of Alex, and because we can.
+
+
