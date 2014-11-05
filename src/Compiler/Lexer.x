@@ -7,9 +7,6 @@ import Compiler.Types
 
 %wrapper "basic"
 
-$digit = 0-9
-$alpha = [a-zA-Z]
-
 $a = [aA]
 $b = [bB]
 $c = [cC]
@@ -37,51 +34,25 @@ $x = [xX]
 $y = [yY]
 $z = [zZ]
 
--- data Token  = ID                -- identifiers
---             | LParen            -- (
---             | RParen            -- )
---             | Semicolon         -- ;
---             | Colon             -- :
---             | Period            -- .
---             | Comma             -- ,
---             | LSB               -- [
---             | RSB               -- ]
---             | Z                 -- integer
---             | N                 -- num
---             | R                 -- real
---             | Program           -- "program"
---             | Function          -- "function"
---             | Proc              -- "procedure"
---             | Begin             -- "begin"
---             | End               -- "end"
---             | Var               -- "var"
---             | Arr               -- "array"
---             | Of                -- "of"
---             | If                -- "if"
---             | Then              -- "then"
---             | Else              -- "else"
---             | While             -- "while"
---             | Do                -- "do"
---             | Assign            -- :=
---             | S                 -- <
---             | L                 -- >
---             | SE                -- <=
---             | LE                -- >=
---             | EQ                -- =
---             | NEQ               -- !=
---             | Plus              -- +
---             | Minus             -- -
---             | Times             -- *
---             | Div               -- /
---             | Not               -- "not"
---             | To                -- ..
--- $($alpha|"_")($alpha|$digit)*   { ID }
+$digit = 0-9
+$nzdigit = 1-9
+$alpha = [a-zA-Z]
+$newline = [\r\n]
+@sign = "+"|"-"
+@integer = "0"|$nzdigit$digit*
+@real = @integer"."$digit+
+@scinot = @integer"."?$digit+([eE]@sign?$digit+)?
+@dqoute = "
+@ndqoute = [^"]
+@squote = '
+@nsquote = [^']
+@string = @dqoute(@ndqoute*)@dqoute|@squote(@nsquote*)@squote
+
 
 tokens :-
     $white+                                 ;
 
-    "//"[^\r\n]*(\r\n)                      ;
-    ($alpha|"_")($alpha|$digit)*            { ID }
+    "//"[^$newline]*$newline                ;
 
     $p$r$o$g$r$a$m                          { const Program }
     $f$u$n$c$t$i$o$n                        { const Function }
@@ -97,6 +68,11 @@ tokens :-
     $w$h$i$l$e                              { const While }
     $d$o                                    { const Do }
     $n$o$t                                  { const Not }
+    @string                                 { Str }
+    @scinot                                 { Str }
+    @real                                   { R . read }
+    @integer                                { Z . read }
+    ($alpha)($alpha|$digit)*                { ID }
     "("                                     { const LParen }
     ")"                                     { const RParen }
     ":"                                     { const Colon }

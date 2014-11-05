@@ -10,7 +10,7 @@ data Token  = ID String         -- identifiers
             | LSB               -- [
             | RSB               -- ]
             | Z Int             -- integer
-            | N                 -- num
+            | Str String        -- num, string
             | R Double          -- real
             | Program           -- "program"
             | Function          -- "function"
