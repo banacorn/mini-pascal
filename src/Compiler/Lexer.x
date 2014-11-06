@@ -68,6 +68,9 @@ tokens :-
     $w$h$i$l$e                              { const TokWhile }
     $d$o                                    { const TokDo }
     $n$o$t                                  { const TokNot }
+    $i$n$t$e$g$e$r                          { const TokTypeInt }
+    $r$e$a$l                                { const TokTypeReal }
+    $s$t$r$i$n$g                            { const TokTypeStr }
     @string                                 { TokNum }
     @scinot|@real|@integer                  { TokNum }
     ($alpha)($alpha|$digit)*                { TokID }

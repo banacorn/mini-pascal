@@ -17,8 +17,8 @@ import Compiler.Types
     '['             { TokLSB }
     ']'             { TokRSB }
     id              { TokID $$ }
-    string          { TokStr $$ }
     num             { TokNum $$ }
+    string          { TokTypeStr }
     integer         { TokTypeInt }
     real            { TokTypeReal }
     progtok         { TokProgram }
@@ -138,6 +138,7 @@ term    : factor            { FactorTerm $1 }
 factor  : id tail                       { IDSBFactor $1 $2 }
         | id '(' expression_list ')'    { IDPFactor $1 $3 }
         | num                           { NumFactor $1 }
+        | '-' num                       { NumFactor ((\TokNum n -> TokNum $ "-" ++ n ) $1) }
         | '(' expression ')'            { PFactor $2 }
         | not factor                    { NotFactor $2 }
 
@@ -160,6 +161,6 @@ relop   : '<'   { S }
 
 {
 parseError :: [Token] -> a
-parseError _ = error "Parse error"
+parseError tok = error $ "Parse error: "  ++ show tok
 
 }

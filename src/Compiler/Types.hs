@@ -11,8 +11,8 @@ data Token  = TokID String         -- identifiers
             | TokRSB               -- ]
             | TokTypeInt           -- "integer"
             | TokTypeReal          -- "real"
-            | TokStr String        -- string
-            | TokNum String     -- numbers
+            | TokTypeStr           -- "string"
+            | TokNum String        -- numbers
             | TokProgram           -- "program"
             | TokFunction          -- "function"
             | TokProc              -- "procedure"
