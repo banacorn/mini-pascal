@@ -1,6 +1,7 @@
 module Compiler where
 
 import Compiler.Lexer
+import Compiler.Parser
 import Data.List (intercalate)
 
 main :: IO ()

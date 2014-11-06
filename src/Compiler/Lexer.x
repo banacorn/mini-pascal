@@ -54,47 +54,45 @@ tokens :-
 
     "//"[^$newline]*$newline                ;
 
-    $p$r$o$g$r$a$m                          { const Program }
-    $f$u$n$c$t$i$o$n                        { const Function }
-    $p$r$o$c$e$d$u$r$e                      { const Proc }
-    $b$e$g$i$n                              { const Begin }
-    $e$n$d                                  { const End }
-    $v$a$r                                  { const Var }
-    $a$r$r$a$y                              { const Arr }
-    $o$f                                    { const Of }
-    $i$f                                    { const If }
-    $t$h$e$n                                { const Then }
-    $e$l$s$e                                { const Else }
-    $w$h$i$l$e                              { const While }
-    $d$o                                    { const Do }
-    $n$o$t                                  { const Not }
-    @string                                 { Str }
-    @scinot                                 { Str }
-    @real                                   { R . read }
-    @integer                                { Z . read }
-    ($alpha)($alpha|$digit)*                { ID }
-    "("                                     { const LParen }
-    ")"                                     { const RParen }
-    ":"                                     { const Colon }
-    ";"                                     { const Semicolon }
-    "."                                     { const Period }
-    ","                                     { const Comma }
-    "["                                     { const LSB }
-    "]"                                     { const RSB }
-    ":="                                    { const Assign }
-    ">"                                     { const L }
-    "<"                                     { const S }
-    ">="                                    { const LE }
-    "<="                                    { const SE }
-    "="                                     { const E }
-    "!="                                    { const NE }
-    "+"                                     { const Plus }
-    "-"                                     { const Minus }
-    "*"                                     { const Times }
-    "/"                                     { const Div }
-    ".."                                    { const To }
+    $p$r$o$g$r$a$m                          { const TokProgram }
+    $f$u$n$c$t$i$o$n                        { const TokFunction }
+    $p$r$o$c$e$d$u$r$e                      { const TokProc }
+    $b$e$g$i$n                              { const TokBegin }
+    $e$n$d                                  { const TokEnd }
+    $v$a$r                                  { const TokVar }
+    $a$r$r$a$y                              { const TokArr }
+    $o$f                                    { const TokOf }
+    $i$f                                    { const TokIf }
+    $t$h$e$n                                { const TokThen }
+    $e$l$s$e                                { const TokElse }
+    $w$h$i$l$e                              { const TokWhile }
+    $d$o                                    { const TokDo }
+    $n$o$t                                  { const TokNot }
+    @string                                 { TokNum }
+    @scinot|@real|@integer                  { TokNum }
+    ($alpha)($alpha|$digit)*                { TokID }
+    "("                                     { const TokLParen }
+    ")"                                     { const TokRParen }
+    ":"                                     { const TokColon }
+    ";"                                     { const TokSemicolon }
+    "."                                     { const TokPeriod }
+    ","                                     { const TokComma }
+    "["                                     { const TokLSB }
+    "]"                                     { const TokRSB }
+    ":="                                    { const TokAssign }
+    ">"                                     { const TokL }
+    "<"                                     { const TokS }
+    ">="                                    { const TokLE }
+    "<="                                    { const TokSE }
+    "="                                     { const TokE }
+    "!="                                    { const TokNE }
+    "+"                                     { const TokPlus }
+    "-"                                     { const TokMinus }
+    "*"                                     { const TokTimes }
+    "/"                                     { const TokDiv }
+    ".."                                    { const TokTo }
     \0                                      ;
-    .                                       { LexicalError }
+    .                                       { TokError }
 
 
 {
