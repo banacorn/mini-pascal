@@ -84,8 +84,8 @@ tokens :-
     "<"                                     { const TokS }
     ">="                                    { const TokLE }
     "<="                                    { const TokSE }
-    "="                                     { const TokE }
-    "!="                                    { const TokNE }
+    "="                                     { const TokEq }
+    "!="                                    { const TokNEq }
     "+"                                     { const TokPlus }
     "-"                                     { const TokMinus }
     "*"                                     { const TokTimes }

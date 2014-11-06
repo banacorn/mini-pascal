@@ -50,12 +50,13 @@ import Compiler.Types
 
 %%
 
+
 program : progtok id '(' identifier_list ')' ';' declarations subprogram_declarations compound_statement '.' {
     Program $2 $4 $7 $8 $9
 }
 
 
-identifier_list : id                            { $1 }
+identifier_list : id                            { [$1] }
                 | identifier_list ',' id        { $3 : $1 }
 
 
@@ -94,7 +95,7 @@ compound_statement : begin optional_statements end  { $2 }
 
 
 optional_statements : {- empty -}       { [] }
-                    | statement_list    { $1 }
+                    | statement_list    { [$1] }
 
 
 statement_list  : statement                     { [$1] }
@@ -110,9 +111,9 @@ statement   : variable ':=' expression                      { VarStmt $1 $3 }
 
 variable : id tail  { Variable $1 $2 }
 
+
 tail    : {- empty -}                   { [] }
         | '[' expression ']' tail       { $2 : $4 }
-
 
 procedure_statement : id                            { ProcedureStmtOnlyID $1 }
                     | id '(' expression_list ')'    { ProcedureStmtWithExprs $3 }

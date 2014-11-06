@@ -48,15 +48,15 @@ data Program = Program ID [ID] [Declaration] [SubprogDec] CompoundStmt
 type ID = String
 data Declaration = Declaration [ID] Type
     deriving (Eq, Show)
-type Number = String    
+type Number = String
 data Type   = StdType StandardType
             | ArrayType (Number, Number) Type
             deriving (Eq, Show)
 data StandardType = IntType | RealType | StringType deriving (Eq, Show)
 
 data SubprogDec = SubprogDec SubprogHead [Declaration] CompoundStmt deriving (Eq, Show)
-data SubprogHead    = SubprogHeadFunc ID [Arguments] StandardType
-                    | SubprogHeadProc ID [Arguments]
+data SubprogHead    = SubprogHeadFunc ID Arguments StandardType
+                    | SubprogHeadProc ID Arguments
                     deriving (Eq, Show)
 data Arguments  = EmptyArguments
                 | Arguments [Param]

@@ -554,7 +554,7 @@ happyReduction_1 (_ `HappyStk`
 happyReduce_2 = happySpecReduce_1  5 happyReduction_2
 happyReduction_2 (HappyTerminal (TokID happy_var_1))
 	 =  HappyAbsSyn5
-		 (happy_var_1
+		 ([happy_var_1]
 	)
 happyReduction_2 _  = notHappyAtAll 
 
@@ -719,7 +719,7 @@ happyReduction_21  =  HappyAbsSyn15
 happyReduce_22 = happySpecReduce_1  15 happyReduction_22
 happyReduction_22 (HappyAbsSyn16  happy_var_1)
 	 =  HappyAbsSyn15
-		 (happy_var_1
+		 ([happy_var_1]
 	)
 happyReduction_22 _  = notHappyAtAll 
 
