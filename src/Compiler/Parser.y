@@ -132,13 +132,13 @@ simple_expression   : term                              { SimpleExprTerm $1 }
 
 
 term    : factor            { FactorTerm $1 }
+        | '-' factor        { NegTerm $2  }
         | term mulop factor { OpTerm $1 $2 $3 }
 
 
 factor  : id tail                       { IDSBFactor $1 $2 }
         | id '(' expression_list ')'    { IDPFactor $1 $3 }
         | num                           { NumFactor $1 }
-        | '-' num                       { NumFactor ((\TokNum n -> TokNum $ "-" ++ n ) $1) }
         | '(' expression ')'            { PFactor $2 }
         | not factor                    { NotFactor $2 }
 

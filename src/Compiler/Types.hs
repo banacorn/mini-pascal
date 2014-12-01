@@ -91,6 +91,7 @@ data SimpleExpr = SimpleExprTerm Term
 
 data Term   = FactorTerm Factor
             | OpTerm Term MulOp Factor
+            | NegTerm Factor
             deriving (Eq, Show)
 
 data Factor = IDSBFactor ID [Expr]

@@ -1,7 +1,5 @@
-PROGRAM foo() ;
-    var d, e: array [ -1 .. -10 ] of integer;
-
+PROGRAM foo(hah) ;
     begin
-        a := 2-99; // simple expression
+      a := 3 - - 2 // asdf
 
     end.   // this is the end of the program
