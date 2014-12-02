@@ -49,30 +49,32 @@ data Token  = TokID String         -- identifiers
 data Program = Program ID [ID] [Declaration] [SubprogDec] CompoundStmt
     deriving (Eq, Show)
 
-indent' :: Int -> [String] -> String
-indent' n xs = xs >>= (++) (replicate n ' ')
+indentBlock :: String -> String
+indentBlock str = map addNewLine (lines str) >>= (++) (replicate 4 ' ')
 
-indent :: Int -> String -> String
-indent n str = map addNewLine (lines str) >>= (++) (replicate n ' ')
+indentWith :: Serializable a => (String -> String) -> [a] -> String
+indentWith f xs = indentBlock (xs >>= f . serialize)
+
+indent :: Serializable a => [a] -> String
+indent = indentWith addNewLine
+
+suffix :: String -> String -> String
+suffix s x = x ++ s
 
 addNewLine :: String -> String
-addNewLine s = s ++ "\n"
+addNewLine = suffix "\n"
 
 instance Serializable Program where
     serialize (Program i is decs subprogdecs stmt) =
         header ++
-        indent' 4 declarations ++
-        indent' 4 subProgDeclarations ++
-        indent 4 (serialize stmt ++ ".\n")
+        indent decs ++
+        indent subprogdecs ++
+        indentBlock (serialize stmt) ++
+        ".\n"
         where
             header = "program " ++ i ++ "(" ++ serializeIDs is ++ ") ;" ++ "\n"
             serializeIDs [x] = x
             serializeIDs (x:xs) = x ++ ", " ++ serializeIDs xs
-
-            declarations = map (addNewLine . serialize) decs
-
-            subProgDeclarations = map (addNewLine . serialize) subprogdecs
-
 
 type ID = String
 data Declaration = Declaration [ID] Type
@@ -109,10 +111,8 @@ data SubprogHead    = SubprogHeadFunc ID Arguments StandardType
 instance Serializable SubprogDec where
     serialize (SubprogDec h decs stmt) =
         serialize h ++ "\n" ++
-        serializeDecs decs ++
-        indent 4 (serialize stmt)
-        where
-            serializeDecs decs = indent' 4 (map (addNewLine . serialize) decs)
+        indent decs ++
+        indentBlock (serialize stmt)
 
 instance Serializable SubprogHead where
     serialize (SubprogHeadFunc i args typ) =
@@ -147,8 +147,8 @@ data Stmt   = VarStmt Variable Expr
 
 instance Serializable CompoundStmt where
     serialize s =
-        "begin\n" ++
-        indent' 4 (map (addNewLine . serialize) s) ++
+        "begin" ++ "\n" ++
+        indentWith (suffix ";\n") s ++
         "end"
 
 instance Serializable Stmt where
@@ -156,7 +156,9 @@ instance Serializable Stmt where
     serialize (ProcStmt p) = serialize p
     serialize (CompStmt c) = serialize c
     serialize (BranchStmt e s t) =
-        "if " ++ serialize e ++ " then " ++ serialize s ++ " else " ++ serialize t
+        "if " ++ serialize e ++ "\n" ++
+        "    then " ++ serialize s ++ "\n" ++
+        "    else " ++ serialize t
     serialize (LoopStmt e s) = "while " ++ serialize e ++ " do " ++ serialize s
 
 data Variable = Variable ID [Expr]

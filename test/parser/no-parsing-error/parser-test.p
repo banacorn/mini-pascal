@@ -1,15 +1,15 @@
 PROGRAM foo(input, output, error) ;
-   // This example tests simple procedures with parameters.
-   var g: integer;
+   var a, b: integer;
 
-   procedure  sum(a, b: integer);
+   // test simple, non-recursive functions
+   function  simplesum(a: integer) : integer;
       begin
-         if a <= 0 then g := b + 9
-         else g := b * 3
+         simplesum := a * b
+         // simplesum is the return value
       end;
 
    begin
-      g := 7;
-      sum(10, 32);   // the result is 41.
-      sum(-10, 21)   // the result is 63.
+      a := 7; b := 13;
+      a := 3 + simplesum(10);   // the result is .
+      b := 1 * simplesum(-10)   // the result is .
    end.   // this is the end of the program

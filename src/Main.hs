@@ -6,15 +6,18 @@ import Compiler.Serialize
 import Data.List (intercalate)
 
 main :: IO ()
-main = testOne
+main = testAll
+
+pipeline :: String -> IO ()
+pipeline = putStr . serialize . parse . scan
 
 testOne :: IO ()
-testOne = readFile "./test/parser/no-parsing-error/parser-test.p" >>= putStr . serialize . parse . scan
+testOne = readFile "./test/parser/no-parsing-error/parser-test.p" >>= pipeline
 
 testAll :: IO ()
 testAll = mapM_ run filenames
     where
-        run s = readFile (pathPrefix ++ s) >>= print . parse . scan
+        run s = readFile (pathPrefix ++ s) >>= pipeline
         pathPrefix = "./test/parser/no-parsing-error/"
         filenames =
             [   "parser-test.p"
