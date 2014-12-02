@@ -52,7 +52,7 @@ import Compiler.Types
 
 
 program : progtok id '(' identifier_list ')' ';' declarations subprogram_declarations compound_statement '.' {
-    Program $2 $4 $7 $8 $9
+    Program $2 (reverse $4) (reverse $7) $8 $9
 }
 
 
@@ -61,7 +61,7 @@ identifier_list : id                            { [$1] }
 
 
 declarations    : {- empty -}                                       { [] }
-                | declarations var identifier_list ':' type ';'     { Declaration $3 $5 : $1 }
+                | declarations var identifier_list ':' type ';'     { Declaration (reverse $3) $5 : $1 }
 
 
 type    : standard_type                          { StdType $1 }

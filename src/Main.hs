@@ -6,7 +6,7 @@ import Compiler.Serialize
 import Data.List (intercalate)
 
 main :: IO ()
-main = testAll
+main = testOne
 
 pipeline :: String -> IO ()
 pipeline = putStr . serialize . parse . scan
