@@ -91,14 +91,10 @@ parameter_list  : identifier_list ':' type                      { [Param $1 $3] 
                 | parameter_list ';' identifier_list ':' type   { Param $3 $5 : $1  }
 
 
-compound_statement : begin optional_statements end  { $2 }
+compound_statement : begin statement_list end  { reverse $2 }
 
-
-optional_statements : {- empty -}       { [] }
-                    | statement_list    { [$1] }
-
-
-statement_list  : statement                     { [$1] }
+statement_list  : {- empty -}                   { [] }
+                | statement                     { [$1] }
                 | statement_list ';' statement  { $3 : $1 }
 
 
@@ -116,7 +112,7 @@ tail    : {- empty -}                   { [] }
         | '[' expression ']' tail       { $2 : $4 }
 
 procedure_statement : id                            { ProcedureStmtOnlyID $1 }
-                    | id '(' expression_list ')'    { ProcedureStmtWithExprs $3 }
+                    | id '(' expression_list ')'    { ProcedureStmtWithExprs $1 $3 }
 
 
 expression_list : expression                        { [$1] }
