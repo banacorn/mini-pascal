@@ -10,7 +10,7 @@ main :: IO ()
 main = do
     source <- testOne
     let parseTree = parse (scan source)
-    draw $ getScope parseTree
+    draw . head $ getScope parseTree
     draw parseTree
 
 draw :: Serializable a => a -> IO ()

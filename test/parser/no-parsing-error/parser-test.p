@@ -8,14 +8,24 @@ PROGRAM foo(input, output, error) ;
    procedure sort(a: array [ 1 .. 10 ] of integer);
       var a, b, c: integer; // duplicated declaration
       begin
-        e := a   // array assignment, global variable
+        e := a;   // array assignment, global variable
+        a := b;
+        sort(a);
+        begin
+            a := b;
+            c := d
+        end
       end;
 
 
    function  addition(a, b: integer) : integer;
       var c: integer;  // local declaration
       begin
-         addition := a + b   // this is the return value
+            if a = 0
+                then
+                    addition := b
+                else 
+                    addition := a + b   // this is the return value
       end;
 
 

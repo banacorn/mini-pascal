@@ -55,7 +55,7 @@ instance HasSymbol ParseTree where
     getSymbol _ = []
 
 instance HasScope ParseTree where
-    getScope (ParseTree program) = Scope "Program" [] [getScope program]
+    getScope (ParseTree program) = [Scope "Program" [] (getScope program)]
 
 data Program = Program ID [ID] [Declaration] [SubprogDec] CompoundStmt
     deriving (Eq, Show)
@@ -83,10 +83,10 @@ instance HasSymbol Program where
         (map getID subs)
 
 instance HasScope Program where
-    getScope p@(Program i is decs subs comp) = Scope i symbols scopes
+    getScope p@(Program i is decs subs comp) = [Scope i symbols scopes]
         where
             symbols = getSymbol p
-            scopes = map getScope subs -- ++ collectScope stmt
+            scopes = (subs >>= getScope) ++ [] -- undefined
 
 type ID = String
 data Declaration = Declaration [ID] Type
@@ -135,7 +135,7 @@ instance HasSymbol SubprogDec where
         (decs >>= getSymbol)
 
 instance HasScope SubprogDec where
-    getScope p@(SubprogDec header decs comp) = Scope (getID header) symbols [scopes]
+    getScope p@(SubprogDec header decs comp) = [Scope (getID header) symbols scopes]
         where
             symbols = getSymbol p
             scopes = getScope comp
@@ -196,10 +196,10 @@ instance HasSymbol CompoundStmt where
     getSymbol (CompoundStmt stmts) = stmts >>= getSymbol
 
 instance HasScope CompoundStmt where
-    getScope p@(CompoundStmt stmts) = Scope "" symbols scopes
+    getScope p@(CompoundStmt stmts) = [Scope "" symbols scopes]
         where
             symbols = getSymbol p
-            scopes = [] -- undefind
+            scopes = stmts >>= getScope
 
 data Stmt   = VarStmt Variable Expr
             | ProcStmt ProcedureStmt
@@ -222,9 +222,16 @@ instance Serializable Stmt where
 instance HasSymbol Stmt where
     getSymbol (VarStmt var expr) = getSymbol var ++ getSymbol expr
     getSymbol (ProcStmt p) = getSymbol p
-    getSymbol (CompStmt c) = getSymbol c
+    getSymbol (CompStmt c) = []
     getSymbol (BranchStmt e s t) = getSymbol e
     getSymbol (LoopStmt e s) = getSymbol e
+
+instance HasScope Stmt where
+    getScope (VarStmt _ _) = []
+    getScope (ProcStmt _) = []
+    getScope (CompStmt c) = getScope c
+    getScope (BranchStmt e s t) = getScope s ++ getScope t
+    getScope (LoopStmt e s) = getScope s
 
 data Variable = Variable ID [Expr] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)

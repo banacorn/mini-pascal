@@ -6,7 +6,7 @@ type Depth = Int
 type Symbol = String
 type SymbolTable = [(Symbol, Depth)]
 
-data Scope = Scope String [Symbol] [Scope]
+data Scope  = Scope String [Symbol] [Scope]
     deriving (Eq, Show)
 
 instance Serializable Scope where
@@ -15,8 +15,7 @@ instance Serializable Scope where
         indent ([show symbols] ++ map serialize scopes)
 
 class HasScope a where
-    getScope :: a -> Scope
-
+    getScope :: a -> [Scope]
 
 class HasID a where
     getID :: a -> String
