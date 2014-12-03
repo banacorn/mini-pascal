@@ -56,7 +56,7 @@ instance HasSymbol ParseTree where
     getSymbol _ = []
 
 instance HasScope ParseTree where
-    getScope (ParseTree program) = Scope [] [getScope program]
+    getScope (ParseTree program) = Scope "Program" [] [getScope program]
 
 data Program = Program ID [ID] [Declaration] [SubprogDec] CompoundStmt
     deriving (Eq, Show)
@@ -81,13 +81,13 @@ instance HasSymbol Program where
     getSymbol (Program _ is decs subs comp) =
         is ++
         (decs >>= getSymbol) ++
-        (subs >>= getSymbol)
+        (map getID subs)
 
 instance HasScope Program where
-    getScope p@(Program i is decs subs comp) = Scope symbols scopes
+    getScope p@(Program i is decs subs comp) = Scope i symbols scopes
         where
             symbols = withDepth 0 (getSymbol p)
-            scopes = [] -- map getScope subs -- ++ collectScope stmt
+            scopes = map getScope subs -- ++ collectScope stmt
 
 type ID = String
 data Declaration = Declaration [ID] Type
@@ -120,9 +120,6 @@ instance Serializable StandardType where
     serialize StringType = "string"
 
 data SubprogDec = SubprogDec SubprogHead [Declaration] CompoundStmt deriving (Eq, Show)
-data SubprogHead    = SubprogHeadFunc ID Arguments StandardType
-                    | SubprogHeadProc ID Arguments
-                    deriving (Eq, Show)
 
 instance Serializable SubprogDec where
     serialize (SubprogDec header decs comp) =
@@ -134,17 +131,22 @@ instance HasID SubprogDec where
     getID (SubprogDec header _ _) = getID header
 
 instance HasSymbol SubprogDec where
-    getSymbol (SubprogDec _ decs comp) = [] -- decs >= getScope
---
--- instance HasScope SubprogDec where
---     getScope (SubprogDec head decs compstmt) = Scope symbols scopes
---         where
---             symbols = undefined
---             scopes = undefined
---
-instance HasID SubprogHead where
-    getID (SubprogHeadFunc i _ _) = i
-    getID (SubprogHeadProc i _) = i
+    getSymbol (SubprogDec header decs comp) =
+        getSymbol header ++
+        [] -- decs >= getSymbol
+
+
+
+instance HasScope SubprogDec where
+    getScope p@(SubprogDec header decs comp) = Scope (getID header) symbols scopes
+        where
+            symbols = withDepth 0 (getSymbol p)
+            scopes = []
+
+data SubprogHead    = SubprogHeadFunc ID Arguments StandardType
+                    | SubprogHeadProc ID Arguments
+                    deriving (Eq, Show)
+
 
 instance Serializable SubprogHead where
     serialize (SubprogHeadFunc i args typ) =
@@ -152,12 +154,17 @@ instance Serializable SubprogHead where
     serialize (SubprogHeadProc i args) =
         "procedure " ++ i ++ serialize args ++ ";"
 
+instance HasID SubprogHead where
+    getID (SubprogHeadFunc i _ _) = i
+    getID (SubprogHeadProc i _) = i
+
+instance HasSymbol SubprogHead where
+    getSymbol (SubprogHeadFunc _ args _) = getSymbol args
+    getSymbol (SubprogHeadProc _ args) = getSymbol args
 
 data Arguments  = EmptyArguments
                 | Arguments [Param]
                 deriving (Eq, Show)
-data Param = Param [ID] Type
-    deriving (Eq, Show)
 
 instance Serializable Arguments where
     serialize EmptyArguments = ""
@@ -165,9 +172,19 @@ instance Serializable Arguments where
         where
             serializeArgs = intercalate "; " (map serialize xs)
 
+instance HasSymbol Arguments where
+    getSymbol EmptyArguments = []
+    getSymbol (Arguments xs) = xs >>= getSymbol
+
+data Param = Param [ID] Type
+    deriving (Eq, Show)
+
 instance Serializable Param where
     serialize (Param ids t) = serializeIDs ++ ": " ++ serialize t
         where   serializeIDs = intercalate ", " ids
+
+instance HasSymbol Param where
+    getSymbol (Param ids _) = ids
 
 type CompoundStmt = [Stmt]
 data Stmt   = VarStmt Variable Expr

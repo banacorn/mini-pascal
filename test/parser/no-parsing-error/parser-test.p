@@ -4,19 +4,20 @@ PROGRAM foo(input, output, error) ;
    var a, b, c: integer;
    var d, e: array [ 1 .. 10 ] of integer;
 
-   // test simple, non-recursive functions
-   function  simplesum(a: integer) : integer;
+   // procedure and function declarations
+   procedure sort(a: array [ 1 .. 10 ] of integer);
+      var a, b, c: integer; // duplicated declaration
       begin
-         simplesum := a * b
-         // simplesum is the return value
+        e := a   // array assignment, global variable
       end;
 
-   procedure  sum(a, b: integer);
+
+   function  addition(a, b: integer) : integer;
+      var c: integer;  // local declaration
       begin
-         if a <= 0 then g := b + 9
-         else g := b * 3
+         addition := a + b   // this is the return value
       end;
-      
+
 
    begin
       a := 2+ -99; // simple expression

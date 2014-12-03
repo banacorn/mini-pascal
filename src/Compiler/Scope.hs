@@ -5,14 +5,13 @@ import Compiler.Serialize
 type Depth = Int
 type SymbolTable = [(String, Depth)]
 
-data Scope = Scope SymbolTable [Scope]
+data Scope = Scope String SymbolTable [Scope]
     deriving (Eq, Show)
 
 instance Serializable Scope where
-    serialize (Scope symbols scopes) =
-        "Scope\n" ++
+    serialize (Scope name symbols scopes) =
+        "Scope: " ++ name ++ "\n" ++
         indent ([show symbols] ++ map serialize scopes)
-
 
 class HasScope a where
     getScope :: a -> Scope
