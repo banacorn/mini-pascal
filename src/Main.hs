@@ -3,16 +3,24 @@ module Compiler where
 import Compiler.Lexer
 import Compiler.Parser
 import Compiler.Serialize
+import Compiler.Scope
 import Data.List (intercalate)
 
 main :: IO ()
-main = testOne
+main = do
+    source <- testOne
+    let parseTree = parse (scan source)
+    draw $ getScope parseTree
+    draw parseTree
+
+draw :: Serializable a => a -> IO ()
+draw = putStrLn . serialize
 
 pipeline :: String -> IO ()
-pipeline = putStr . serialize . parse . scan
+pipeline = print . getScope . parse . scan
 
-testOne :: IO ()
-testOne = readFile "./test/parser/no-parsing-error/parser-test.p" >>= pipeline
+testOne :: IO String
+testOne = readFile "./test/parser/no-parsing-error/parser-test.p"
 
 testAll :: IO ()
 testAll = mapM_ run filenames

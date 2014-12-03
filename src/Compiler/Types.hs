@@ -2,6 +2,7 @@
 module Compiler.Types where
 
 import Compiler.Serialize
+import Compiler.Scope
 import Data.List (intercalate, elemIndices)
 
 data Token  = TokID String         -- identifiers
@@ -46,20 +47,47 @@ data Token  = TokID String         -- identifiers
             | TokError String
     deriving (Eq, Show)
 
+data ParseTree = ParseTree Program
+
+instance Serializable ParseTree where
+    serialize (ParseTree program) = serialize program
+
+instance HasSymbol ParseTree where
+    getSymbol _ = []
+
+instance HasScope ParseTree where
+    getScope (ParseTree program) = Scope [] [getScope program]
+
 data Program = Program ID [ID] [Declaration] [SubprogDec] CompoundStmt
     deriving (Eq, Show)
 
 instance Serializable Program where
-    serialize (Program i is decs subprogdecs stmt) =
-        header ++
-        indent decs ++
+    serialize (Program i is decs subprogdecs comp) =
+        "\n" ++
+        header ++ "\n" ++
+        indent decs ++ "\n" ++
         indent subprogdecs ++
-        indentBlock (serialize stmt) ++
+        indentBlock (serialize comp) ++
         ".\n"
         where
             header = "program " ++ i ++ "(" ++ serializeIDs is ++ ") ;" ++ "\n"
             serializeIDs [x] = x
             serializeIDs (x:xs) = x ++ ", " ++ serializeIDs xs
+
+instance HasID Program where
+    getID (Program i _ _ _ _) = i
+
+instance HasSymbol Program where
+    getSymbol (Program _ is decs subs comp) =
+        is ++
+        (decs >>= getSymbol) ++
+        (subs >>= getSymbol)
+
+instance HasScope Program where
+    getScope p@(Program i is decs subs comp) = Scope symbols scopes
+        where
+            symbols = withDepth 0 (getSymbol p)
+            scopes = [] -- map getScope subs -- ++ collectScope stmt
 
 type ID = String
 data Declaration = Declaration [ID] Type
@@ -72,6 +100,9 @@ instance Serializable Declaration where
         where
             serializeIDs [x] = x
             serializeIDs (x:xs) = x ++ ", " ++ serializeIDs xs
+
+instance HasSymbol Declaration where
+    getSymbol (Declaration ids _) = ids
 
 type Number = String
 data Type   = StdType StandardType
@@ -94,10 +125,26 @@ data SubprogHead    = SubprogHeadFunc ID Arguments StandardType
                     deriving (Eq, Show)
 
 instance Serializable SubprogDec where
-    serialize (SubprogDec h decs stmt) =
-        serialize h ++ "\n" ++
+    serialize (SubprogDec header decs comp) =
+        serialize header ++ "\n" ++
         indent decs ++
-        indentBlock (serialize stmt)
+        indentBlock (serialize comp)
+
+instance HasID SubprogDec where
+    getID (SubprogDec header _ _) = getID header
+
+instance HasSymbol SubprogDec where
+    getSymbol (SubprogDec _ decs comp) = [] -- decs >= getScope
+--
+-- instance HasScope SubprogDec where
+--     getScope (SubprogDec head decs compstmt) = Scope symbols scopes
+--         where
+--             symbols = undefined
+--             scopes = undefined
+--
+instance HasID SubprogHead where
+    getID (SubprogHeadFunc i _ _) = i
+    getID (SubprogHeadProc i _) = i
 
 instance Serializable SubprogHead where
     serialize (SubprogHeadFunc i args typ) =

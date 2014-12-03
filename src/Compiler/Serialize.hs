@@ -1,8 +1,12 @@
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+
 module Compiler.Serialize where
 
 class Serializable a where
     serialize :: a -> String
 
+instance Serializable String where
+    serialize = id
 
 indentBlock :: String -> String
 indentBlock str = map addNewLine (lines str) >>= (++) (replicate 4 ' ')

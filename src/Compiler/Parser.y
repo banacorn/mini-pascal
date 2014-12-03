@@ -52,7 +52,7 @@ import Compiler.Types
 
 
 program : progtok id '(' identifier_list ')' ';' declarations subprogram_declarations compound_statement '.' {
-    Program $2 (reverse $4) (reverse $7) $8 $9
+    ParseTree (Program $2 (reverse $4) (reverse $7) (reverse $8) $9)
 }
 
 
