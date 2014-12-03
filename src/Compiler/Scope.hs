@@ -3,9 +3,10 @@ module Compiler.Scope where
 import Compiler.Serialize
 
 type Depth = Int
-type SymbolTable = [(String, Depth)]
+type Symbol = String
+type SymbolTable = [(Symbol, Depth)]
 
-data Scope = Scope String SymbolTable [Scope]
+data Scope = Scope String [Symbol] [Scope]
     deriving (Eq, Show)
 
 instance Serializable Scope where

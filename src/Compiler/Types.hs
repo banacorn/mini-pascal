@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 module Compiler.Types where
 
 import Compiler.Serialize
@@ -86,7 +85,7 @@ instance HasSymbol Program where
 instance HasScope Program where
     getScope p@(Program i is decs subs comp) = Scope i symbols scopes
         where
-            symbols = withDepth 0 (getSymbol p)
+            symbols = getSymbol p
             scopes = map getScope subs -- ++ collectScope stmt
 
 type ID = String
@@ -133,15 +132,13 @@ instance HasID SubprogDec where
 instance HasSymbol SubprogDec where
     getSymbol (SubprogDec header decs comp) =
         getSymbol header ++
-        [] -- decs >= getSymbol
-
-
+        (decs >>= getSymbol)
 
 instance HasScope SubprogDec where
-    getScope p@(SubprogDec header decs comp) = Scope (getID header) symbols scopes
+    getScope p@(SubprogDec header decs comp) = Scope (getID header) symbols [scopes]
         where
-            symbols = withDepth 0 (getSymbol p)
-            scopes = []
+            symbols = getSymbol p
+            scopes = getScope comp
 
 data SubprogHead    = SubprogHeadFunc ID Arguments StandardType
                     | SubprogHeadProc ID Arguments
@@ -186,7 +183,24 @@ instance Serializable Param where
 instance HasSymbol Param where
     getSymbol (Param ids _) = ids
 
-type CompoundStmt = [Stmt]
+data CompoundStmt = CompoundStmt [Stmt]
+    deriving (Eq, Show)
+
+instance Serializable CompoundStmt where
+    serialize (CompoundStmt stmts) =
+        "begin" ++ "\n" ++
+        indentWith (suffix ";\n") stmts ++
+        "end"
+
+instance HasSymbol CompoundStmt where
+    getSymbol (CompoundStmt stmts) = stmts >>= getSymbol
+
+instance HasScope CompoundStmt where
+    getScope p@(CompoundStmt stmts) = Scope "" symbols scopes
+        where
+            symbols = getSymbol p
+            scopes = [] -- undefind
+
 data Stmt   = VarStmt Variable Expr
             | ProcStmt ProcedureStmt
             | CompStmt CompoundStmt
@@ -194,11 +208,6 @@ data Stmt   = VarStmt Variable Expr
             | LoopStmt Expr Stmt
             deriving (Eq, Show)
 
-instance Serializable CompoundStmt where
-    serialize s =
-        "begin" ++ "\n" ++
-        indentWith (suffix ";\n") s ++
-        "end"
 
 instance Serializable Stmt where
     serialize (VarStmt v e) = serialize v ++ " := " ++ serialize e
@@ -210,12 +219,18 @@ instance Serializable Stmt where
         "    else " ++ serialize t
     serialize (LoopStmt e s) = "while " ++ serialize e ++ " do " ++ serialize s
 
-data Variable = Variable ID [Expr]
+instance HasSymbol Stmt where
+    getSymbol (VarStmt var expr) = getSymbol var ++ getSymbol expr
+
+data Variable = Variable ID [Expr] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)
 
 instance Serializable Variable where
     serialize (Variable i es) = i ++ concat (map showSBExpr es)
         where   showSBExpr e = "[" ++ serialize e ++ "]"
+
+instance HasSymbol Variable where
+    getSymbol (Variable i exprs) = [i] ++ (exprs >>= getSymbol)
 
 data ProcedureStmt  = ProcedureStmtOnlyID ID
                     | ProcedureStmtWithExprs ID [Expr]
@@ -234,6 +249,10 @@ instance Serializable Expr where
     serialize (UnaryExpr e) = serialize e
     serialize (BinaryExpr a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
 
+instance HasSymbol Expr where
+    getSymbol (UnaryExpr expr) = getSymbol expr
+    getSymbol (BinaryExpr a op b) = getSymbol a ++ getSymbol b
+
 data SimpleExpr = SimpleExprTerm Term
                 | SimpleExprOp SimpleExpr AddOp Term
                 deriving (Eq, Show)
@@ -241,6 +260,10 @@ data SimpleExpr = SimpleExprTerm Term
 instance Serializable SimpleExpr where
     serialize (SimpleExprTerm t) = serialize t
     serialize (SimpleExprOp a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+
+instance HasSymbol SimpleExpr where
+    getSymbol (SimpleExprTerm term) = getSymbol term
+    getSymbol (SimpleExprOp a op b) = getSymbol a ++ getSymbol b
 
 data Term   = FactorTerm Factor
             | OpTerm Term MulOp Factor
@@ -252,6 +275,10 @@ instance Serializable Term where
     serialize (OpTerm a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
     serialize (NegTerm f) = "-" ++ serialize f
 
+instance HasSymbol Term where
+    getSymbol (FactorTerm t) = getSymbol t
+    getSymbol (OpTerm a op b) = getSymbol a ++ getSymbol b
+
 data Factor = IDSBFactor ID [Expr]  -- id[]
             | IDPFactor ID [Expr]   -- id()
             | NumFactor String
@@ -260,7 +287,7 @@ data Factor = IDSBFactor ID [Expr]  -- id[]
             deriving (Eq, Show)
 
 instance Serializable Factor where
-    serialize (IDSBFactor i e) = i ++ concat (map serialize e)
+    serialize (IDSBFactor i es) = i ++ concat (map serialize es)
         where   serializeSBExpr a = "[" ++ serialize a ++ "]"
     serialize (IDPFactor i es)  = i ++ "(" ++ serializeExpr ++ ")"
         where   serializeExpr = intercalate ", " (map serialize es)
@@ -268,6 +295,12 @@ instance Serializable Factor where
     serialize (PFactor e) = serialize e
     serialize (NotFactor f) = "not " ++ serialize f
 
+instance HasSymbol Factor where
+    getSymbol (IDSBFactor i exprs) = [i] ++ (exprs >>= getSymbol)
+    getSymbol (IDPFactor i exprs) = [i] ++ (exprs >>= getSymbol)
+    getSymbol (NumFactor _) = []
+    getSymbol (PFactor expr) = getSymbol expr
+    getSymbol (NotFactor f) = getSymbol f
 
 data AddOp = Plus | Minus deriving (Eq, Show)
 data MulOp = Mul | Div deriving (Eq, Show)

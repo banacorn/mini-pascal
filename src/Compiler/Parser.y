@@ -91,7 +91,7 @@ parameter_list  : identifier_list ':' type                      { [Param $1 $3] 
                 | parameter_list ';' identifier_list ':' type   { Param $3 $5 : $1  }
 
 
-compound_statement : begin statement_list end  { reverse $2 }
+compound_statement : begin statement_list end  { CompoundStmt (reverse $2) }
 
 statement_list  : {- empty -}                   { [] }
                 | statement                     { [$1] }
