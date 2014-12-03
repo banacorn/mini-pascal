@@ -221,6 +221,10 @@ instance Serializable Stmt where
 
 instance HasSymbol Stmt where
     getSymbol (VarStmt var expr) = getSymbol var ++ getSymbol expr
+    getSymbol (ProcStmt p) = getSymbol p
+    getSymbol (CompStmt c) = getSymbol c
+    getSymbol (BranchStmt e s t) = getSymbol e
+    getSymbol (LoopStmt e s) = getSymbol e
 
 data Variable = Variable ID [Expr] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)
@@ -232,6 +236,7 @@ instance Serializable Variable where
 instance HasSymbol Variable where
     getSymbol (Variable i exprs) = [i] ++ (exprs >>= getSymbol)
 
+-- procedure invocation
 data ProcedureStmt  = ProcedureStmtOnlyID ID
                     | ProcedureStmtWithExprs ID [Expr]
                     deriving (Eq, Show)
@@ -240,6 +245,10 @@ instance Serializable ProcedureStmt where
     serialize (ProcedureStmtOnlyID i) = i
     serialize (ProcedureStmtWithExprs i es) = i ++ "(" ++ serializeExpr ++ ")"
         where   serializeExpr = intercalate ", " (map serialize es)
+
+instance HasSymbol ProcedureStmt where
+    getSymbol (ProcedureStmtOnlyID i) = [i]
+    getSymbol (ProcedureStmtWithExprs i exprs) = [i] ++ (exprs >>= getSymbol)
 
 data Expr   = UnaryExpr SimpleExpr
             | BinaryExpr SimpleExpr Relop SimpleExpr
