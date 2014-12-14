@@ -6,6 +6,7 @@ import Compiler.Lexer
 
 %name parse
 %tokentype { Token }
+%monad { Pipeline } { >>= } { return }
 %error { parseError }
 
 %token

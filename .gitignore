@@ -28,7 +28,7 @@
 *.x86_64
 *.hex
 
-dist
+dist/*
 cabal-dev
 *.o
 *.hi

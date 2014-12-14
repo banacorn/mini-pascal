@@ -1,9 +1,42 @@
 module Compiler.Types where
 
-import Compiler.Serialize
-import Compiler.Scope
+import Control.Monad.Error
 import Data.List (intercalate)
 
+import Compiler.Serialize
+import Compiler.Scope
+
+-- Pipeline
+type Pipeline = ErrorT PipelineError IO
+
+data Position = Position {
+        posOffset :: Int
+    ,   posLine :: Int
+    ,   posColumn :: Int
+    }
+
+instance Show Position where
+    show (Position offset line column) =
+        "line " ++ show line
+        ++ " column " ++ show column
+
+data PipelineError  = FileError String
+                    | LexError Position String
+                    | ParseError Position String
+                    | SemanticError String
+
+instance Error PipelineError
+instance Show PipelineError where
+    show (FileError e) = e
+    show (LexError pos msg) = "Lex Error: \n"
+        ++ show pos ++ "\n"
+        ++ show msg
+    show (ParseError pos msg) = "Lex Error: \n"
+        ++ show pos ++ "\n"
+        ++ msg
+    show (SemanticError e) = e
+
+-- AST
 data ParseTree = ParseTree Program
     deriving (Eq, Show)
 

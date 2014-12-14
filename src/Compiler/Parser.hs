@@ -1058,31 +1058,17 @@ happyNewToken action sts stk (tk:tks) =
 happyError_ 67 tk tks = happyError' tks
 happyError_ _ tk tks = happyError' (tk:tks)
 
-newtype HappyIdentity a = HappyIdentity a
-happyIdentity = HappyIdentity
-happyRunIdentity (HappyIdentity a) = a
-
-instance Functor HappyIdentity where
-    fmap f (HappyIdentity a) = HappyIdentity (f a)
-
-instance Applicative HappyIdentity where
-    pure    = return
-    a <*> b = (fmap id a) <*> b
-instance Monad HappyIdentity where
-    return = HappyIdentity
-    (HappyIdentity p) >>= q = q p
-
-happyThen :: () => HappyIdentity a -> (a -> HappyIdentity b) -> HappyIdentity b
+happyThen :: () => Pipeline a -> (a -> Pipeline b) -> Pipeline b
 happyThen = (>>=)
-happyReturn :: () => a -> HappyIdentity a
+happyReturn :: () => a -> Pipeline a
 happyReturn = (return)
 happyThen1 m k tks = (>>=) m (\a -> k a tks)
-happyReturn1 :: () => a -> b -> HappyIdentity a
+happyReturn1 :: () => a -> b -> Pipeline a
 happyReturn1 = \a tks -> (return) a
-happyError' :: () => [(Token)] -> HappyIdentity a
-happyError' = HappyIdentity . parseError
+happyError' :: () => [(Token)] -> Pipeline a
+happyError' = parseError
 
-parse tks = happyRunIdentity happySomeParser where
+parse tks = happySomeParser where
   happySomeParser = happyThen (happyParse action_0 tks) (\x -> case x of {HappyAbsSyn4 z -> happyReturn z; _other -> notHappyAtAll })
 
 happySeq = happyDontSeq

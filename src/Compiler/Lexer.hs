@@ -2,6 +2,10 @@
 {-# LINE 1 "src/Compiler/Lexer.x" #-}
 
 module Compiler.Lexer (TokenM(..), Token(..), AlexPosn(..), constant, unary, scan) where
+import Compiler.Types
+import Data.List (find)
+import Control.Monad.Error (throwError)
+
 
 #if __GLASGOW_HASKELL__ >= 603
 #include "ghcconfig.h"
@@ -186,14 +190,17 @@ alex_deflt :: Array Int Int
 alex_deflt = listArray (0,150) [-1,1,-1,-1,-1,-1,-1,-1,-1,-1,18,18,20,20,22,22,24,24,28,28,31,31,34,34,37,37,1,1,1,41,41,41,42,42,42,149,149,149,-1,-1,-1,41,42,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,41]
 
 alex_accept = listArray (0::Int,150) [AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccSkip,AlexAccSkip,AlexAcc (alex_action_2),AlexAcc (alex_action_3),AlexAcc (alex_action_4),AlexAcc (alex_action_5),AlexAcc (alex_action_6),AlexAcc (alex_action_7),AlexAcc (alex_action_8),AlexAcc (alex_action_9),AlexAcc (alex_action_10),AlexAcc (alex_action_11),AlexAcc (alex_action_12),AlexAcc (alex_action_13),AlexAcc (alex_action_14),AlexAcc (alex_action_15),AlexAcc (alex_action_16),AlexAcc (alex_action_17),AlexAcc (alex_action_18),AlexAcc (alex_action_19),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_22),AlexAcc (alex_action_23),AlexAcc (alex_action_24),AlexAcc (alex_action_25),AlexAcc (alex_action_26),AlexAcc (alex_action_27),AlexAcc (alex_action_28),AlexAcc (alex_action_29),AlexAcc (alex_action_30),AlexAcc (alex_action_31),AlexAcc (alex_action_32),AlexAcc (alex_action_33),AlexAcc (alex_action_34),AlexAcc (alex_action_35),AlexAcc (alex_action_36),AlexAcc (alex_action_37),AlexAcc (alex_action_38),AlexAcc (alex_action_39),AlexAcc (alex_action_40),AlexAcc (alex_action_41),AlexAccSkip,AlexAcc (alex_action_43),AlexAcc (alex_action_43),AlexAcc (alex_action_43),AlexAcc (alex_action_43)]
-{-# LINE 97 "src/Compiler/Lexer.x" #-}
+{-# LINE 101 "src/Compiler/Lexer.x" #-}
 
+
+toPosition :: AlexPosn -> Position
+toPosition (AlexPn o l c) = Position o l c
 
 constant :: Token -> AlexPosn -> String -> TokenM
-constant tok pos _ = (tok, pos)
+constant tok pos _ = (tok, toPosition pos)
 
 unary :: (String -> Token) -> AlexPosn -> String -> TokenM
-unary tok pos s = (tok s, pos)
+unary tok pos s = (tok s, toPosition pos)
 
 data Token  = TokID String         -- identifiers
             | TokLParen            -- (
@@ -237,10 +244,16 @@ data Token  = TokID String         -- identifiers
             | TokError String      -- anything else
             deriving (Eq, Show)
 
-type TokenM = (Token, AlexPosn)
+type TokenM = (Token, Position)
 
-scan :: String -> [TokenM]
-scan = alexScanTokens
+scan :: String -> Pipeline [TokenM]
+scan source = do
+    let tokens = alexScanTokens source
+    case find isTokError tokens of
+        Just (tok, pos) -> throwError $ LexError pos (show tok)
+        Nothing         -> return tokens
+    where   isTokError (TokError _, _) = True
+            isTokError _               = False
 
 alex_action_2 =  constant TokProgram 
 alex_action_3 =  constant TokFunction 

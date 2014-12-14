@@ -4,11 +4,41 @@ import Compiler.Lexer
 import Compiler.Parser
 import Compiler.Serialize
 import Compiler.Scope
+import Compiler.Types
+
+import Control.Monad.Error
+import Control.Exception (try, IOException)
 import Data.List (intercalate)
+import System.Environment (getArgs)
+
+
+throw :: PipelineError -> Pipeline a
+throw = throwError
+
+getPath :: Pipeline String
+getPath = do
+    args <- liftIO getArgs
+    case args of
+        []      -> throw $ FileError "no input file"
+        (x:_)   -> return x
+
+readSource :: String -> Pipeline String
+readSource path = do
+    result <- liftIO $ try (readFile path) :: Pipeline (Either IOException String)
+    case result of
+        Left  _ -> throwError $ FileError $ "input file " ++ path ++ " does not exists"
+        Right s -> return s
 
 main :: IO ()
 main = do
-    print "shit"
+    result <- runErrorT pipeline
+    case result of
+        Left    err -> print err
+        Right   src -> print src
+
+
+pipeline = readSource "./test/scanner/scanner-test01.p" >>= scan
+
 
 -- main :: IO ()
 -- main = do
