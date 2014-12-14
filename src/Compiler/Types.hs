@@ -4,48 +4,6 @@ import Compiler.Serialize
 import Compiler.Scope
 import Data.List (intercalate)
 
-data Token  = TokID String         -- identifiers
-            | TokLParen            -- (
-            | TokRParen            -- )
-            | TokSemicolon         -- ;
-            | TokColon             -- :
-            | TokPeriod            -- .
-            | TokComma             -- ,
-            | TokLSB               -- [
-            | TokRSB               -- ]
-            | TokTypeInt           -- "integer"
-            | TokTypeReal          -- "real"
-            | TokTypeStr           -- "string"
-            | TokNum String        -- numbers
-            | TokProgram           -- "program"
-            | TokFunction          -- "function"
-            | TokProc              -- "procedure"
-            | TokBegin             -- "begin"
-            | TokEnd               -- "end"
-            | TokVar               -- "var"
-            | TokArr               -- "array"
-            | TokOf                -- "of"
-            | TokIf                -- "if"
-            | TokThen              -- "then"
-            | TokElse              -- "else"
-            | TokWhile             -- "while"
-            | TokDo                -- "do"
-            | TokAssign            -- :=
-            | TokS                 -- <
-            | TokL                 -- >
-            | TokSE                -- <=
-            | TokLE                -- >=
-            | TokEq                 -- =
-            | TokNEq                -- !=
-            | TokPlus              -- +
-            | TokMinus             -- -
-            | TokTimes             -- *
-            | TokDiv               -- /
-            | TokNot               -- "not"
-            | TokTo                -- ..
-            | TokError String
-    deriving (Eq, Show)
-
 data ParseTree = ParseTree Program
     deriving (Eq, Show)
 
@@ -95,7 +53,7 @@ data Declaration = Declaration [ID] Type
     deriving (Eq, Show)
 
 instance Serializable Declaration where
-    serialize (Declaration [] t) = []
+    serialize (Declaration [] _) = []
     serialize (Declaration ids t) =
         "var " ++ serializeIDs ids ++ " : " ++ serialize t ++ ";"
         where
@@ -131,12 +89,12 @@ instance HasID SubprogDec where
     getID (SubprogDec header _ _) = getID header
 
 instance HasSymbol SubprogDec where
-    getSymbol (SubprogDec header decs comp) =
+    getSymbol (SubprogDec header decs _) =
         getSymbol header ++
         (decs >>= getSymbol)
 
 instance HasScope SubprogDec where
-    getScope p@(SubprogDec header decs comp) = [Scope (getID header) symbols scopes]
+    getScope p@(SubprogDec header _ comp) = [Scope (getID header) symbols scopes]
         where
             symbols = getSymbol p
             scopes = getScope comp
@@ -223,16 +181,16 @@ instance Serializable Stmt where
 instance HasSymbol Stmt where
     getSymbol (VarStmt var expr) = getSymbol var ++ getSymbol expr
     getSymbol (ProcStmt p) = getSymbol p
-    getSymbol (CompStmt c) = []
-    getSymbol (BranchStmt e s t) = getSymbol e
-    getSymbol (LoopStmt e s) = getSymbol e
+    getSymbol (CompStmt _) = []
+    getSymbol (BranchStmt e _ _) = getSymbol e
+    getSymbol (LoopStmt e _) = getSymbol e
 
 instance HasScope Stmt where
     getScope (VarStmt _ _) = []
     getScope (ProcStmt _) = []
     getScope (CompStmt c) = getScope c
-    getScope (BranchStmt e s t) = getScope s ++ getScope t
-    getScope (LoopStmt e s) = getScope s
+    getScope (BranchStmt _ s t) = getScope s ++ getScope t
+    getScope (LoopStmt _ s) = getScope s
 
 data Variable = Variable ID [Expr] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)
@@ -268,7 +226,7 @@ instance Serializable Expr where
 
 instance HasSymbol Expr where
     getSymbol (UnaryExpr expr) = getSymbol expr
-    getSymbol (BinaryExpr a op b) = getSymbol a ++ getSymbol b
+    getSymbol (BinaryExpr a _ b) = getSymbol a ++ getSymbol b
 
 data SimpleExpr = SimpleExprTerm Term
                 | SimpleExprOp SimpleExpr AddOp Term
@@ -280,7 +238,7 @@ instance Serializable SimpleExpr where
 
 instance HasSymbol SimpleExpr where
     getSymbol (SimpleExprTerm term) = getSymbol term
-    getSymbol (SimpleExprOp a op b) = getSymbol a ++ getSymbol b
+    getSymbol (SimpleExprOp a _ b) = getSymbol a ++ getSymbol b
 
 data Term   = FactorTerm Factor
             | OpTerm Term MulOp Factor
@@ -294,7 +252,7 @@ instance Serializable Term where
 
 instance HasSymbol Term where
     getSymbol (FactorTerm t) = getSymbol t
-    getSymbol (OpTerm a op b) = getSymbol a ++ getSymbol b
+    getSymbol (OpTerm a _ b) = getSymbol a ++ getSymbol b
     getSymbol (NegTerm f) = getSymbol f
 
 data Factor = IDSBFactor ID [Expr]  -- id[]

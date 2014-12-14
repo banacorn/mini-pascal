@@ -8,7 +8,7 @@ import Data.List (intercalate)
 
 main :: IO ()
 main = do
-    
+    print "shit"
 
 -- main :: IO ()
 -- main = do

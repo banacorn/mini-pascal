@@ -1,10 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LINE 1 "src/Compiler/Lexer.x" #-}
 
-
-module Compiler.Lexer where
-
-import Compiler.Types
+module Compiler.Lexer (TokenM(..), Token(..), AlexPosn(..), constant, unary, scan) where
 
 #if __GLASGOW_HASKELL__ >= 603
 #include "ghcconfig.h"
@@ -64,7 +61,24 @@ type Byte = Word8
 -- The input type
 
 
-{-# LINE 72 "templates/wrappers.hs" #-}
+type AlexInput = (AlexPosn,     -- current position,
+                  Char,         -- previous char
+                  [Byte],       -- pending bytes on current char
+                  String)       -- current input string
+
+ignorePendingBytes :: AlexInput -> AlexInput
+ignorePendingBytes (p,c,ps,s) = (p,c,[],s)
+
+alexInputPrevChar :: AlexInput -> Char
+alexInputPrevChar (p,c,bs,s) = c
+
+alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
+alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
+alexGetByte (p,c,[],[]) = Nothing
+alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c 
+                                  (b:bs) = utf8Encode c
+                              in p' `seq`  Just (b, (p', c, bs, s))
+
 
 
 {-# LINE 92 "templates/wrappers.hs" #-}
@@ -86,7 +100,17 @@ type Byte = Word8
 -- assuming the usual eight character tab stops.
 
 
-{-# LINE 144 "templates/wrappers.hs" #-}
+data AlexPosn = AlexPn !Int !Int !Int
+        deriving (Eq,Show)
+
+alexStartPos :: AlexPosn
+alexStartPos = AlexPn 0 1 1
+
+alexMove :: AlexPosn -> Char -> AlexPosn
+alexMove (AlexPn a l c) '\t' = AlexPn (a+1)  l     (((c+7) `div` 8)*8+1)
+alexMove (AlexPn a l c) '\n' = AlexPn (a+1) (l+1)   1
+alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
+
 
 -- -----------------------------------------------------------------------------
 -- Default monad
@@ -106,27 +130,7 @@ type Byte = Word8
 -- Basic wrapper
 
 
-type AlexInput = (Char,[Byte],String)
-
-alexInputPrevChar :: AlexInput -> Char
-alexInputPrevChar (c,_,_) = c
-
--- alexScanTokens :: String -> [token]
-alexScanTokens str = go ('\n',[],str)
-  where go inp@(_,_bs,s) =
-          case alexScan inp 0 of
-                AlexEOF -> []
-                AlexError _ -> error "lexical error"
-                AlexSkip  inp' len     -> go inp'
-                AlexToken inp' len act -> act (take len s) : go inp'
-
-alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
-alexGetByte (c,(b:bs),s) = Just (b,(c,bs,s))
-alexGetByte (c,[],[])    = Nothing
-alexGetByte (_,[],(c:s)) = case utf8Encode c of
-                             (b:bs) -> Just (b, (c, bs, s))
-                             [] -> Nothing
-
+{-# LINE 360 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
@@ -145,7 +149,15 @@ alexGetByte (_,[],(c:s)) = case utf8Encode c of
 -- Adds text positions to the basic model.
 
 
-{-# LINE 409 "templates/wrappers.hs" #-}
+--alexScanTokens :: String -> [token]
+alexScanTokens str = go (alexStartPos,'\n',[],str)
+  where go inp@(pos,_,_,str) =
+          case alexScan inp 0 of
+                AlexEOF -> []
+                AlexError ((AlexPn _ line column),_,_,_) -> error $ "lexical error at line " ++ (show line) ++ ", column " ++ (show column)
+                AlexSkip  inp' len     -> go inp'
+                AlexToken inp' len act -> act pos (take len str) : go inp'
+
 
 
 -- -----------------------------------------------------------------------------
@@ -174,52 +186,103 @@ alex_deflt :: Array Int Int
 alex_deflt = listArray (0,150) [-1,1,-1,-1,-1,-1,-1,-1,-1,-1,18,18,20,20,22,22,24,24,28,28,31,31,34,34,37,37,1,1,1,41,41,41,42,42,42,149,149,149,-1,-1,-1,41,42,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,41]
 
 alex_accept = listArray (0::Int,150) [AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccSkip,AlexAccSkip,AlexAcc (alex_action_2),AlexAcc (alex_action_3),AlexAcc (alex_action_4),AlexAcc (alex_action_5),AlexAcc (alex_action_6),AlexAcc (alex_action_7),AlexAcc (alex_action_8),AlexAcc (alex_action_9),AlexAcc (alex_action_10),AlexAcc (alex_action_11),AlexAcc (alex_action_12),AlexAcc (alex_action_13),AlexAcc (alex_action_14),AlexAcc (alex_action_15),AlexAcc (alex_action_16),AlexAcc (alex_action_17),AlexAcc (alex_action_18),AlexAcc (alex_action_19),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_22),AlexAcc (alex_action_23),AlexAcc (alex_action_24),AlexAcc (alex_action_25),AlexAcc (alex_action_26),AlexAcc (alex_action_27),AlexAcc (alex_action_28),AlexAcc (alex_action_29),AlexAcc (alex_action_30),AlexAcc (alex_action_31),AlexAcc (alex_action_32),AlexAcc (alex_action_33),AlexAcc (alex_action_34),AlexAcc (alex_action_35),AlexAcc (alex_action_36),AlexAcc (alex_action_37),AlexAcc (alex_action_38),AlexAcc (alex_action_39),AlexAcc (alex_action_40),AlexAcc (alex_action_41),AlexAccSkip,AlexAcc (alex_action_43),AlexAcc (alex_action_43),AlexAcc (alex_action_43),AlexAcc (alex_action_43)]
-{-# LINE 101 "src/Compiler/Lexer.x" #-}
+{-# LINE 97 "src/Compiler/Lexer.x" #-}
 
-scan :: String -> [Token]
+
+constant :: Token -> AlexPosn -> String -> TokenM
+constant tok pos _ = (tok, pos)
+
+unary :: (String -> Token) -> AlexPosn -> String -> TokenM
+unary tok pos s = (tok s, pos)
+
+data Token  = TokID String         -- identifiers
+            | TokLParen            -- (
+            | TokRParen            -- )
+            | TokSemicolon         -- ;
+            | TokColon             -- :
+            | TokPeriod            -- .
+            | TokComma             -- ,
+            | TokLSB               -- [
+            | TokRSB               -- ]
+            | TokTypeInt           -- "integer"
+            | TokTypeReal          -- "real"
+            | TokTypeStr           -- "string"
+            | TokNum String        -- numbers
+            | TokProgram           -- "program"
+            | TokFunction          -- "function"
+            | TokProc              -- "procedure"
+            | TokBegin             -- "begin"
+            | TokEnd               -- "end"
+            | TokVar               -- "var"
+            | TokArr               -- "array"
+            | TokOf                -- "of"
+            | TokIf                -- "if"
+            | TokThen              -- "then"
+            | TokElse              -- "else"
+            | TokWhile             -- "while"
+            | TokDo                -- "do"
+            | TokAssign            -- :=
+            | TokS                 -- <
+            | TokL                 -- >
+            | TokSE                -- <=
+            | TokLE                -- >=
+            | TokEq                -- =
+            | TokNEq               -- !=
+            | TokPlus              -- +
+            | TokMinus             -- -
+            | TokTimes             -- *
+            | TokDiv               -- /
+            | TokNot               -- "not"
+            | TokTo                -- ..
+            | TokError String      -- anything else
+            deriving (Eq, Show)
+
+type TokenM = (Token, AlexPosn)
+
+scan :: String -> [TokenM]
 scan = alexScanTokens
 
-alex_action_2 =  const TokProgram 
-alex_action_3 =  const TokFunction 
-alex_action_4 =  const TokProc 
-alex_action_5 =  const TokBegin 
-alex_action_6 =  const TokEnd 
-alex_action_7 =  const TokVar 
-alex_action_8 =  const TokArr 
-alex_action_9 =  const TokOf 
-alex_action_10 =  const TokIf 
-alex_action_11 =  const TokThen 
-alex_action_12 =  const TokElse 
-alex_action_13 =  const TokWhile 
-alex_action_14 =  const TokDo 
-alex_action_15 =  const TokNot 
-alex_action_16 =  const TokTypeInt 
-alex_action_17 =  const TokTypeReal 
-alex_action_18 =  const TokTypeStr 
-alex_action_19 =  TokNum 
-alex_action_20 =  TokNum 
-alex_action_21 =  TokID 
-alex_action_22 =  const TokLParen 
-alex_action_23 =  const TokRParen 
-alex_action_24 =  const TokColon 
-alex_action_25 =  const TokSemicolon 
-alex_action_26 =  const TokPeriod 
-alex_action_27 =  const TokComma 
-alex_action_28 =  const TokLSB 
-alex_action_29 =  const TokRSB 
-alex_action_30 =  const TokAssign 
-alex_action_31 =  const TokL 
-alex_action_32 =  const TokS 
-alex_action_33 =  const TokLE 
-alex_action_34 =  const TokSE 
-alex_action_35 =  const TokEq 
-alex_action_36 =  const TokNEq 
-alex_action_37 =  const TokPlus 
-alex_action_38 =  const TokMinus 
-alex_action_39 =  const TokTimes 
-alex_action_40 =  const TokDiv 
-alex_action_41 =  const TokTo 
-alex_action_43 =  TokError 
+alex_action_2 =  constant TokProgram 
+alex_action_3 =  constant TokFunction 
+alex_action_4 =  constant TokProc 
+alex_action_5 =  constant TokBegin 
+alex_action_6 =  constant TokEnd 
+alex_action_7 =  constant TokVar 
+alex_action_8 =  constant TokArr 
+alex_action_9 =  constant TokOf 
+alex_action_10 =  constant TokIf 
+alex_action_11 =  constant TokThen 
+alex_action_12 =  constant TokElse 
+alex_action_13 =  constant TokWhile 
+alex_action_14 =  constant TokDo 
+alex_action_15 =  constant TokNot 
+alex_action_16 =  constant TokTypeInt 
+alex_action_17 =  constant TokTypeReal 
+alex_action_18 =  constant TokTypeStr 
+alex_action_19 =  unary TokNum 
+alex_action_20 =  unary TokNum 
+alex_action_21 =  unary TokID 
+alex_action_22 =  constant TokLParen 
+alex_action_23 =  constant TokRParen 
+alex_action_24 =  constant TokColon 
+alex_action_25 =  constant TokSemicolon 
+alex_action_26 =  constant TokPeriod 
+alex_action_27 =  constant TokComma 
+alex_action_28 =  constant TokLSB 
+alex_action_29 =  constant TokRSB 
+alex_action_30 =  constant TokAssign 
+alex_action_31 =  constant TokL 
+alex_action_32 =  constant TokS 
+alex_action_33 =  constant TokLE 
+alex_action_34 =  constant TokSE 
+alex_action_35 =  constant TokEq 
+alex_action_36 =  constant TokNEq 
+alex_action_37 =  constant TokPlus 
+alex_action_38 =  constant TokMinus 
+alex_action_39 =  constant TokTimes 
+alex_action_40 =  constant TokDiv 
+alex_action_41 =  constant TokTo 
+alex_action_43 =  unary TokError 
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}

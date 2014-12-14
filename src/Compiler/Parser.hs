@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -w #-}
 module Compiler.Parser where
 import Compiler.Types
+import Compiler.Lexer
 import Control.Applicative(Applicative(..))
 
 -- parser produced by Happy Version 1.19.4

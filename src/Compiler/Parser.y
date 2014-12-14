@@ -1,6 +1,7 @@
 {
 module Compiler.Parser where
 import Compiler.Types
+import Compiler.Lexer
 }
 
 %name parse

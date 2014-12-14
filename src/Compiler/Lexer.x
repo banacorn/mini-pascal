@@ -1,11 +1,8 @@
 {
-
-module Compiler.Lexer where
-
-import Compiler.Types
+module Compiler.Lexer (TokenM(..), Token(..), AlexPosn(..), constant, unary, scan) where
 }
 
-%wrapper "basic"
+%wrapper "posn"
 
 $a = [aA]
 $b = [bB]
@@ -54,51 +51,101 @@ tokens :-
 
     "//"[^$newline]*$newline                ;
 
-    $p$r$o$g$r$a$m                          { const TokProgram }
-    $f$u$n$c$t$i$o$n                        { const TokFunction }
-    $p$r$o$c$e$d$u$r$e                      { const TokProc }
-    $b$e$g$i$n                              { const TokBegin }
-    $e$n$d                                  { const TokEnd }
-    $v$a$r                                  { const TokVar }
-    $a$r$r$a$y                              { const TokArr }
-    $o$f                                    { const TokOf }
-    $i$f                                    { const TokIf }
-    $t$h$e$n                                { const TokThen }
-    $e$l$s$e                                { const TokElse }
-    $w$h$i$l$e                              { const TokWhile }
-    $d$o                                    { const TokDo }
-    $n$o$t                                  { const TokNot }
-    $i$n$t$e$g$e$r                          { const TokTypeInt }
-    $r$e$a$l                                { const TokTypeReal }
-    $s$t$r$i$n$g                            { const TokTypeStr }
-    @string                                 { TokNum }
-    @scinot|@real|@integer                  { TokNum }
-    ($alpha)($alpha|$digit)*                { TokID }
-    "("                                     { const TokLParen }
-    ")"                                     { const TokRParen }
-    ":"                                     { const TokColon }
-    ";"                                     { const TokSemicolon }
-    "."                                     { const TokPeriod }
-    ","                                     { const TokComma }
-    "["                                     { const TokLSB }
-    "]"                                     { const TokRSB }
-    ":="                                    { const TokAssign }
-    ">"                                     { const TokL }
-    "<"                                     { const TokS }
-    ">="                                    { const TokLE }
-    "<="                                    { const TokSE }
-    "="                                     { const TokEq }
-    "!="                                    { const TokNEq }
-    "+"                                     { const TokPlus }
-    "-"                                     { const TokMinus }
-    "*"                                     { const TokTimes }
-    "/"                                     { const TokDiv }
-    ".."                                    { const TokTo }
+    $p$r$o$g$r$a$m                          { constant TokProgram }
+    $f$u$n$c$t$i$o$n                        { constant TokFunction }
+    $p$r$o$c$e$d$u$r$e                      { constant TokProc }
+    $b$e$g$i$n                              { constant TokBegin }
+    $e$n$d                                  { constant TokEnd }
+    $v$a$r                                  { constant TokVar }
+    $a$r$r$a$y                              { constant TokArr }
+    $o$f                                    { constant TokOf }
+    $i$f                                    { constant TokIf }
+    $t$h$e$n                                { constant TokThen }
+    $e$l$s$e                                { constant TokElse }
+    $w$h$i$l$e                              { constant TokWhile }
+    $d$o                                    { constant TokDo }
+    $n$o$t                                  { constant TokNot }
+    $i$n$t$e$g$e$r                          { constant TokTypeInt }
+    $r$e$a$l                                { constant TokTypeReal }
+    $s$t$r$i$n$g                            { constant TokTypeStr }
+    @string                                 { unary TokNum }
+    @scinot|@real|@integer                  { unary TokNum }
+    ($alpha)($alpha|$digit)*                { unary TokID }
+    "("                                     { constant TokLParen }
+    ")"                                     { constant TokRParen }
+    ":"                                     { constant TokColon }
+    ";"                                     { constant TokSemicolon }
+    "."                                     { constant TokPeriod }
+    ","                                     { constant TokComma }
+    "["                                     { constant TokLSB }
+    "]"                                     { constant TokRSB }
+    ":="                                    { constant TokAssign }
+    ">"                                     { constant TokL }
+    "<"                                     { constant TokS }
+    ">="                                    { constant TokLE }
+    "<="                                    { constant TokSE }
+    "="                                     { constant TokEq }
+    "!="                                    { constant TokNEq }
+    "+"                                     { constant TokPlus }
+    "-"                                     { constant TokMinus }
+    "*"                                     { constant TokTimes }
+    "/"                                     { constant TokDiv }
+    ".."                                    { constant TokTo }
     \0                                      ;
-    .                                       { TokError }
-
+    .                                       { unary TokError }
 
 {
-scan :: String -> [Token]
+
+constant :: Token -> AlexPosn -> String -> TokenM
+constant tok pos _ = (tok, pos)
+
+unary :: (String -> Token) -> AlexPosn -> String -> TokenM
+unary tok pos s = (tok s, pos)
+
+data Token  = TokID String         -- identifiers
+            | TokLParen            -- (
+            | TokRParen            -- )
+            | TokSemicolon         -- ;
+            | TokColon             -- :
+            | TokPeriod            -- .
+            | TokComma             -- ,
+            | TokLSB               -- [
+            | TokRSB               -- ]
+            | TokTypeInt           -- "integer"
+            | TokTypeReal          -- "real"
+            | TokTypeStr           -- "string"
+            | TokNum String        -- numbers
+            | TokProgram           -- "program"
+            | TokFunction          -- "function"
+            | TokProc              -- "procedure"
+            | TokBegin             -- "begin"
+            | TokEnd               -- "end"
+            | TokVar               -- "var"
+            | TokArr               -- "array"
+            | TokOf                -- "of"
+            | TokIf                -- "if"
+            | TokThen              -- "then"
+            | TokElse              -- "else"
+            | TokWhile             -- "while"
+            | TokDo                -- "do"
+            | TokAssign            -- :=
+            | TokS                 -- <
+            | TokL                 -- >
+            | TokSE                -- <=
+            | TokLE                -- >=
+            | TokEq                -- =
+            | TokNEq               -- !=
+            | TokPlus              -- +
+            | TokMinus             -- -
+            | TokTimes             -- *
+            | TokDiv               -- /
+            | TokNot               -- "not"
+            | TokTo                -- ..
+            | TokError String      -- anything else
+            deriving (Eq, Show)
+
+type TokenM = (Token, AlexPosn)
+
+scan :: String -> [TokenM]
 scan = alexScanTokens
 }
