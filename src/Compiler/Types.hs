@@ -2,7 +2,7 @@ module Compiler.Types where
 
 import Compiler.Serialize
 import Compiler.Scope
-import Data.List (intercalate, elemIndices)
+import Data.List (intercalate)
 
 data Token  = TokID String         -- identifiers
             | TokLParen            -- (
@@ -47,6 +47,7 @@ data Token  = TokID String         -- identifiers
     deriving (Eq, Show)
 
 data ParseTree = ParseTree Program
+    deriving (Eq, Show)
 
 instance Serializable ParseTree where
     serialize (ParseTree program) = serialize program
@@ -70,6 +71,7 @@ instance Serializable Program where
         ".\n"
         where
             header = "program " ++ i ++ "(" ++ serializeIDs is ++ ") ;" ++ "\n"
+            serializeIDs [] = error "serialize empty ids"
             serializeIDs [x] = x
             serializeIDs (x:xs) = x ++ ", " ++ serializeIDs xs
 
@@ -77,16 +79,16 @@ instance HasID Program where
     getID (Program i _ _ _ _) = i
 
 instance HasSymbol Program where
-    getSymbol (Program _ is decs subs comp) =
+    getSymbol (Program _ is decs subs _) =
         is ++
         (decs >>= getSymbol) ++
         (map getID subs)
 
 instance HasScope Program where
-    getScope p@(Program i is decs subs comp) = [Scope i symbols scopes]
+    getScope p@(Program i _ _ subs comp) = [Scope i symbols scopes]
         where
             symbols = getSymbol p
-            scopes = (subs >>= getScope) ++ [] -- undefined
+            scopes = (subs >>= getScope) ++ getScope comp
 
 type ID = String
 data Declaration = Declaration [ID] Type
@@ -97,8 +99,7 @@ instance Serializable Declaration where
     serialize (Declaration ids t) =
         "var " ++ serializeIDs ids ++ " : " ++ serialize t ++ ";"
         where
-            serializeIDs [x] = x
-            serializeIDs (x:xs) = x ++ ", " ++ serializeIDs xs
+            serializeIDs = intercalate ", "
 
 instance HasSymbol Declaration where
     getSymbol (Declaration ids _) = ids
@@ -294,6 +295,7 @@ instance Serializable Term where
 instance HasSymbol Term where
     getSymbol (FactorTerm t) = getSymbol t
     getSymbol (OpTerm a op b) = getSymbol a ++ getSymbol b
+    getSymbol (NegTerm f) = getSymbol f
 
 data Factor = IDSBFactor ID [Expr]  -- id[]
             | IDPFactor ID [Expr]   -- id()
