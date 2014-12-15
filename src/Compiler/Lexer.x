@@ -48,7 +48,7 @@ $newline = [\r\n]
 @squote = '
 @nsquote = [^']
 @string = @dqoute(@ndqoute*)@dqoute|@squote(@nsquote*)@squote
-
+@identifier = ($alpha)($alpha|$digit)*
 
 tokens :-
     $white+                                 ;
@@ -74,7 +74,8 @@ tokens :-
     $s$t$r$i$n$g                            { constant TokTypeStr }
     @string                                 { unary TokNum }
     @scinot|@real|@integer                  { unary TokNum }
-    ($alpha)($alpha|$digit)*                { unary TokID }
+    @identifier                             { unary TokID }
+    [$digit]@identifier                     { unary TokError }
     "("                                     { constant TokLParen }
     ")"                                     { constant TokRParen }
     ":"                                     { constant TokColon }
