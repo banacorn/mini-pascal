@@ -23,15 +23,16 @@ executable Compiler
                     , array                         >=0.5
                     , mtl                           >=2.2
     hs-source-dirs: src/
-    -- ghc-options:    -Wall -fno-warn-unused-do-bind
     default-language:    Haskell2010
+    -- ghc-options:    -Wall -fno-warn-unused-do-bind
 
 
-test-suite compiler-test
+test-suite test
     type:           exitcode-stdio-1.0
-    hs-source-dirs: test .
+    hs-source-dirs: test . src
     main-is:        Main.hs
     ghc-options:    -Wall -fno-warn-unused-do-bind
+    default-language:    Haskell2010
 
     build-depends:    base                          >=4.6   && <5.0
                     , QuickCheck                    >=2.7   && <3.0
@@ -39,3 +40,6 @@ test-suite compiler-test
                     , test-framework                >=0.8   && <1.0
                     , test-framework-quickcheck2    >=0.3   && <1.0
                     , test-framework-hunit          >=0.3   && <1.0
+
+    build-depends:    array                         >=0.5
+                    , mtl                           >=2.2
