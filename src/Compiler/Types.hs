@@ -17,10 +17,10 @@ data Position = Position {
     deriving (Eq)
 
 instance Show Position where
-    show (Position offset line column) =
-        "@ " ++ show offset
-        ++ " L " ++ show line
-        ++ " C " ++ show column
+    show (Position offset line column) = "Position " ++ show offset ++ " " ++ show line ++ " " ++ show column
+--         "@ " ++ show offset
+--         ++ " L " ++ show line
+--         ++ " C " ++ show column
 
 data PipelineError  = FileError String
                     | LexError Position String

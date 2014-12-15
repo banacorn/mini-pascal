@@ -44,13 +44,14 @@ $newline = [\r\n]
 @real = @integer"."$digit+
 @scinot = @integer"."?$digit+([eE]@sign?$digit+)?
 @dqoute = "
-@ndqoute = [^"]
+@ndqoute = [^"]|$newline
 @squote = '
-@nsquote = [^']
+@nsquote = [^']|$newline
 @string = @dqoute(@ndqoute*)@dqoute|@squote(@nsquote*)@squote
 @identifier = ($alpha)($alpha|$digit)*
 
 tokens :-
+
     $white+                                 ;
 
     "//"[^$newline]*$newline                ;
