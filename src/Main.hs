@@ -6,7 +6,7 @@ import Compiler.Serialize
 import Compiler.Scope
 import Compiler.Types
 
-import Control.Monad.Error
+import Control.Monad.Except
 import Control.Exception (try, IOException)
 import Data.List (intercalate)
 import System.Environment (getArgs)
@@ -31,7 +31,7 @@ readSource path = do
 
 main :: IO ()
 main = do
-    result <- runErrorT pipeline
+    result <- runExceptT pipeline
     case result of
         Left    err -> print err
         Right   src -> print src

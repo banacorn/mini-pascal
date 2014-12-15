@@ -2,7 +2,7 @@
 module Compiler.Lexer (TokenM(..), Token(..), AlexPosn(..), constant, unary, scan) where
 import Compiler.Types
 import Data.List (find)
-import Control.Monad.Error (throwError)
+import Control.Monad.Except (throwError)
 
 }
 

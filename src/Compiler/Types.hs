@@ -1,13 +1,13 @@
 module Compiler.Types where
 
-import Control.Monad.Error
+import Control.Monad.Except
 import Data.List (intercalate)
 
 import Compiler.Serialize
 import Compiler.Scope
 
 -- Pipeline
-type Pipeline = ErrorT PipelineError IO
+type Pipeline = ExceptT PipelineError IO
 
 data Position = Position {
         posOffset :: Int
@@ -25,7 +25,6 @@ data PipelineError  = FileError String
                     | ParseError Position String
                     | SemanticError String
 
-instance Error PipelineError
 instance Show PipelineError where
     show (FileError e) = e
     show (LexError pos msg) = "Lex Error: \n"
