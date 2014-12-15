@@ -14,6 +14,7 @@ tests = testGroup "Scanner"
     [   identifierTests
     ,   commentTest
     ,   stringTests
+    ,   numberTests
     ,   arbitraryTests
     ]
 
@@ -56,3 +57,18 @@ stringTests = testGroup "String"
         test3 = scan "\"\"" =?= Right [(TokNum "\"\"", Position 0 1 1)]
         test4 = scan "'a\nb\nc'" =?= Right [(TokNum "'a\nb\nc'", Position 0 1 1)]
         test5 = scan "\"a\nb\nc\"" =?= Right [(TokNum "\"a\nb\nc\"", Position 0 1 1)]
+
+numberTests :: Framework.Test
+numberTests = testGroup "Number"
+    [   "integer" @= test0
+    ,   "negative integer" @= test1
+    ,   "real" @= test2
+    ,   "negative real" @= test3
+    ,   "scientific notation" @= test4
+    ]
+    where
+        test0 = scan "0" =?= Right [(TokNum "0", Position 0 1 1)]
+        test1 = scan "-0" =?= Right [(TokMinus, Position 0 1 1), (TokNum "0", Position 1 1 2)]
+        test2 = scan "3.14" =?= Right [(TokNum "3.14", Position 0 1 1)]
+        test3 = scan "-3.14" =?= Right [(TokMinus, Position 0 1 1), (TokNum "3.14", Position 1 1 2)]
+        test4 = scan "10.3E+5" =?= Right [(TokNum "10.3E+5", Position 0 1 1)]

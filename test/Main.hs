@@ -6,5 +6,5 @@ import qualified Test.Scanner
 
 main :: IO ()
 main = defaultMain
-    [ Test.Scanner.tests
+    [   Test.Scanner.tests
     ]
