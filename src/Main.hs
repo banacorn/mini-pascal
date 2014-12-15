@@ -4,7 +4,7 @@ import Compiler.Lexer
 import Compiler.Parser
 import Compiler.Serialize
 import Compiler.Scope
-import Compiler.Types
+import Compiler.Type
 
 import Control.Monad.Except
 import Control.Exception (try, IOException)

@@ -1,6 +1,6 @@
 {
 module Compiler.Parser where
-import Compiler.Types
+import Compiler.Type
 import Compiler.Lexer
 }
 

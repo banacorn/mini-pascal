@@ -2,7 +2,7 @@
 {-# LINE 1 "src/Compiler/Lexer.x" #-}
 
 module Compiler.Lexer (TokenM(..), Token(..), AlexPosn(..), constant, unary, scan) where
-import Compiler.Types
+import Compiler.Type
 import Data.List (find)
 import Control.Monad.Except (throwError)
 

@@ -1,4 +1,4 @@
-module Compiler.Types where
+module Compiler.Type where
 
 import Control.Monad.Except
 import Data.List (intercalate)
