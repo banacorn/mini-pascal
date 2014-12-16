@@ -104,7 +104,7 @@ tokens :-
 {
 
 toPosition :: AlexPosn -> Position
-toPosition (AlexPn o l c) = Position o l c
+toPosition (AlexPn o l c) = Position o 0 l c
 
 constant :: Tok -> AlexPosn -> String -> Token
 constant tok pos _ = Token tok (toPosition pos)
@@ -112,14 +112,16 @@ constant tok pos _ = Token tok (toPosition pos)
 unary :: (String -> Tok) -> AlexPosn -> String -> Token
 unary tok pos s = Token (tok s) (toPosition pos)
 
-
 scan :: String -> Pipeline [Token]
-scan source = do
-    let tokens = alexScanTokens source
-    case find isTokError tokens of
-        Just (Token tok pos) -> throwError $ LexError pos (show tok)
-        Nothing              -> return tokens
-    where   isTokError (Token (TokError _) _) = True
-            isTokError _               = False
-            toTok (Token tok _) = tok
+scan str = go (alexStartPos, '\n', [], str)
+    where
+        go inp@(pos, _, _, str) = case alexScan inp 0 of
+            AlexEOF -> return []
+            AlexError (pos, _, _, _) -> throwError $ LexError (toPosition pos) "fucked up"
+            AlexSkip  inp_ len     -> go inp_
+            AlexToken inp_ len act -> do
+                xs <- go inp_
+                let Token tok pos_ = act pos (take len str)
+                return $ Token tok (labelLength pos_ len) : xs
+        labelLength (Position o _ l n) len = Position o len l n
 }

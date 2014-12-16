@@ -1,7 +1,5 @@
 module Compiler.Type.Token where
 
-import Compiler.Type.Pipeline
-
 data Tok    = TokID String         -- identifiers
             | TokLParen            -- (
             | TokRParen            -- )
@@ -43,6 +41,17 @@ data Tok    = TokID String         -- identifiers
             | TokTo                -- ..
             | TokError String      -- anything else
             deriving (Eq, Show)
+
+data Position = Position {
+        posOffset :: Int
+    ,   posLength :: Int
+    ,   posLine :: Int
+    ,   posColumn :: Int
+    }
+    deriving (Eq)
+
+instance Show Position where
+    show (Position offset len line column) = "Position " ++ show offset ++ " " ++ show len ++ " "++ show line ++ " " ++ show column
 
 data Token' a = Token a Position
     deriving (Eq, Show)

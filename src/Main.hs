@@ -39,7 +39,7 @@ main = do
 
 pipeline = do
     source <- readSource "./test/parser/no-parsing-error/parser-test.p"
-    ast <- scan "  program" >>= parse
+    ast <- scan " program" >>= parse
     draw ast
     draw . head $ getScope ast
 
