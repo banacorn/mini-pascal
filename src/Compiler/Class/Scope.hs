@@ -1,13 +1,4 @@
-module Compiler.Scope where
-
-import Compiler.Serialize
-
-type Depth = Int
-type Symbol = String
-type SymbolTable = [(Symbol, Depth)]
-
-data Scope  = Scope String [Symbol] [Scope]
-    deriving (Eq, Show)
+module Compiler.Class.Scope where
 
 instance Serializable Scope where
     serialize (Scope name symbols scopes) =

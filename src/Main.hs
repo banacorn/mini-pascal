@@ -2,8 +2,7 @@ module Compiler where
 
 import Compiler.Lexer
 import Compiler.Parser
-import Compiler.Serialize
-import Compiler.Scope
+import Compiler.Class.Serializable
 import Compiler.Type
 
 import Control.Monad.Except

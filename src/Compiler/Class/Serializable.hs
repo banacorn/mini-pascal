@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
-module Compiler.Serialize where
+module Compiler.Class.Serializable where
 
 class Serializable a where
     serialize :: a -> String
