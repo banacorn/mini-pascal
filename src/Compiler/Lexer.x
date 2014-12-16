@@ -1,6 +1,6 @@
 {
 module Compiler.Lexer (Token(..), Tok(..), AlexPosn(..), constant, unary, scan) where
-import Compiler.Type
+import Compiler.Type.Pipeline
 import Data.List (find)
 import Control.Monad.Except (throwError)
 
@@ -106,10 +106,10 @@ toPosition :: AlexPosn -> Position
 toPosition (AlexPn o l c) = Position o l c
 
 constant :: Tok -> AlexPosn -> String -> Token
-constant tok pos _ = (tok, toPosition pos)
+constant tok pos _ = Token tok (toPosition pos)
 
 unary :: (String -> Tok) -> AlexPosn -> String -> Token
-unary tok pos s = (tok s, toPosition pos)
+unary tok pos s = Token (tok s) (toPosition pos)
 
 data Tok    = TokID String         -- identifiers
             | TokLParen            -- (
@@ -153,15 +153,16 @@ data Tok    = TokID String         -- identifiers
             | TokError String      -- anything else
             deriving (Eq, Show)
 
-type Token = (Tok, Position)
+data Token = Token Tok Position
+    deriving (Eq, Show)
 
-scan :: String -> Pipeline [Tok]
+scan :: String -> Pipeline [Token]
 scan source = do
     let tokens = alexScanTokens source
     case find isTokError tokens of
-        Just (tok, pos) -> throwError $ LexError pos (show tok)
-        Nothing         -> return (map toTok tokens)
-    where   isTokError (TokError _, _) = True
+        Just (Token tok pos) -> throwError $ LexError pos (show tok)
+        Nothing              -> return tokens
+    where   isTokError (Token (TokError _) _) = True
             isTokError _               = False
-            toTok = fst
+            toTok (Token tok _) = tok
 }
