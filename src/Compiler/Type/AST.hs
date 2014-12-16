@@ -7,9 +7,6 @@ module Compiler.Type.AST where
 data ParseTree = ParseTree Program
     deriving (Eq, Show)
 
--- instance Serializable ParseTree where
---     serialize (ParseTree program) = serialize program
---
 -- instance HasSymbol ParseTree where
 --     getSymbol _ = []
 --
@@ -19,20 +16,6 @@ data ParseTree = ParseTree Program
 data Program = Program ID [ID] [Declaration] [SubprogDec] CompoundStmt
     deriving (Eq, Show)
 
--- instance Serializable Program where
---     serialize (Program i is decs subprogdecs comp) =
---         "\n" ++
---         header ++ "\n" ++
---         indent decs ++ "\n" ++
---         indent subprogdecs ++
---         indentBlock (serialize comp) ++
---         ".\n"
---         where
---             header = "program " ++ i ++ "(" ++ serializeIDs is ++ ") ;" ++ "\n"
---             serializeIDs [] = error "serialize empty ids"
---             serializeIDs [x] = x
---             serializeIDs (x:xs) = x ++ ", " ++ serializeIDs xs
---
 -- instance HasID Program where
 --     getID (Program i _ _ _ _) = i
 --
@@ -52,13 +35,6 @@ type ID = String
 data Declaration = Declaration [ID] Type
     deriving (Eq, Show)
 
--- instance Serializable Declaration where
---     serialize (Declaration [] _) = []
---     serialize (Declaration ids t) =
---         "var " ++ serializeIDs ids ++ " : " ++ serialize t ++ ";"
---         where
---             serializeIDs = intercalate ", "
---
 -- instance HasSymbol Declaration where
 --     getSymbol (Declaration ids _) = ids
 
@@ -68,10 +44,6 @@ data Type   = StdType StandardType
             deriving (Eq, Show)
 data StandardType = IntType | RealType | StringType deriving (Eq, Show)
 
--- instance Serializable Type where
---     serialize (StdType t) = serialize t
---     serialize (ArrayType (a, b) t) = "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
---
 -- instance Serializable StandardType where
 --     serialize IntType = "int"
 --     serialize RealType = "real"
@@ -79,12 +51,6 @@ data StandardType = IntType | RealType | StringType deriving (Eq, Show)
 
 data SubprogDec = SubprogDec SubprogHead [Declaration] CompoundStmt deriving (Eq, Show)
 
--- instance Serializable SubprogDec where
---     serialize (SubprogDec header decs comp) =
---         serialize header ++ "\n" ++
---         indent decs ++
---         indentBlock (serialize comp)
---
 -- instance HasID SubprogDec where
 --     getID (SubprogDec header _ _) = getID header
 --
@@ -104,12 +70,6 @@ data SubprogHead    = SubprogHeadFunc ID Arguments StandardType
                     deriving (Eq, Show)
 
 
--- instance Serializable SubprogHead where
---     serialize (SubprogHeadFunc i args typ) =
---         "function " ++ i ++ serialize args ++ " : " ++ serialize typ ++ ";"
---     serialize (SubprogHeadProc i args) =
---         "procedure " ++ i ++ serialize args ++ ";"
---
 -- instance HasID SubprogHead where
 --     getID (SubprogHeadFunc i _ _) = i
 --     getID (SubprogHeadProc i _) = i
@@ -122,12 +82,6 @@ data Arguments  = EmptyArguments
                 | Arguments [Param]
                 deriving (Eq, Show)
 
--- instance Serializable Arguments where
---     serialize EmptyArguments = ""
---     serialize (Arguments xs) = "(" ++ serializeArgs ++ ")"
---         where
---             serializeArgs = intercalate "; " (map serialize xs)
---
 -- instance HasSymbol Arguments where
 --     getSymbol EmptyArguments = []
 --     getSymbol (Arguments xs) = xs >>= getSymbol
@@ -135,22 +89,12 @@ data Arguments  = EmptyArguments
 data Param = Param [ID] Type
     deriving (Eq, Show)
 
--- instance Serializable Param where
---     serialize (Param ids t) = serializeIDs ++ ": " ++ serialize t
---         where   serializeIDs = intercalate ", " ids
---
 -- instance HasSymbol Param where
 --     getSymbol (Param ids _) = ids
 
 data CompoundStmt = CompoundStmt [Stmt]
     deriving (Eq, Show)
 
--- instance Serializable CompoundStmt where
---     serialize (CompoundStmt stmts) =
---         "begin" ++ "\n" ++
---         indentWith (suffix ";\n") stmts ++
---         "end"
---
 -- instance HasSymbol CompoundStmt where
 --     getSymbol (CompoundStmt stmts) = stmts >>= getSymbol
 --
@@ -168,16 +112,6 @@ data Stmt   = VarStmt Variable Expr
             deriving (Eq, Show)
 
 
--- instance Serializable Stmt where
---     serialize (VarStmt v e) = serialize v ++ " := " ++ serialize e
---     serialize (ProcStmt p) = serialize p
---     serialize (CompStmt c) = serialize c
---     serialize (BranchStmt e s t) =
---         "if " ++ serialize e ++ "\n" ++
---         "    then " ++ serialize s ++ "\n" ++
---         "    else " ++ serialize t
---     serialize (LoopStmt e s) = "while " ++ serialize e ++ " do " ++ serialize s
---
 -- instance HasSymbol Stmt where
 --     getSymbol (VarStmt var expr) = getSymbol var ++ getSymbol expr
 --     getSymbol (ProcStmt p) = getSymbol p
@@ -195,10 +129,6 @@ data Stmt   = VarStmt Variable Expr
 data Variable = Variable ID [Expr] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)
 
--- instance Serializable Variable where
---     serialize (Variable i es) = i ++ concat (map showSBExpr es)
---         where   showSBExpr e = "[" ++ serialize e ++ "]"
---
 -- instance HasSymbol Variable where
 --     getSymbol (Variable i exprs) = [i] ++ (exprs >>= getSymbol)
 
@@ -207,11 +137,6 @@ data ProcedureStmt  = ProcedureStmtOnlyID ID
                     | ProcedureStmtWithExprs ID [Expr]
                     deriving (Eq, Show)
 
--- instance Serializable ProcedureStmt where
---     serialize (ProcedureStmtOnlyID i) = i
---     serialize (ProcedureStmtWithExprs i es) = i ++ "(" ++ serializeExpr ++ ")"
---         where   serializeExpr = intercalate ", " (map serialize es)
---
 -- instance HasSymbol ProcedureStmt where
 --     getSymbol (ProcedureStmtOnlyID i) = [i]
 --     getSymbol (ProcedureStmtWithExprs i exprs) = [i] ++ (exprs >>= getSymbol)
@@ -220,10 +145,6 @@ data Expr   = UnaryExpr SimpleExpr
             | BinaryExpr SimpleExpr Relop SimpleExpr
             deriving (Eq, Show)
 
--- instance Serializable Expr where
---     serialize (UnaryExpr e) = serialize e
---     serialize (BinaryExpr a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
---
 -- instance HasSymbol Expr where
 --     getSymbol (UnaryExpr expr) = getSymbol expr
 --     getSymbol (BinaryExpr a _ b) = getSymbol a ++ getSymbol b
@@ -232,10 +153,6 @@ data SimpleExpr = SimpleExprTerm Term
                 | SimpleExprOp SimpleExpr AddOp Term
                 deriving (Eq, Show)
 
--- instance Serializable SimpleExpr where
---     serialize (SimpleExprTerm t) = serialize t
---     serialize (SimpleExprOp a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
---
 -- instance HasSymbol SimpleExpr where
 --     getSymbol (SimpleExprTerm term) = getSymbol term
 --     getSymbol (SimpleExprOp a _ b) = getSymbol a ++ getSymbol b
@@ -245,11 +162,6 @@ data Term   = FactorTerm Factor
             | NegTerm Factor
             deriving (Eq, Show)
 
--- instance Serializable Term where
---     serialize (FactorTerm f) = serialize f
---     serialize (OpTerm a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
---     serialize (NegTerm f) = "-" ++ serialize f
---
 -- instance HasSymbol Term where
 --     getSymbol (FactorTerm t) = getSymbol t
 --     getSymbol (OpTerm a _ b) = getSymbol a ++ getSymbol b
@@ -262,15 +174,6 @@ data Factor = IDSBFactor ID [Expr]  -- id[]
             | NotFactor Factor
             deriving (Eq, Show)
 
--- instance Serializable Factor where
---     serialize (IDSBFactor i es) = i ++ concat (map serialize es)
---         where   serializeSBExpr a = "[" ++ serialize a ++ "]"
---     serialize (IDPFactor i es)  = i ++ "(" ++ serializeExpr ++ ")"
---         where   serializeExpr = intercalate ", " (map serialize es)
---     serialize (NumFactor s) = s
---     serialize (PFactor e) = serialize e
---     serialize (NotFactor f) = "not " ++ serialize f
---
 -- instance HasSymbol Factor where
 --     getSymbol (IDSBFactor i exprs) = [i] ++ (exprs >>= getSymbol)
 --     getSymbol (IDPFactor i exprs) = [i] ++ (exprs >>= getSymbol)
@@ -281,19 +184,3 @@ data Factor = IDSBFactor ID [Expr]  -- id[]
 data AddOp = Plus | Minus deriving (Eq, Show)
 data MulOp = Mul | Div deriving (Eq, Show)
 data Relop = S | L | E | NE | SE | LE deriving (Eq, Show)
-
--- instance Serializable AddOp where
---     serialize Plus = "+"
---     serialize Minus = "-"
---
--- instance Serializable MulOp where
---     serialize Mul = "*"
---     serialize Div = "/"
---
--- instance Serializable Relop where
---     serialize S = "<"
---     serialize L = ">"
---     serialize E = "="
---     serialize NE = "!="
---     serialize SE = "<="
---     serialize LE = ">="
