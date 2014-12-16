@@ -2,6 +2,7 @@
 {-# LINE 1 "src/Compiler/Lexer.x" #-}
 
 module Compiler.Lexer (Token(..), Tok(..), AlexPosn(..), constant, unary, scan) where
+import Compiler.Type.Token
 import Compiler.Type.Pipeline
 import Data.List (find)
 import Control.Monad.Except (throwError)
@@ -190,7 +191,7 @@ alex_deflt :: Array Int Int
 alex_deflt = listArray (0,151) [-1,1,-1,-1,-1,-1,-1,-1,-1,-1,18,18,20,20,22,22,24,24,28,28,31,31,34,34,37,37,1,1,1,41,41,41,42,42,42,150,150,150,-1,-1,-1,41,42,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,41]
 
 alex_accept = listArray (0::Int,151) [AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccSkip,AlexAccSkip,AlexAcc (alex_action_2),AlexAcc (alex_action_3),AlexAcc (alex_action_4),AlexAcc (alex_action_5),AlexAcc (alex_action_6),AlexAcc (alex_action_7),AlexAcc (alex_action_8),AlexAcc (alex_action_9),AlexAcc (alex_action_10),AlexAcc (alex_action_11),AlexAcc (alex_action_12),AlexAcc (alex_action_13),AlexAcc (alex_action_14),AlexAcc (alex_action_15),AlexAcc (alex_action_16),AlexAcc (alex_action_17),AlexAcc (alex_action_18),AlexAcc (alex_action_19),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_21),AlexAcc (alex_action_22),AlexAcc (alex_action_23),AlexAcc (alex_action_24),AlexAcc (alex_action_25),AlexAcc (alex_action_26),AlexAcc (alex_action_27),AlexAcc (alex_action_28),AlexAcc (alex_action_29),AlexAcc (alex_action_30),AlexAcc (alex_action_31),AlexAcc (alex_action_32),AlexAcc (alex_action_33),AlexAcc (alex_action_34),AlexAcc (alex_action_35),AlexAcc (alex_action_36),AlexAcc (alex_action_37),AlexAcc (alex_action_38),AlexAcc (alex_action_39),AlexAcc (alex_action_40),AlexAcc (alex_action_41),AlexAcc (alex_action_42),AlexAccSkip,AlexAcc (alex_action_44),AlexAcc (alex_action_44),AlexAcc (alex_action_44),AlexAcc (alex_action_44)]
-{-# LINE 103 "src/Compiler/Lexer.x" #-}
+{-# LINE 104 "src/Compiler/Lexer.x" #-}
 
 
 toPosition :: AlexPosn -> Position
@@ -202,50 +203,6 @@ constant tok pos _ = Token tok (toPosition pos)
 unary :: (String -> Tok) -> AlexPosn -> String -> Token
 unary tok pos s = Token (tok s) (toPosition pos)
 
-data Tok    = TokID String         -- identifiers
-            | TokLParen            -- (
-            | TokRParen            -- )
-            | TokSemicolon         -- ;
-            | TokColon             -- :
-            | TokPeriod            -- .
-            | TokComma             -- ,
-            | TokLSB               -- [
-            | TokRSB               -- ]
-            | TokTypeInt           -- "integer"
-            | TokTypeReal          -- "real"
-            | TokTypeStr           -- "string"
-            | TokNum String        -- numbers
-            | TokProgram           -- "program"
-            | TokFunction          -- "function"
-            | TokProc              -- "procedure"
-            | TokBegin             -- "begin"
-            | TokEnd               -- "end"
-            | TokVar               -- "var"
-            | TokArr               -- "array"
-            | TokOf                -- "of"
-            | TokIf                -- "if"
-            | TokThen              -- "then"
-            | TokElse              -- "else"
-            | TokWhile             -- "while"
-            | TokDo                -- "do"
-            | TokAssign            -- :=
-            | TokS                 -- <
-            | TokL                 -- >
-            | TokSE                -- <=
-            | TokLE                -- >=
-            | TokEq                -- =
-            | TokNEq               -- !=
-            | TokPlus              -- +
-            | TokMinus             -- -
-            | TokTimes             -- *
-            | TokDiv               -- /
-            | TokNot               -- "not"
-            | TokTo                -- ..
-            | TokError String      -- anything else
-            deriving (Eq, Show)
-
-data Token = Token Tok Position
-    deriving (Eq, Show)
 
 scan :: String -> Pipeline [Token]
 scan source = do

@@ -1,5 +1,6 @@
 {
 module Compiler.Lexer (Token(..), Tok(..), AlexPosn(..), constant, unary, scan) where
+import Compiler.Type.Token
 import Compiler.Type.Pipeline
 import Data.List (find)
 import Control.Monad.Except (throwError)
@@ -111,50 +112,6 @@ constant tok pos _ = Token tok (toPosition pos)
 unary :: (String -> Tok) -> AlexPosn -> String -> Token
 unary tok pos s = Token (tok s) (toPosition pos)
 
-data Tok    = TokID String         -- identifiers
-            | TokLParen            -- (
-            | TokRParen            -- )
-            | TokSemicolon         -- ;
-            | TokColon             -- :
-            | TokPeriod            -- .
-            | TokComma             -- ,
-            | TokLSB               -- [
-            | TokRSB               -- ]
-            | TokTypeInt           -- "integer"
-            | TokTypeReal          -- "real"
-            | TokTypeStr           -- "string"
-            | TokNum String        -- numbers
-            | TokProgram           -- "program"
-            | TokFunction          -- "function"
-            | TokProc              -- "procedure"
-            | TokBegin             -- "begin"
-            | TokEnd               -- "end"
-            | TokVar               -- "var"
-            | TokArr               -- "array"
-            | TokOf                -- "of"
-            | TokIf                -- "if"
-            | TokThen              -- "then"
-            | TokElse              -- "else"
-            | TokWhile             -- "while"
-            | TokDo                -- "do"
-            | TokAssign            -- :=
-            | TokS                 -- <
-            | TokL                 -- >
-            | TokSE                -- <=
-            | TokLE                -- >=
-            | TokEq                -- =
-            | TokNEq               -- !=
-            | TokPlus              -- +
-            | TokMinus             -- -
-            | TokTimes             -- *
-            | TokDiv               -- /
-            | TokNot               -- "not"
-            | TokTo                -- ..
-            | TokError String      -- anything else
-            deriving (Eq, Show)
-
-data Token = Token Tok Position
-    deriving (Eq, Show)
 
 scan :: String -> Pipeline [Token]
 scan source = do
