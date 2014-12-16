@@ -2,7 +2,8 @@
 
 module Compiler.Class.Serializable where
 
-import Compiler.Type.AST
+import Compiler.Type
+
 import Data.List (intercalate)
 
 class Serializable a where
@@ -27,10 +28,18 @@ addNewLine :: String -> String
 addNewLine = suffix "\n"
 
 --------------------------------------------------------------------------------
--- AST instances
+-- other instances
+
+instance Serializable Scope where
+    serialize (Scope name symbols scopes) =
+        "Scope: " ++ name ++ "\n" ++
+        indent ([show symbols] ++ map serialize scopes)
 
 instance Serializable String where
     serialize = id
+
+--------------------------------------------------------------------------------
+-- AST instances
 
 instance Serializable ParseTree where
     serialize (ParseTree program) = serialize program
