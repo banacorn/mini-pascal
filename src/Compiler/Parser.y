@@ -5,7 +5,7 @@ import Compiler.Lexer
 }
 
 %name parse
-%tokentype { Token }
+%tokentype { Tok }
 %monad { Pipeline } { >>= } { return }
 %error { parseError }
 
@@ -158,7 +158,7 @@ relop   : '<'   { S }
         | '!='  { NE }
 
 {
-parseError :: [Token] -> a
+parseError :: [Tok] -> a
 parseError tok = error $ "Parse error: "  ++ show tok
 
 }

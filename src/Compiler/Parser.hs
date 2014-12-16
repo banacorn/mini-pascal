@@ -7,7 +7,7 @@ import Control.Applicative(Applicative(..))
 -- parser produced by Happy Version 1.19.4
 
 data HappyAbsSyn t4 t5 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 t16 t17 t18 t19 t20 t21 t22 t23 t24 t25 t26 t27
-	= HappyTerminal (Token)
+	= HappyTerminal (Tok)
 	| HappyErrorToken Int
 	| HappyAbsSyn4 t4
 	| HappyAbsSyn5 t5
@@ -1065,7 +1065,7 @@ happyReturn = (return)
 happyThen1 m k tks = (>>=) m (\a -> k a tks)
 happyReturn1 :: () => a -> b -> Pipeline a
 happyReturn1 = \a tks -> (return) a
-happyError' :: () => [(Token)] -> Pipeline a
+happyError' :: () => [(Tok)] -> Pipeline a
 happyError' = parseError
 
 parse tks = happySomeParser where
@@ -1074,7 +1074,7 @@ parse tks = happySomeParser where
 happySeq = happyDontSeq
 
 
-parseError :: [Token] -> a
+parseError :: [Tok] -> a
 parseError tok = error $ "Parse error: "  ++ show tok
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
