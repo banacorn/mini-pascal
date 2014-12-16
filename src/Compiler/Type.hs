@@ -1,9 +1,6 @@
 module Compiler.Type
     (   module Compiler.Type.AST
-    ,   Depth
-    ,   Symbol
-    ,   SymbolTable
-    ,   Scope(..)
+    ,   module Compiler.Type.Scope
     ,   Pipeline(..)
     ,   Position(..)
     ,   PipelineError(..)
@@ -12,17 +9,8 @@ module Compiler.Type
 import Control.Monad.Except
 import Data.List (intercalate)
 
--- import Compiler.Class.Serializable
--- import Compiler.Class.Scope
+import Compiler.Type.Scope
 import Compiler.Type.AST
-
-type Depth = Int
-type Symbol = String
-type SymbolTable = [(Symbol, Depth)]
-
-data Scope  = Scope String [Symbol] [Scope]
-    deriving (Eq, Show)
-
 
 -- Pipeline
 type Pipeline = ExceptT PipelineError IO

@@ -1,5 +1,7 @@
 module Compiler.Class.Scope where
 
+import Compiler.Type.Scope
+
 instance Serializable Scope where
     serialize (Scope name symbols scopes) =
         "Scope: " ++ name ++ "\n" ++
