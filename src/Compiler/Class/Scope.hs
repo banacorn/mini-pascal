@@ -1,6 +1,6 @@
 module Compiler.Class.Scope where
 
-import Compiler.Type.Scope
+import Compiler.Type
 
 --------------------------------------------------------------------------------
 -- helper functions

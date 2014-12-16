@@ -246,14 +246,15 @@ data Token  = TokID String         -- identifiers
 
 type TokenM = (Token, Position)
 
-scan :: String -> Pipeline [TokenM]
+scan :: String -> Pipeline [Token]
 scan source = do
     let tokens = alexScanTokens source
     case find isTokError tokens of
         Just (tok, pos) -> throwError $ LexError pos (show tok)
-        Nothing         -> return tokens
+        Nothing         -> return (map toToken tokens)
     where   isTokError (TokError _, _) = True
             isTokError _               = False
+            toToken = fst
 
 alex_action_2 =  constant TokProgram 
 alex_action_3 =  constant TokFunction 

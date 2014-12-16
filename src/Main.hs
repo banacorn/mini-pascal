@@ -3,6 +3,7 @@ module Compiler where
 import Compiler.Lexer
 import Compiler.Parser
 import Compiler.Class.Serializable
+import Compiler.Class.Scope
 import Compiler.Type
 
 import Control.Monad.Except
@@ -33,10 +34,13 @@ main = do
     result <- runExceptT pipeline
     case result of
         Left    err -> print err
-        Right   src -> print src
+        Right   src -> putStrLn "== SUCCESS =="
 
 
-pipeline = readSource "./test/scanner/scanner-test01.p" >>= scan
+pipeline = do
+    ast <- readSource "./test/parser/no-parsing-error/parser-test.p" >>= scan >>= parse
+    draw ast
+    draw . head $ getScope ast
 
 
 -- main :: IO ()
@@ -47,8 +51,8 @@ pipeline = readSource "./test/scanner/scanner-test01.p" >>= scan
 --     draw . head $ getScope parseTree
 --     draw parseTree
 --
--- draw :: Serializable a => a -> IO ()
--- draw = putStrLn . serialize
+draw :: Serializable a => a -> Pipeline ()
+draw = liftIO . putStrLn . serialize
 --
 -- pipeline :: String -> IO ()
 -- pipeline = print . getScope . parse . scan
