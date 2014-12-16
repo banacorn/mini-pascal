@@ -117,7 +117,7 @@ scan str = go (alexStartPos, '\n', [], str)
     where
         go inp@(pos, _, _, str) = case alexScan inp 0 of
             AlexEOF -> return []
-            AlexError (pos, _, _, _) -> throwError $ LexError (toPosition pos) "fucked up"
+            AlexError (pos, _, _, _) -> throwError $ LexError "fucked up"
             AlexSkip  inp_ len     -> go inp_
             AlexToken inp_ len act -> do
                 xs <- go inp_

@@ -42,8 +42,8 @@ data Tok    = TokID String         -- identifiers
             | TokError String      -- anything else
             deriving (Eq, Show)
 
-data Position = Position {
-        posOffset :: Int
+data Position = Position
+    {   posOffset :: Int
     ,   posLength :: Int
     ,   posLine :: Int
     ,   posColumn :: Int

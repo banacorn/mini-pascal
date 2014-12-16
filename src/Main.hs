@@ -7,6 +7,7 @@ import Compiler.Class.Scope
 import Compiler.Type
 
 import Control.Monad.Except
+import Control.Monad.State
 import Control.Exception (try, IOException)
 import Data.List (intercalate)
 import System.Environment (getArgs)
@@ -31,10 +32,11 @@ readSource path = do
 
 main :: IO ()
 main = do
-    result <- runExceptT pipeline
-    case result of
-        Left    err -> print err
-        Right   src -> putStrLn "== SUCCESS =="
+    result <- runStateT (runExceptT pipeline) (Position 0 0 0 0)
+    print result
+    -- case result of
+    --     Left    err -> print err
+    --     Right   src -> putStrLn "== SUCCESS =="
 
 
 pipeline = do

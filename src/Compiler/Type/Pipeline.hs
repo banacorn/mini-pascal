@@ -2,22 +2,21 @@ module Compiler.Type.Pipeline where
 
 import Compiler.Type.Token
 import Control.Monad.Except
+import Control.Monad.State
 
 -- Pipeline
-type Pipeline = ExceptT PipelineError IO
+type Pipeline = ExceptT PipelineError (StateT Position IO)
 
 data PipelineError  = FileError String
-                    | LexError Position String
-                    | ParseError Position String
+                    | LexError String
+                    | ParseError String
                     | SemanticError String
                     deriving (Eq)
 
 instance Show PipelineError where
     show (FileError e) = e
-    show (LexError pos msg) = "Lex Error: \n"
-        ++ show pos ++ "\n"
+    show (LexError msg) = "Lex Error: \n"
         ++ msg
-    show (ParseError pos msg) = "Lex Error: \n"
-        ++ show pos ++ "\n"
+    show (ParseError msg) = "Lex Error: \n"
         ++ msg
     show (SemanticError e) = e
