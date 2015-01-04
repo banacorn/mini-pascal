@@ -39,6 +39,51 @@ instance Serializable String where
     serialize = id
 
 --------------------------------------------------------------------------------
+-- Tok instances
+
+instance Serializable Tok where
+    serialize (TokID s) = s        -- identifier
+    serialize TokLParen = "("           -- (
+    serialize TokRParen = ")"           -- )
+    serialize TokSemicolon = ";"        -- ;
+    serialize TokColon = ":"            -- :
+    serialize TokPeriod = "."           -- .
+    serialize TokComma = ","            -- ,
+    serialize TokLSB = "["              -- [
+    serialize TokRSB = "]"              -- ]
+    serialize TokTypeInt = "integer"          -- "integer"
+    serialize TokTypeReal = "real"         -- "real"
+    serialize TokTypeStr = "string"          -- "string"
+    serialize (TokNum s) = s        -- numbers
+    serialize TokProgram = "program"          -- "program"
+    serialize TokFunction = "function"         -- "function"
+    serialize TokProc = "procedure"             -- "procedure"
+    serialize TokBegin = "begin"            -- "begin"
+    serialize TokEnd = "end"              -- "end"
+    serialize TokVar = "var"              -- "var"
+    serialize TokArr = "array"              -- "array"
+    serialize TokOf = "of"               -- "of"
+    serialize TokIf = "if"               -- "if"
+    serialize TokThen = "then"             -- "then"
+    serialize TokElse = "else"             -- "else"
+    serialize TokWhile = "while"            -- "while"
+    serialize TokDo = "do"               -- "do"
+    serialize TokAssign = ":="           -- :=
+    serialize TokS = "<"                -- <
+    serialize TokL = ">"                -- >
+    serialize TokSE = "<="               -- <=
+    serialize TokLE = ">="               -- >=
+    serialize TokEq = "="               -- =
+    serialize TokNEq = "!="              -- !=
+    serialize TokPlus = "+"             -- +
+    serialize TokMinus = "-"            -- -
+    serialize TokTimes = "*"            -- *
+    serialize TokDiv = "/"              -- /
+    serialize TokNot = "not"              -- "not"
+    serialize TokTo = ".."               -- ..
+    serialize (TokError s) = s
+
+--------------------------------------------------------------------------------
 -- AST instances
 
 instance Serializable ParseTree where

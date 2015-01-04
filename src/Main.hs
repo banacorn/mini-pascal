@@ -51,10 +51,17 @@ handleError f = do
             LexError (Token (TokError tok) pos) -> do
                 putStrLn $ paintError "[Syntax Error]"
                     ++ " Unrecognized token "
-                    ++ paintWarn (show tok)
+                    ++ paintWarn (serialize tok)
                     ++ " at L" ++ show (posLine pos) ++ " C" ++ show (posColumn pos)
                 printSyntaxError (fromJust source) pos
-            _ -> print "wtf"
+            ParseError (Token tok pos) -> do
+                putStrLn $ paintError "[Syntax Error]"
+                    ++ " Unable to parse "
+                    ++ paintWarn (serialize tok)
+                    ++ "... starting from L" ++ show (posLine pos) ++ " C" ++ show (posColumn pos)
+                printSyntaxError (fromJust source) pos
+            SemanticsError _ -> print err
+
         Right   src -> putStrLn "== SUCCESS =="
 
     where

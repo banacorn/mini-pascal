@@ -1076,7 +1076,7 @@ happySeq = happyDontSeq
 
 
 parseError :: [Token] -> Pipeline a
-parseError tokens = throwError (ParseError tokens)
+parseError tokens = throwError (ParseError (head tokens))
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}

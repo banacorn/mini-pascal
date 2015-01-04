@@ -9,8 +9,8 @@ type Pipeline = ExceptT PipelineError (StateT (Maybe String) IO)
 
 data PipelineError  = FileError String
                     | LexError Token
-                    | ParseError [Token]
-                    | SemanticError String
+                    | ParseError Token
+                    | SemanticsError String
                     deriving (Eq)
 
 instance Show PipelineError where
@@ -19,5 +19,5 @@ instance Show PipelineError where
     show (LexError msg) = "Lex Error: \n"
         ++ show msg
     show (ParseError msg) = "Parse Error: \n"
-        ++ show (take 5 msg)
-    show (SemanticError e) = e
+        ++ show msg
+    show (SemanticsError e) = e
