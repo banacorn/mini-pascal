@@ -22,7 +22,6 @@ program : progtok {% do
 
 
 {
-parseError :: [Token] -> a
-parseError tok = error $ "Parse error: "  ++ show tok
-
+parseError :: [Token] -> Pipeline a
+parseError tok = throwError $ ParseError $ show tok
 }

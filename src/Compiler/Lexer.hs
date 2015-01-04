@@ -195,7 +195,7 @@ alex_accept = listArray (0::Int,151) [AlexAccNone,AlexAccNone,AlexAccNone,AlexAc
 
 
 toPosition :: AlexPosn -> Position
-toPosition (AlexPn o l c) = Position o 0 l c
+toPosition (AlexPn o l c) = Position o Nothing l c
 
 constant :: Tok -> AlexPosn -> String -> Token
 constant tok pos _ = Token tok (toPosition pos)
@@ -208,13 +208,17 @@ scan str = go (alexStartPos, '\n', [], str)
     where
         go inp@(pos, _, _, str) = case alexScan inp 0 of
             AlexEOF -> return []
-            AlexError (pos, _, _, _) -> throwError $ LexError "fucked up"
+            AlexError (pos, _, _, _) -> error "lexer fucked up"
             AlexSkip  inp_ len     -> go inp_
             AlexToken inp_ len act -> do
                 xs <- go inp_
                 let Token tok pos_ = act pos (take len str)
-                return $ Token tok (labelLength pos_ len) : xs
-        labelLength (Position o _ l n) len = Position o len l n
+                let tokLength = labelLength pos_ len
+                let token = Token tok tokLength
+                case tok of
+                    TokError err -> throwError $ LexError token
+                    _ -> return $ token : xs
+        labelLength (Position o _ l n) len = Position o (Just len) l n
 
 alex_action_2 =  constant TokProgram 
 alex_action_3 =  constant TokFunction 

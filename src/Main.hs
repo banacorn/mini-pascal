@@ -32,17 +32,17 @@ readSource path = do
 
 main :: IO ()
 main = do
-    result <- runStateT (runExceptT pipeline) (Position 0 0 0 0)
-    print result
-    -- case result of
-    --     Left    err -> print err
-    --     Right   src -> putStrLn "== SUCCESS =="
+    (result, pos) <- runStateT (runExceptT pipeline) Unknown
+    case result of
+        Left    err -> print err
+        Right   src -> putStrLn "== SUCCESS =="
 
 
 pipeline = do
+    -- read source, throw FileError if file not found
     source <- readSource "./test/parser/no-parsing-error/parser-test.p"
-    ast <- scan " program" >>= parse
-    draw ast
+    ast <- scan "0progra" >>= parse
+    -- draw ast
     draw . head $ getScope ast
 
 

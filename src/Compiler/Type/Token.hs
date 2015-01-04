@@ -44,14 +44,15 @@ data Tok    = TokID String         -- identifiers
 
 data Position = Position
     {   posOffset :: Int
-    ,   posLength :: Int
+    ,   posLength :: Maybe Int
     ,   posLine :: Int
     ,   posColumn :: Int
-    }
+    } | Unknown
     deriving (Eq)
 
 instance Show Position where
-    show (Position offset len line column) = "Position " ++ show offset ++ " " ++ show len ++ " "++ show line ++ " " ++ show column
+    show (Position offset len line column) = "Position " ++ show offset ++ " " ++ show len ++ " L"++ show line ++ " C" ++ show column
+    show Unknown = "Unknown"
 
 data Token' a = Token a Position
     deriving (Eq, Show)

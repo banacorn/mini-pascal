@@ -8,7 +8,7 @@ import Control.Monad.State
 type Pipeline = ExceptT PipelineError (StateT Position IO)
 
 data PipelineError  = FileError String
-                    | LexError String
+                    | LexError Token
                     | ParseError String
                     | SemanticError String
                     deriving (Eq)
@@ -16,7 +16,7 @@ data PipelineError  = FileError String
 instance Show PipelineError where
     show (FileError e) = e
     show (LexError msg) = "Lex Error: \n"
-        ++ msg
-    show (ParseError msg) = "Lex Error: \n"
+        ++ show msg
+    show (ParseError msg) = "Parse Error: \n"
         ++ msg
     show (SemanticError e) = e

@@ -61,8 +61,8 @@ parse tks = happySomeParser where
 happySeq = happyDontSeq
 
 
-parseError :: [Token] -> a
-parseError tok = error $ "Parse error: "  ++ show tok
+parseError :: [Token] -> Pipeline a
+parseError tok = throwError $ ParseError $ show tok
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}
