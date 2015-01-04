@@ -5,11 +5,11 @@ import Control.Monad.Except
 import Control.Monad.State
 
 -- Pipeline
-type Pipeline = ExceptT PipelineError (StateT Position IO)
+type Pipeline = ExceptT PipelineError (StateT (Maybe String) IO)
 
 data PipelineError  = FileError String
                     | LexError Token
-                    | ParseError String
+                    | ParseError [Token]
                     | SemanticError String
                     deriving (Eq)
 
@@ -18,5 +18,5 @@ instance Show PipelineError where
     show (LexError msg) = "Lex Error: \n"
         ++ show msg
     show (ParseError msg) = "Parse Error: \n"
-        ++ msg
+        ++ show msg
     show (SemanticError e) = e

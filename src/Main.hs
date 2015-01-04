@@ -23,28 +23,34 @@ getPath = do
         []      -> throw $ FileError "no input file"
         (x:_)   -> return x
 
+-- read source from file
+-- Exception: throws FileError if file not found
+-- State: saves source if possible
 readSource :: String -> Pipeline String
 readSource path = do
     result <- liftIO $ try (readFile path) :: Pipeline (Either IOException String)
     case result of
         Left  _ -> throwError $ FileError $ "input file " ++ path ++ " does not exists"
-        Right s -> return s
+        Right s -> do
+            put (Just s)
+            return s
 
 main :: IO ()
-main = do
-    (result, pos) <- runStateT (runExceptT pipeline) Unknown
+main = handleError pipeline
+
+handleError :: Pipeline a -> IO ()
+handleError f = do
+    (result, source) <- runStateT (runExceptT f) Nothing
     case result of
         Left    err -> print err
         Right   src -> putStrLn "== SUCCESS =="
 
-
+pipeline :: Pipeline ()
 pipeline = do
-    -- read source, throw FileError if file not found
     source <- readSource "./test/parser/no-parsing-error/parser-test.p"
-    ast <- scan "0progra" >>= parse
+    ast <- scan "program" >>= parse
     -- draw ast
     draw . head $ getScope ast
-
 
 -- main :: IO ()
 -- main = do

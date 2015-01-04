@@ -57,11 +57,4 @@ instance Show Position where
 data Token' a = Token a Position
     deriving (Eq, Show)
 
--- instance Functor Token' where
---     fmap f (Token x pos) = Token (f x) pos
---
--- instance Applicative Token' where
---     pure x = Token x (Position 0, 1, 1)
---     (Token f p) <*> (Token x q) = Token (f x)
-
 type Token = Token' Tok
