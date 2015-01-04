@@ -18,5 +18,5 @@ instance Show PipelineError where
     show (LexError msg) = "Lex Error: \n"
         ++ show msg
     show (ParseError msg) = "Parse Error: \n"
-        ++ show msg
+        ++ show (take 5 msg)
     show (SemanticError e) = e

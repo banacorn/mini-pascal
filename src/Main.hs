@@ -48,9 +48,9 @@ handleError f = do
 pipeline :: Pipeline ()
 pipeline = do
     source <- readSource "./test/parser/no-parsing-error/parser-test.p"
-    ast <- scan "program" >>= parse
-    -- draw ast
-    draw . head $ getScope ast
+    ast <- scan source >>= parse
+    draw ast
+    -- draw . head $ getScope ast
 
 -- main :: IO ()
 -- main = do

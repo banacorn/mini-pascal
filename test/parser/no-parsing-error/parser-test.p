@@ -24,7 +24,7 @@ PROGRAM foo(input, output, error) ;
             if a = 0
                 then
                     addition := b
-                else 
+                else
                     addition := a + b   // this is the return value
       end;
 
