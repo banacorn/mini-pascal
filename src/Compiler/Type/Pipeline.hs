@@ -14,7 +14,8 @@ data PipelineError  = FileError String
                     deriving (Eq)
 
 instance Show PipelineError where
-    show (FileError e) = e
+    show (FileError e) = "File Error: \n"
+        ++ e
     show (LexError msg) = "Lex Error: \n"
         ++ show msg
     show (ParseError msg) = "Parse Error: \n"
