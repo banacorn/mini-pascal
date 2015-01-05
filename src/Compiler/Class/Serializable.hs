@@ -32,8 +32,8 @@ addNewLine = suffix "\n"
 
 instance Serializable Scope where
     serialize (Scope name symbols scopes) =
-        "Scope: " ++ name ++ "\n" ++
-        indent ([show symbols] ++ map serialize scopes)
+        "Scope: " ++ show name ++ "\n" ++
+        indent (map show symbols ++ map serialize scopes)
 
 instance Serializable String where
     serialize = id

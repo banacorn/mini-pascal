@@ -26,7 +26,7 @@ data HOType = FunctionType [FOType] FOType
 
 instance Show HOType where
     show (FunctionType args ret) = intercalate " → " (map show args ++ [show ret])
-    show (ProcedureType args) = intercalate " → " (map show args)
+    show (ProcedureType args) = intercalate " → " (map show args ++ ["()"])
 
 data Type   = FO FOType
             | HO HOType
@@ -39,6 +39,7 @@ instance Show Type where
     show Uninferred = "?"
 
 data SymbolStatus = Declared | Used deriving (Eq, Show)
+
 data Symbol = Symbol
     {   symStatus :: SymbolStatus
     ,   symType :: Type
@@ -50,5 +51,5 @@ instance Show Symbol where
 
 type SymbolTable = [(Symbol, Depth)]
 
-data Scope  = Scope String [Symbol] [Scope]
+data Scope  = Scope Symbol [Symbol] [Scope]
     deriving (Eq, Show)

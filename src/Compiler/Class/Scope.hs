@@ -18,14 +18,16 @@ class HasScope a where
     getScope :: a -> [Scope]
 
 instance HasScope ParseTree where
-    getScope p@(ParseTree program) = [Scope "Program" symbols scopes]
+    getScope p@(ParseTree program) = [Scope header symbols scopes]
         where
+            header = Symbol Declared (FO ProgramType) "Program"
             symbols = getSymbol p
             scopes = getScope program
 
 instance HasScope Program where
-    getScope p@(Program i _ _ sub comp) = [Scope i symbols scopes]
+    getScope p@(Program i _ _ sub comp) = [Scope header symbols scopes]
         where
+            header = Symbol Declared (FO ProgramType) i
             symbols = getSymbol p
             scopes = getScope sub ++ getScope comp
 
@@ -33,15 +35,16 @@ instance HasScope SubprogSection where
     getScope (SubprogSection subprogs) = subprogs >>= getScope
 
 instance HasScope SubprogDec where
-    getScope p@(SubprogDec header _ comp) = [Scope name symbols scopes]
+    getScope p@(SubprogDec header _ comp) = [Scope header' symbols scopes]
         where
-            name = symID . head $ getSymbol header
+            header' = head (getSymbol header)
             symbols = getSymbol p
             scopes = getScope comp
 
 instance HasScope CompoundStmt where
-    getScope p@(CompoundStmt stmts) = [Scope "" symbols scopes]
+    getScope p@(CompoundStmt stmts) = [Scope header symbols scopes]
         where
+            header = Symbol Declared (FO ProgramType) "Compound Statements"
             symbols = getSymbol p
             scopes = stmts >>= getScope
 
