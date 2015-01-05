@@ -15,14 +15,11 @@ import System.Environment (getArgs)
 import System.Console.ANSI
 
 
-throw :: PipelineError -> Pipeline a
-throw = throwError
-
 getPath :: Pipeline String
 getPath = do
     args <- liftIO getArgs
     case args of
-        []      -> throw $ FileError "no input file"
+        []      -> throwError $ FileError "no input file"
         (x:_)   -> return x
 
 -- read source from file
@@ -38,7 +35,12 @@ readSource path = do
             return s
 
 main :: IO ()
-main = handleError pipeline
+main = handleError $ do
+    testOne
+    -- source <- readSource "./test/parser/no-parsing-error/parser-test.p"
+    -- ast <- scan source >>= parse
+    -- draw ast
+    -- draw . head $ getScope ast
 
 handleError :: Pipeline a -> IO ()
 handleError f = do
@@ -62,7 +64,7 @@ handleError f = do
                 printSyntaxError (fromJust source) pos
             SemanticsError _ -> print err
 
-        Right   src -> putStrLn "== SUCCESS =="
+        Right   src -> return ()
 
     where
         paintError s = setSGRCode [SetColor Foreground Vivid Red] ++ s ++ setSGRCode []
@@ -92,12 +94,7 @@ printSyntaxError source (Position offset len l c) = do
 
             paintError s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
             paintLineNo s = setSGRCode [SetColor Foreground Vivid Green] ++ s ++ setSGRCode []
-pipeline :: Pipeline ()
-pipeline = do
-    source <- readSource "./test/parser/no-parsing-error/parser-test.p"
-    ast <- scan source >>= parse
-    draw ast
-    -- draw . head $ getScope ast
+
 
 -- main :: IO ()
 -- main = do
@@ -109,28 +106,34 @@ pipeline = do
 --
 draw :: Serializable a => a -> Pipeline ()
 draw = liftIO . putStrLn . serialize
---
--- pipeline :: String -> IO ()
--- pipeline = print . getScope . parse . scan
---
--- testOne :: IO String
--- testOne = readFile "./test/semantics/test-duplicate.p"
---
--- testAll :: IO ()
--- testAll = mapM_ run filenames
---     where
---         run s = readFile (pathPrefix ++ s) >>= pipeline
---         pathPrefix = "./test/parser/no-parsing-error/"
---         filenames =
---             [   "parser-test.p"
---             ,   "test-constant.p"
---             ,   "test-recursion.p"
---             ,   "test02-uninitialized-var.p"
---             ,   "test-operator.p"
---             ,   "test-operator2.p"
---             ,   "test00-runtime-range-check.p"
---             ,   "test04.p"
---             ,   "test-function.p"
---             ,   "test-procedure.p"
---             ,   "test01-global-var.p"
---             ]
+
+testOne :: Pipeline ()
+testOne = readSource "./test/semantics/test-duplicate.p"
+    >>= scan
+    >>= parse
+    >>= return . head . getScope
+    >>= draw
+    -- >>= liftIO . draw
+
+testAll :: Pipeline ()
+testAll = mapM_ run filenames
+    where
+        run s = readSource (pathPrefix ++ s)
+            >>= scan
+            >>= parse
+            >>= return . head . getScope
+            >>= draw
+        pathPrefix = "./test/parser/no-parsing-error/"
+        filenames =
+            [   "parser-test.p"
+            ,   "test-constant.p"
+            ,   "test-recursion.p"
+            ,   "test02-uninitialized-var.p"
+            ,   "test-operator.p"
+            ,   "test-operator2.p"
+            ,   "test00-runtime-range-check.p"
+            ,   "test04.p"
+            ,   "test-function.p"
+            ,   "test-procedure.p"
+            ,   "test01-global-var.p"
+            ]

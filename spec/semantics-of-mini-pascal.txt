@@ -1,0 +1,72 @@
+Additional rules for the Mini-Pascal language.  
+   1st version: 20110110. 2nd version: 20110407.
+
+
+1.  A programmer cannot define new type names.
+
+2.  Comments are marked with two slashes and extend the end of the line. For example,
+	// this is a comment.
+
+3.  The difference between "num" and "integer" tokens:
+    "initeger" is a keyword.  It is a token. Things like 3.14, 999, 123, 
+    2.71, etc. belong to the "num" token class. You may even define 
+    strings such as "2.503E-7" as a "num" token.  We did not specify the
+    exact regular expressions for num. You may define reasonable 
+    expressions, such as 123, 34.764, 2.53E+24, etc.
+
+4.  Strings are treated as a basic type.  You may define reasonable regular
+    expressions for strings. You may use C-style or Fortran-style strings. 
+    You may even build a library for functions related to strings.
+
+5.  We use name equivalence for type compatibility. You may design a reasonable
+    type system for mini-pascal.
+
+
+6.  We forbid to add an integer and a real number together. Explicit cast is needed.
+
+7.  A function's value is the value of the variable whose name is the same as 
+    the function. For example,
+
+   function  addition(a, b: integer) : integer;
+      begin
+         addition := a + b;  // this is the return value
+      end;
+
+    If a function did not set up a return value, a compiler may generate an error message.
+
+8.  We may assign an arry to another. For example,
+    
+	var a, b: array [ 23 .. 57 ] of integer;
+	a := b;
+
+9.  All parameters are passed by value.
+
+10. We can assign a whole array to a variable. For example,
+
+    VAR a, b : array [ 1 .. 10 ] of array [ 1 .. 10 ] of Integer;
+    a[5] := b[3]; 
+
+11.  Array indices could be negative. For example,
+
+    VAR a : Array [ -5 .. 5 ] of Integer ;
+    a[ -5 ] := -5;
+    a[ -1 ] := -10;
+
+12.  To call a procdure, we simply refer to the name of the procedure plus appropriate parameters. This corresponds to the following two rules in the Mini-pascal grammar:
+
+		procedure_statement ::= id
+			| id ( expression_list )
+
+13. We allow overloading.  A function and a variable may have the same name if the type of the function's return value and the type of the variable are different. There could be multiple functions with the same name if they will never cause trouble in any Mini-Pascal program.
+
+14. Mini-Pascal is not an object-oriented language.  However, you may extend Mini-Pascal to include object-oriented features, such as inheritance.
+
+15. A number could be prefixed with an optional positive/negative sign. A number could be an integer or a floating-point number. They both are considered You may define the regular expression for a number in an appropriate way.
+
+16. Furthermore, in the Mini-Pascal grammar, there is no provision 
+a string, such as "hello", is also considered as a number by the scanner. Similarly, a character, such as 'a', is also considered as a number by the scanner.
+
+17. In Mini-Pascal, upper-case letters and lower-case letters in names are considered equivalent. For instance, aBcD = abcd = ABCD. This is different from the rule in the C language.
+
+18. You may add overload resolution to the compiler.
+--

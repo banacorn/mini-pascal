@@ -1,0 +1,54 @@
+Code generation  20100629.
+
+The evaluation criteria:
+
+You may use and modify the test cases provided in the course web page. You may make up new test cases fitting your compiler. You can also introduce new features into your compiler.
+
+You will need to implement three "library" routines:
+	printInt( a+15 );
+        printReal( b+c/3.14 );
+        printString( "The size of the graph is" );
+
+Each item below will earn 1 point.  A scaling formula will be used to translate your total points to a numerical score.
+
+0.  (part 1) Filter out comments.
+0.  (part 1) Use the longest-match rule in scanning.
+
+1.   (part 3) check for duplicated declarations.
+2.   variables of integer type.
+3.   variables of real type.
+4.   variables of simple array types, such as 
+	array [ 23 .. 57 ] of integer
+        array [ 12 .. 34 ] of real
+5.   variables of multi-dimension arrays, such as 
+	array [ 23 .. 57 ] of array [ 12 .. 34 ] of integer
+        array [ 12 .. 34 ] of array [ 23 .. 57 ] of real
+
+6.  Addition and subtraction operations.
+7.  Multiplication and division operations.
+8.  Comparision operations.
+9.  Evaluate constant expressions in the compiler.
+10.  assignment statements of simple types (integer and real)
+11.  assignment of 1-dimensional arrays
+12.  assignment of multi-dimensional arrays
+13.  check out-of-bound array indices at compile time
+14.  Generate code to check out-of-bound array indices at run time
+15.  simple if statements
+16.  simple while loops
+17.  nested if statements 
+18.  nested while loops
+19.  arbitrary combination of assignment statements, if statements, and while loops
+
+20.  subprograms (procedures and functions) without parameters and without return values
+21.  recursive subprograms without parameters and without return values.
+22.  subprograms with (integer and real) parameters and with (integer and real) return values
+23.  recursive subprograms with (integer and real) parameters and with (integer and real) return values
+
+25.  PrintInt, PrintReal, and PrintString.
+26.  Check if a variable is initialized.
+27.  There could be constant folding of various degrees of difficulty.
+     For example, 
+     a = 3 + 4 + b;
+     a = 3 + b - 4;
+     a = 3 + b - 4 + c + 5;
+--
