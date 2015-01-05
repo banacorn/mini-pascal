@@ -106,7 +106,8 @@ instance HasSymbol Declaration where
     getSymbol (Declaration ids t) = map (Symbol Declared (getType t)) ids
 
 instance HasSymbol SubprogSection where
-    getSymbol (SubprogSection subprogs) = subprogs >>= getSymbol
+    getSymbol (SubprogSection subprogs) = subprogs >>= getHeaderSymbol
+        where   getHeaderSymbol (SubprogDec header _ _) = getSymbol header
 
 instance HasSymbol SubprogDec where
     getSymbol (SubprogDec header decs _) =
