@@ -1,5 +1,7 @@
 module Compiler.Type.Scope where
 
+import Data.List (intercalate)
+
 type Depth = Int
 
 data FOType = IntegerType
@@ -8,15 +10,31 @@ data FOType = IntegerType
             | ArrayType (String, String) FOType
             | ProgramType       -- only for the top most program
             | ProgramParamType
-            deriving (Eq, Show)
+            deriving (Eq)
+
+instance Show FOType where
+    show IntegerType = "Int"
+    show RealType = "Real"
+    show StringType = "String"
+    show (ArrayType (from, to) t) = "Array [" ++ from ++ " .. " ++ to ++"] " ++ show t
+    show ProgramType = "Prog"
+    show ProgramParamType = "ProgArg"
 
 data HOType = FunctionType [FOType] FOType
             | ProcedureType [FOType]
-            deriving (Eq, Show)
+            deriving (Eq)
+
+instance Show HOType where
+    show (FunctionType args ret) = intercalate " → " (map show args ++ [show ret])
+    show (ProcedureType args) = intercalate " → " (map show args)
 
 data Type   = FO FOType
             | HO HOType
-            deriving (Eq, Show)
+            deriving (Eq)
+
+instance Show Type where
+    show (FO t) = show t
+    show (HO t) = show t
 
 data SymbolStatus = Declared | Used deriving (Eq, Show)
 data Symbol = Symbol
