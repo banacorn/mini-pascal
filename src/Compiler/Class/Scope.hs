@@ -68,15 +68,24 @@ instance HasFOType TypeN where
     getFOType (StdTypeN t) = getFOType t
     getFOType (ArrayTypeN range t) = ArrayType range (getFOType t)
 
+instance HasFOType Param where
+    getFOType (Param _ t) = getFOType t
+
 class HasType a where
     getType :: a -> Type
 
-instance HasType Param where
-    getType (Param _ t) = FO (getFOType t)
+instance HasType StandardTypeN where
+    getType = FO . getFOType
 
---
--- instance HasType SubprogDec where
---     getID (SubprogDec header _ _) = getID header
+instance HasType TypeN where
+    getType = FO . getFOType
+
+
+instance HasType SubprogHead where
+    getType (SubprogHeadFunc _ EmptyArguments     ret) = HO $ FunctionType [] (getFOType ret)
+    getType (SubprogHeadFunc _ (Arguments params) ret) = HO $ FunctionType (map getFOType params) (getFOType ret)
+    getType (SubprogHeadProc _ EmptyArguments)         = HO $ ProcedureType []
+    getType (SubprogHeadProc _ (Arguments params))     = HO $ ProcedureType (map getFOType params)
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasSymbol
@@ -85,16 +94,16 @@ class HasSymbol a where
     getSymbol :: a -> [Symbol]
 
 instance HasSymbol ParseTree where
-    getSymbol (ParseTree (Program i _ _ _ _)) = [Symbol Declared i]
+    getSymbol (ParseTree (Program i _ _ _ _)) = [Symbol Declared (FO ProgramType) i]
 
 instance HasSymbol Program where
     getSymbol (Program _ params decs subprogs _) =
-        map (Symbol Declared) params  ++
+        map (Symbol Declared (FO ProgramParamType)) params  ++
         (decs >>= getSymbol) ++
         getSymbol subprogs
 
 instance HasSymbol Declaration where
-    getSymbol (Declaration ids _) = map (Symbol Declared) ids
+    getSymbol (Declaration ids t) = map (Symbol Declared (getType t)) ids
 
 instance HasSymbol SubprogSection where
     getSymbol (SubprogSection subprogs) = subprogs >>= getSymbol
@@ -107,15 +116,15 @@ instance HasSymbol SubprogDec where
                 getArgumentSymbols (SubprogHeadProc _ args) = getSymbol args
 
 instance HasSymbol SubprogHead where
-    getSymbol (SubprogHeadFunc i _ _) = [Symbol Declared i]
-    getSymbol (SubprogHeadProc i _) = [Symbol Declared i]
+    getSymbol p@(SubprogHeadFunc i args ret) = [Symbol Declared (getType p) i]
+    getSymbol p@(SubprogHeadProc i args) = [Symbol Declared (getType p) i]
 
 instance HasSymbol Arguments where
     getSymbol EmptyArguments = []
     getSymbol (Arguments xs) = xs >>= getSymbol
 
 instance HasSymbol Param where
-    getSymbol (Param ids _) = map (Symbol Declared) ids
+    getSymbol (Param ids t) = map (Symbol Declared (getType t)) ids
 
 instance HasSymbol CompoundStmt where
     getSymbol (CompoundStmt stmts) = stmts >>= getSymbol
@@ -128,11 +137,11 @@ instance HasSymbol Stmt where
     getSymbol (LoopStmt e _) = getSymbol e
 
 instance HasSymbol Variable where
-    getSymbol (Variable i exprs) = [Symbol Used i] ++ (exprs >>= getSymbol)
+    getSymbol (Variable i exprs) = [Symbol Used Uninferred i] ++ (exprs >>= getSymbol)
 
 instance HasSymbol ProcedureStmt where
-    getSymbol (ProcedureStmtOnlyID i) = [Symbol Used i]
-    getSymbol (ProcedureStmtWithExprs i exprs) = [Symbol Used i] ++ (exprs >>= getSymbol)
+    getSymbol (ProcedureStmtOnlyID i) = [Symbol Used Uninferred i]
+    getSymbol (ProcedureStmtWithExprs i exprs) = [Symbol Used Uninferred i] ++ (exprs >>= getSymbol)
 
 instance HasSymbol Expr where
     getSymbol (UnaryExpr expr) = getSymbol expr
@@ -148,8 +157,8 @@ instance HasSymbol Term where
     getSymbol (NegTerm f) = getSymbol f
 
 instance HasSymbol Factor where
-    getSymbol (IDSBFactor i exprs) = [Symbol Used i] ++ (exprs >>= getSymbol)
-    getSymbol (IDPFactor i exprs) = [Symbol Used i] ++ (exprs >>= getSymbol)
+    getSymbol (IDSBFactor i exprs) = [Symbol Used Uninferred i] ++ (exprs >>= getSymbol)
+    getSymbol (IDPFactor i exprs) = [Symbol Used Uninferred i] ++ (exprs >>= getSymbol)
     getSymbol (NumFactor _) = []
     getSymbol (PFactor expr) = getSymbol expr
     getSymbol (NotFactor f) = getSymbol f

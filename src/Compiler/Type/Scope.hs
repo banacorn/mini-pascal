@@ -30,20 +30,23 @@ instance Show HOType where
 
 data Type   = FO FOType
             | HO HOType
+            | Uninferred
             deriving (Eq)
 
 instance Show Type where
     show (FO t) = show t
     show (HO t) = show t
+    show Uninferred = "?"
 
 data SymbolStatus = Declared | Used deriving (Eq, Show)
 data Symbol = Symbol
     {   symStatus :: SymbolStatus
+    ,   symType :: Type
     ,   symID :: String
     }   deriving (Eq)
 
 instance Show Symbol where
-    show (Symbol status i) = show status ++ " " ++ i
+    show (Symbol status t i) = show status ++ " " ++ i ++ " : " ++ show t
 
 type SymbolTable = [(Symbol, Depth)]
 
