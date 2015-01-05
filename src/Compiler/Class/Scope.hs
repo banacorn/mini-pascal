@@ -18,7 +18,10 @@ class HasScope a where
     getScope :: a -> [Scope]
 
 instance HasScope ParseTree where
-    getScope (ParseTree program) = [Scope "Program" [] (getScope program)]
+    getScope p@(ParseTree program) = [Scope "Program" symbols scopes]
+        where
+            symbols = getSymbol p
+            scopes = getScope program
 
 instance HasScope Program where
     getScope p@(Program i _ _ sub comp) = [Scope i symbols scopes]
@@ -30,8 +33,9 @@ instance HasScope SubprogSection where
     getScope (SubprogSection subprogs) = subprogs >>= getScope
 
 instance HasScope SubprogDec where
-    getScope p@(SubprogDec header _ comp) = [Scope (getID header) symbols scopes]
+    getScope p@(SubprogDec header _ comp) = [Scope name symbols scopes]
         where
+            name = symID . head $ getSymbol header
             symbols = getSymbol p
             scopes = getScope comp
 
@@ -47,32 +51,6 @@ instance HasScope Stmt where
     getScope (CompStmt c) = getScope c
     getScope (BranchStmt _ s t) = getScope s ++ getScope t
     getScope (LoopStmt _ s) = getScope s
-
---------------------------------------------------------------------------------
--- Class & Instances of HasID
-
-class HasID a where
-    getID :: a -> String
-
-instance HasID Program where
-    getID (Program i _ _ _ _) = i
-    -- getID (Program i _ _ _ _) = Declared (FO ProgramType) i
-
-instance HasID SubprogSection where
-    getID (SubprogSection subprogs) = subprogs >>= getID
-
-instance HasID SubprogDec where
-    getID (SubprogDec header _ _) = getID header
-
-instance HasID SubprogHead where
-    getID (SubprogHeadFunc i _ _) = i
-    getID (SubprogHeadProc i _) = i
-
-    -- getID (SubprogHeadFunc i EmptyArguments returnType) = Declared (HO (FunctionType [] getType returnType)) i
-    --
-    -- getID (SubprogHeadFunc i args returnType) = i
-    -- getID (SubprogHeadProc i args) = i
-
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasType
@@ -123,12 +101,14 @@ instance HasSymbol SubprogSection where
 
 instance HasSymbol SubprogDec where
     getSymbol (SubprogDec header decs _) =
-        getSymbol header ++
+        getArgumentSymbols header ++
         (decs >>= getSymbol)
+        where   getArgumentSymbols (SubprogHeadFunc _ args _) = getSymbol args
+                getArgumentSymbols (SubprogHeadProc _ args) = getSymbol args
 
 instance HasSymbol SubprogHead where
-    getSymbol (SubprogHeadFunc _ args _) = getSymbol args
-    getSymbol (SubprogHeadProc _ args) = getSymbol args
+    getSymbol (SubprogHeadFunc i _ _) = [Symbol Declared i]
+    getSymbol (SubprogHeadProc i _) = [Symbol Declared i]
 
 instance HasSymbol Arguments where
     getSymbol EmptyArguments = []

@@ -22,7 +22,10 @@ data SymbolStatus = Declared | Used deriving (Eq, Show)
 data Symbol = Symbol
     {   symStatus :: SymbolStatus
     ,   symID :: String
-    }   deriving (Eq, Show)
+    }   deriving (Eq)
+
+instance Show Symbol where
+    show (Symbol status i) = show status ++ " " ++ i
 
 type SymbolTable = [(Symbol, Depth)]
 
