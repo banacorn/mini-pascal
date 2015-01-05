@@ -5,11 +5,12 @@ type Depth = Int
 data FOType = IntegerType
             | RealType
             | StringType
-            | ArrayT FOType
+            | ArrayType (String, String) FOType
+            | ProgramType       -- only for the top most program
+            | ProgramParamType
             deriving (Eq, Show)
 
-data HOType = ProgramType                -- only for the top most program
-            | FunctionType [FOType] FOType
+data HOType = FunctionType [FOType] FOType
             | ProcedureType [FOType]
             deriving (Eq, Show)
 
@@ -20,6 +21,7 @@ data Type   = FO FOType
 data Symbol = Declared String
             | Used String
             deriving (Eq, Show)
+
 type SymbolTable = [(Symbol, Depth)]
 
 data Scope  = Scope String [Symbol] [Scope]

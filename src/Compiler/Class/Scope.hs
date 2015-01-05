@@ -53,6 +53,7 @@ class HasID a where
 
 instance HasID Program where
     getID (Program i _ _ _ _) = i
+    -- getID (Program i _ _ _ _) = Declared (FO ProgramType) i
 
 instance HasID SubprogDec where
     getID (SubprogDec header _ _) = getID header
@@ -61,14 +62,38 @@ instance HasID SubprogHead where
     getID (SubprogHeadFunc i _ _) = i
     getID (SubprogHeadProc i _) = i
 
+    -- getID (SubprogHeadFunc i EmptyArguments returnType) = Declared (HO (FunctionType [] getType returnType)) i
+    --
+    -- getID (SubprogHeadFunc i args returnType) = i
+    -- getID (SubprogHeadProc i args) = i
+
+
 --------------------------------------------------------------------------------
 -- Class & Instances of HasType
+
+class HasFOType a where
+    getFOType :: a -> FOType
+
+
+instance HasFOType StandardTypeN where
+    getFOType IntTypeN = IntegerType
+    getFOType RealTypeN = RealType
+    getFOType StringTypeN = StringType
+
+instance HasFOType TypeN where
+    getFOType (StdTypeN t) = getFOType t
+    getFOType (ArrayTypeN range t) = ArrayType range (getFOType t)
 
 class HasType a where
     getType :: a -> Type
 
-instance HasType Program where
-    getType (Program _ _ _ _ _) = HO ProgramType
+instance HasType Param where
+    getType (Param _ t) = FO (getFOType t)
+
+--
+-- instance HasType SubprogDec where
+--     getID (SubprogDec header _ _) = getID header
+
 --------------------------------------------------------------------------------
 -- Class & Instances of HasSymbol
 
@@ -80,7 +105,7 @@ instance HasSymbol ParseTree where
 
 instance HasSymbol Program where
     getSymbol (Program _ params decs subs _) =
-        map Declared params ++
+        map (Declared) params  ++
         (decs >>= getSymbol) ++
         map (Declared . getID) subs
 
