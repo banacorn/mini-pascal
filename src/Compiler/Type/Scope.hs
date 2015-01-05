@@ -18,9 +18,11 @@ data Type   = FO FOType
             | HO HOType
             deriving (Eq, Show)
 
-data Symbol = Declared String
-            | Used String
-            deriving (Eq, Show)
+data SymbolStatus = Declared | Used deriving (Eq, Show)
+data Symbol = Symbol
+    {   symStatus :: SymbolStatus
+    ,   symID :: String
+    }   deriving (Eq, Show)
 
 type SymbolTable = [(Symbol, Depth)]
 
