@@ -90,11 +90,11 @@ instance Serializable ParseTree where
     serialize (ParseTree program) = serialize program
 
 instance Serializable Program where
-    serialize (Program i is decs subprogdecs comp) =
+    serialize (Program i is decs subprogs comp) =
         "\n" ++
         header ++ "\n" ++
         indent decs ++ "\n" ++
-        indent subprogdecs ++
+        indentBlock (serialize subprogs) ++
         indentBlock (serialize comp) ++
         ".\n"
         where
@@ -118,6 +118,9 @@ instance Serializable StandardTypeN where
     serialize IntTypeN = "int"
     serialize RealTypeN = "real"
     serialize StringTypeN = "string"
+
+instance Serializable SubprogSection where
+    serialize (SubprogSection decs) = intercalate "\n" (map serialize decs)
 
 instance Serializable SubprogDec where
     serialize (SubprogDec header decs comp) =

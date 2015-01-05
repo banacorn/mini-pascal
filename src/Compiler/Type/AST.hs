@@ -6,7 +6,7 @@ module Compiler.Type.AST where
 data ParseTree = ParseTree Program
     deriving (Eq, Show)
 
-data Program = Program ID [ID] [Declaration] [SubprogDec] CompoundStmt
+data Program = Program ID [ID] [Declaration] SubprogSection CompoundStmt
     deriving (Eq, Show)
 
 type ID = String
@@ -22,6 +22,7 @@ data TypeN  = StdTypeN StandardTypeN
 
 data StandardTypeN = IntTypeN | RealTypeN | StringTypeN deriving (Eq, Show)
 
+data SubprogSection = SubprogSection [SubprogDec] deriving (Eq, Show)
 data SubprogDec = SubprogDec SubprogHead [Declaration] CompoundStmt deriving (Eq, Show)
 
 data SubprogHead    = SubprogHeadFunc ID Arguments StandardTypeN

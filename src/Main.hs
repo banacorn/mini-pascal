@@ -108,10 +108,10 @@ draw :: Serializable a => a -> Pipeline ()
 draw = liftIO . putStrLn . serialize
 
 testOne :: Pipeline ()
-testOne = readSource "./test/semantics/test-duplicate.p"
+testOne = readSource "./test/semantics/test00-type-error-in-array.p"
     >>= scan
     >>= parse
-    >>= return . head . getScope
+    -- >>= return . head . getScope
     >>= draw
     -- >>= liftIO . draw
 

@@ -21,10 +21,13 @@ instance HasScope ParseTree where
     getScope (ParseTree program) = [Scope "Program" [] (getScope program)]
 
 instance HasScope Program where
-    getScope p@(Program i _ _ subs comp) = [Scope i symbols scopes]
+    getScope p@(Program i _ _ sub comp) = [Scope i symbols scopes]
         where
             symbols = getSymbol p
-            scopes = (subs >>= getScope) ++ getScope comp
+            scopes = getScope sub ++ getScope comp
+
+instance HasScope SubprogSection where
+    getScope (SubprogSection subprogs) = subprogs >>= getScope
 
 instance HasScope SubprogDec where
     getScope p@(SubprogDec header _ comp) = [Scope (getID header) symbols scopes]
@@ -54,6 +57,9 @@ class HasID a where
 instance HasID Program where
     getID (Program i _ _ _ _) = i
     -- getID (Program i _ _ _ _) = Declared (FO ProgramType) i
+
+instance HasID SubprogSection where
+    getID (SubprogSection subprogs) = subprogs >>= getID
 
 instance HasID SubprogDec where
     getID (SubprogDec header _ _) = getID header
@@ -101,16 +107,19 @@ class HasSymbol a where
     getSymbol :: a -> [Symbol]
 
 instance HasSymbol ParseTree where
-    getSymbol _ = []
+    getSymbol (ParseTree (Program i _ _ _ _)) = [Symbol Declared i]
 
 instance HasSymbol Program where
-    getSymbol (Program _ params decs subs _) =
+    getSymbol (Program _ params decs subprogs _) =
         map (Symbol Declared) params  ++
         (decs >>= getSymbol) ++
-        map (Symbol Declared . getID) subs
+        getSymbol subprogs
 
 instance HasSymbol Declaration where
     getSymbol (Declaration ids _) = map (Symbol Declared) ids
+
+instance HasSymbol SubprogSection where
+    getSymbol (SubprogSection subprogs) = subprogs >>= getSymbol
 
 instance HasSymbol SubprogDec where
     getSymbol (SubprogDec header decs _) =
