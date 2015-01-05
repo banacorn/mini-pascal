@@ -1,7 +1,10 @@
 module Compiler.Type.Scope where
 
 type Depth = Int
-type Symbol = String
+
+data Symbol = Declared String
+            | Used String
+            deriving (Eq, Show)
 type SymbolTable = [(Symbol, Depth)]
 
 data Scope  = Scope String [Symbol] [Scope]

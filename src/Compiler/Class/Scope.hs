@@ -5,7 +5,7 @@ import Compiler.Type
 --------------------------------------------------------------------------------
 -- helper functions
 
-withDepth :: Int -> [String] -> SymbolTable
+withDepth :: Int -> [Symbol] -> SymbolTable
 withDepth n xs = zip xs (repeat n)
 
 succDepth :: SymbolTable -> SymbolTable
@@ -65,19 +65,20 @@ instance HasID SubprogHead where
 -- Class & Instances of HasSymbol
 
 class HasSymbol a where
-    getSymbol :: a -> [String]
+    getSymbol :: a -> [Symbol]
 
 instance HasSymbol ParseTree where
     getSymbol _ = []
 
 instance HasSymbol Program where
-    getSymbol (Program _ is decs subs _) =
-        is ++
+    getSymbol (Program _ params decs subs _) =
+        map Declared params ++
         (decs >>= getSymbol) ++
-        (map getID subs)
+        map (Declared . getID) subs
 
 instance HasSymbol Declaration where
-    getSymbol (Declaration ids _) = ids
+    getSymbol (Declaration ids _) = map Declared ids
+
 instance HasSymbol SubprogDec where
     getSymbol (SubprogDec header decs _) =
         getSymbol header ++
@@ -92,7 +93,7 @@ instance HasSymbol Arguments where
     getSymbol (Arguments xs) = xs >>= getSymbol
 
 instance HasSymbol Param where
-    getSymbol (Param ids _) = ids
+    getSymbol (Param ids _) = map Declared ids
 
 instance HasSymbol CompoundStmt where
     getSymbol (CompoundStmt stmts) = stmts >>= getSymbol
@@ -105,11 +106,11 @@ instance HasSymbol Stmt where
     getSymbol (LoopStmt e _) = getSymbol e
 
 instance HasSymbol Variable where
-    getSymbol (Variable i exprs) = [i] ++ (exprs >>= getSymbol)
+    getSymbol (Variable i exprs) = [Used i] ++ (exprs >>= getSymbol)
 
 instance HasSymbol ProcedureStmt where
-    getSymbol (ProcedureStmtOnlyID i) = [i]
-    getSymbol (ProcedureStmtWithExprs i exprs) = [i] ++ (exprs >>= getSymbol)
+    getSymbol (ProcedureStmtOnlyID i) = [Used i]
+    getSymbol (ProcedureStmtWithExprs i exprs) = [Used i] ++ (exprs >>= getSymbol)
 
 instance HasSymbol Expr where
     getSymbol (UnaryExpr expr) = getSymbol expr
@@ -125,8 +126,8 @@ instance HasSymbol Term where
     getSymbol (NegTerm f) = getSymbol f
 
 instance HasSymbol Factor where
-    getSymbol (IDSBFactor i exprs) = [i] ++ (exprs >>= getSymbol)
-    getSymbol (IDPFactor i exprs) = [i] ++ (exprs >>= getSymbol)
+    getSymbol (IDSBFactor i exprs) = [Used i] ++ (exprs >>= getSymbol)
+    getSymbol (IDPFactor i exprs) = [Used i] ++ (exprs >>= getSymbol)
     getSymbol (NumFactor _) = []
     getSymbol (PFactor expr) = getSymbol expr
     getSymbol (NotFactor f) = getSymbol f
