@@ -110,14 +110,14 @@ instance Serializable Declaration where
         where
             serializeIDs = intercalate ", "
 
-instance Serializable Type where
-    serialize (StdType t) = serialize t
-    serialize (ArrayType (a, b) t) = "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
+instance Serializable TypeN where
+    serialize (StdTypeN t) = serialize t
+    serialize (ArrayTypeN (a, b) t) = "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
 
-instance Serializable StandardType where
-    serialize IntType = "int"
-    serialize RealType = "real"
-    serialize StringType = "string"
+instance Serializable StandardTypeN where
+    serialize IntTypeN = "int"
+    serialize RealTypeN = "real"
+    serialize StringTypeN = "string"
 
 instance Serializable SubprogDec where
     serialize (SubprogDec header decs comp) =

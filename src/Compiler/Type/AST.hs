@@ -11,27 +11,27 @@ data Program = Program ID [ID] [Declaration] [SubprogDec] CompoundStmt
 
 type ID = String
 
-data Declaration = Declaration [ID] Type
+data Declaration = Declaration [ID] TypeN
     deriving (Eq, Show)
 
 type Number = String
 
-data Type   = StdType StandardType
-            | ArrayType (Number, Number) Type
+data TypeN  = StdTypeN StandardTypeN
+            | ArrayTypeN (Number, Number) TypeN
             deriving (Eq, Show)
 
-data StandardType = IntType | RealType | StringType deriving (Eq, Show)
+data StandardTypeN = IntTypeN | RealTypeN | StringTypeN deriving (Eq, Show)
 
 data SubprogDec = SubprogDec SubprogHead [Declaration] CompoundStmt deriving (Eq, Show)
 
-data SubprogHead    = SubprogHeadFunc ID Arguments StandardType
+data SubprogHead    = SubprogHeadFunc ID Arguments StandardTypeN
                     | SubprogHeadProc ID Arguments
                     deriving (Eq, Show)
 
 data Arguments  = EmptyArguments
                 | Arguments [Param]
                 deriving (Eq, Show)
-data Param = Param [ID] Type
+data Param = Param [ID] TypeN
     deriving (Eq, Show)
 
 data CompoundStmt = CompoundStmt [Stmt]

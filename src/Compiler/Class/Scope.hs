@@ -62,6 +62,14 @@ instance HasID SubprogHead where
     getID (SubprogHeadProc i _) = i
 
 --------------------------------------------------------------------------------
+-- Class & Instances of HasType
+
+class HasType a where
+    getType :: a -> Type
+
+instance HasType Program where
+    getType (Program _ _ _ _ _) = HO ProgramType
+--------------------------------------------------------------------------------
 -- Class & Instances of HasSymbol
 
 class HasSymbol a where
