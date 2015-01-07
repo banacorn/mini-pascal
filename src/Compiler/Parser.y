@@ -55,7 +55,7 @@ import Control.Monad.Except
 
 
 program : progtok id '(' identifier_list ')' ';' declarations subprogram_declarations compound_statement '.' {
-    ParseTree (Program $2 (reverse $4) (reverse $7) (SubprogSection (reverse $8)) $9)
+    Program $2 (reverse $4) (reverse $7) (SubprogSection (reverse $8)) $9
 }
 
 

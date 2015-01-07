@@ -100,9 +100,6 @@ instance Serializable Tok where
 --------------------------------------------------------------------------------
 -- AST instances
 
-instance Serializable ParseTree where
-    serialize (ParseTree program) = serialize program
-
 instance Serializable Program where
     serialize (Program i is decs subprogs comp) =
         "\n" ++

@@ -3,9 +3,6 @@ module Compiler.Type.AST where
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
-data ParseTree = ParseTree Program
-    deriving (Eq, Show)
-
 data Program = Program ID [ID] [Declaration] SubprogSection CompoundStmt
     deriving (Eq, Show)
 

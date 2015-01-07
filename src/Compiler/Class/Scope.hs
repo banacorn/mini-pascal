@@ -17,13 +17,6 @@ succDepth = map (\ (a, i) -> (a, succ i))
 class HasScope a where
     getScope :: a -> [Scope]
 
-instance HasScope ParseTree where
-    getScope p@(ParseTree program) = [Scope header symbols scopes]
-        where
-            header = Symbol Declared (FO ProgramType) "Program"
-            symbols = getSymbol p
-            scopes = getScope program
-
 instance HasScope Program where
     getScope p@(Program i _ _ sub comp) = [Scope header symbols scopes]
         where
@@ -95,9 +88,6 @@ instance HasType SubprogHead where
 
 class HasSymbol a where
     getSymbol :: a -> [Symbol]
-
-instance HasSymbol ParseTree where
-    getSymbol (ParseTree (Program i _ _ _ _)) = [Symbol Declared (FO ProgramType) i]
 
 instance HasSymbol Program where
     getSymbol (Program _ params decs subprogs _) =
