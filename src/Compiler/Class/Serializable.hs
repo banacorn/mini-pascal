@@ -4,6 +4,7 @@ module Compiler.Class.Serializable where
 
 import Compiler.Type
 
+import System.Console.ANSI
 import Data.List (intercalate)
 
 class Serializable a where
@@ -28,12 +29,25 @@ addNewLine :: String -> String
 addNewLine = suffix "\n"
 
 --------------------------------------------------------------------------------
+-- colours!
+
+green :: String -> String
+green s = setSGRCode [SetColor Foreground Vivid Green] ++ s ++ setSGRCode []
+
+yellow :: String -> String
+yellow s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
+
+--------------------------------------------------------------------------------
 -- other instances
 
 instance Serializable Scope where
     serialize (Scope name symbols scopes) =
-        "Scope: " ++ show name ++ "\n" ++
-        indent (map show symbols ++ map serialize scopes)
+        "Scope: " ++ serialize name ++ "\n" ++
+        indent (map serialize symbols ++ map serialize scopes)
+
+instance Serializable Symbol where
+    serialize (Symbol Declared t i) = green i ++ " : " ++ show t
+    serialize (Symbol Used t i) = yellow i ++ " : " ++ show t
 
 instance Serializable String where
     serialize = id
