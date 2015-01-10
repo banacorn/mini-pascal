@@ -40,6 +40,7 @@ data Tok    = TokID String         -- identifiers
             | TokNot               -- "not"
             | TokTo                -- ..
             | TokError String      -- anything else
+            | TokEOF               -- EOF
             deriving (Eq, Show)
 
 data Position = Position
@@ -54,7 +55,5 @@ instance Show Position where
     show (Position offset len line column) = "Position " ++ show offset ++ " " ++ show len ++ " L"++ show line ++ " C" ++ show column
     show Unknown = "Unknown"
 
-data Token' a = Token a Position
+data Token = Token Tok Position
     deriving (Eq, Show)
-
-type Token = Token' Tok

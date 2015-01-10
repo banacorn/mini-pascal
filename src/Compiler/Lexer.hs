@@ -121,7 +121,99 @@ alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
 -- Default monad
 
 
-{-# LINE 242 "templates/wrappers.hs" #-}
+data AlexState = AlexState {
+        alex_pos :: !AlexPosn,  -- position at current input location
+        alex_inp :: String,     -- the current input
+        alex_chr :: !Char,      -- the character before the input
+        alex_bytes :: [Byte],
+        alex_scd :: !Int        -- the current startcode
+
+
+
+    }
+
+-- Compile with -funbox-strict-fields for best results!
+
+runAlex :: String -> Alex a -> Either String a
+runAlex input (Alex f) 
+   = case f (AlexState {alex_pos = alexStartPos,
+                        alex_inp = input,       
+                        alex_chr = '\n',
+                        alex_bytes = [],
+
+
+
+                        alex_scd = 0}) of Left msg -> Left msg
+                                          Right ( _, a ) -> Right a
+
+newtype Alex a = Alex { unAlex :: AlexState -> Either String (AlexState, a) }
+
+instance Monad Alex where
+  m >>= k  = Alex $ \s -> case unAlex m s of 
+                                Left msg -> Left msg
+                                Right (s',a) -> unAlex (k a) s'
+  return a = Alex $ \s -> Right (s,a)
+
+alexGetInput :: Alex AlexInput
+alexGetInput
+ = Alex $ \s@AlexState{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} -> 
+        Right (s, (pos,c,bs,inp))
+
+alexSetInput :: AlexInput -> Alex ()
+alexSetInput (pos,c,bs,inp)
+ = Alex $ \s -> case s{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} of
+                  s@(AlexState{}) -> Right (s, ())
+
+alexError :: String -> Alex a
+alexError message = Alex $ \s -> Left message
+
+alexGetStartCode :: Alex Int
+alexGetStartCode = Alex $ \s@AlexState{alex_scd=sc} -> Right (s, sc)
+
+alexSetStartCode :: Int -> Alex ()
+alexSetStartCode sc = Alex $ \s -> Right (s{alex_scd=sc}, ())
+
+
+
+
+
+
+
+
+
+alexMonadScan = do
+  inp <- alexGetInput
+  sc <- alexGetStartCode
+  case alexScan inp sc of
+    AlexEOF -> alexEOF
+    AlexError ((AlexPn _ line column),_,_,_) -> alexError $ "lexical error at line " ++ (show line) ++ ", column " ++ (show column)
+    AlexSkip  inp' len -> do
+        alexSetInput inp'
+        alexMonadScan
+    AlexToken inp' len action -> do
+        alexSetInput inp'
+        action (ignorePendingBytes inp) len
+
+-- -----------------------------------------------------------------------------
+-- Useful token actions
+
+type AlexAction result = AlexInput -> Int -> Alex result
+
+-- just ignore this token and scan another one
+-- skip :: AlexAction result
+skip input len = alexMonadScan
+
+-- ignore this token, but set the start code to a new value
+-- begin :: Int -> AlexAction result
+begin code input len = do alexSetStartCode code; alexMonadScan
+
+-- perform an action for this token, and set the start code to a new value
+andBegin :: AlexAction result -> Int -> AlexAction result
+(action `andBegin` code) input len = do alexSetStartCode code; action input len
+
+token :: (AlexInput -> Int -> token) -> AlexAction token
+token t input len = return (t input len)
+
 
 
 -- -----------------------------------------------------------------------------
@@ -154,15 +246,7 @@ alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
 -- Adds text positions to the basic model.
 
 
---alexScanTokens :: String -> [token]
-alexScanTokens str = go (alexStartPos,'\n',[],str)
-  where go inp@(pos,_,_,str) =
-          case alexScan inp 0 of
-                AlexEOF -> []
-                AlexError ((AlexPn _ line column),_,_,_) -> error $ "lexical error at line " ++ (show line) ++ ", column " ++ (show column)
-                AlexSkip  inp' len     -> go inp'
-                AlexToken inp' len act -> act pos (take len str) : go inp'
-
+{-# LINE 409 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
@@ -194,15 +278,33 @@ alex_accept = listArray (0::Int,151) [AlexAccNone,AlexAccNone,AlexAccNone,AlexAc
 {-# LINE 104 "src/Compiler/Lexer.x" #-}
 
 
+alexEOF :: Alex Token
+alexEOF = return (Token TokEOF Unknown)
+
 toPosition :: AlexPosn -> Position
 toPosition (AlexPn o l c) = Position o Nothing l c
 
-constant :: Tok -> AlexPosn -> String -> Token
-constant tok pos _ = Token tok (toPosition pos)
 
-unary :: (String -> Tok) -> AlexPosn -> String -> Token
-unary tok pos s = Token (tok s) (toPosition pos)
 
+constant :: Tok -> AlexInput -> Int -> Alex Token
+constant tok (pos, _, _, _) _ = return $ Token tok (toPosition pos)
+
+unary :: (String -> Tok) -> AlexInput -> Int -> Alex Token
+unary tok (pos, _, _, str) len = return $ Token (tok (take len str)) (toPosition pos)
+
+scan :: String -> Pipeline [Token]
+scan str = case runAlex str extractTokens of
+    Left err     -> error err
+    Right result -> return result
+
+    where   extractTokens = do
+                result <- alexMonadScan
+                case result of
+                    Token TokEOF _ -> return []
+                    others         -> do
+                        a <- extractTokens
+                        return $ others : a
+{-
 scan :: String -> Pipeline [Token]
 scan str = go (alexStartPos, '\n', [], str)
     where
@@ -219,6 +321,7 @@ scan str = go (alexStartPos, '\n', [], str)
                     TokError err -> throwError $ LexError token
                     _ -> return $ token : xs
         labelLength (Position o _ l n) len = Position o (Just len) l n
+-}
 
 alex_action_2 =  constant TokProgram 
 alex_action_3 =  constant TokFunction 

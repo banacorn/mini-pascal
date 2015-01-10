@@ -7,7 +7,7 @@ import Control.Monad.Except (throwError)
 
 }
 
-%wrapper "posn"
+%wrapper "monad"
 
 $a = [aA]
 $b = [bB]
@@ -103,15 +103,33 @@ tokens :-
 
 {
 
+alexEOF :: Alex Token
+alexEOF = return (Token TokEOF Unknown)
+
 toPosition :: AlexPosn -> Position
 toPosition (AlexPn o l c) = Position o Nothing l c
 
-constant :: Tok -> AlexPosn -> String -> Token
-constant tok pos _ = Token tok (toPosition pos)
 
-unary :: (String -> Tok) -> AlexPosn -> String -> Token
-unary tok pos s = Token (tok s) (toPosition pos)
 
+constant :: Tok -> AlexInput -> Int -> Alex Token
+constant tok (pos, _, _, _) _ = return $ Token tok (toPosition pos)
+
+unary :: (String -> Tok) -> AlexInput -> Int -> Alex Token
+unary tok (pos, _, _, str) len = return $ Token (tok (take len str)) (toPosition pos)
+
+scan :: String -> Pipeline [Token]
+scan str = case runAlex str extractTokens of
+    Left err     -> error err
+    Right result -> return result
+
+    where   extractTokens = do
+                result <- alexMonadScan
+                case result of
+                    Token TokEOF _ -> return []
+                    others         -> do
+                        a <- extractTokens
+                        return $ others : a
+{-
 scan :: String -> Pipeline [Token]
 scan str = go (alexStartPos, '\n', [], str)
     where
@@ -128,4 +146,5 @@ scan str = go (alexStartPos, '\n', [], str)
                     TokError err -> throwError $ LexError token
                     _ -> return $ token : xs
         labelLength (Position o _ l n) len = Position o (Just len) l n
+-}
 }
