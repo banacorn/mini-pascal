@@ -1,5 +1,10 @@
 module Compiler.Type.AST where
 
+import Compiler.Type.Token
+import Compiler.Type.Scope
+
+data AST a = Node Position Scope a
+
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
