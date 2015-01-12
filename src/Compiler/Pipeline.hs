@@ -18,6 +18,12 @@ getPath = do
         []      -> throwError $ FileError "no input file"
         (x:_)   -> return x
 
+
+testWithSource :: String -> Pipeline String
+testWithSource input = do
+    put (Just input)
+    return input
+
 -- read source from file
 -- Exception: throws FileError if file not found
 -- State: saves source if possible
@@ -40,7 +46,13 @@ handleError f = do
                 putStrLn $ "Input file " ++ paintWarn path ++ " does not exists"
             LexError (Token (TokError tok) pos) -> do
                 putStrLn $ paintError "[Syntax Error]"
-                    ++ " Unrecognized token "
+                    ++ " Unrecognizable token "
+                    ++ paintWarn (serialize tok)
+                    ++ " at L" ++ show (posLine pos) ++ " C" ++ show (posColumn pos)
+                printSyntaxError (fromJust source) pos
+            ParseError (Token (TokError tok) pos) -> do
+                putStrLn $ paintError "[Syntax Error]"
+                    ++ " Unrecognizable token "
                     ++ paintWarn (serialize tok)
                     ++ " at L" ++ show (posLine pos) ++ " C" ++ show (posColumn pos)
                 printSyntaxError (fromJust source) pos
@@ -67,8 +79,8 @@ printSyntaxError source (Position offset len l c) = do
             columnNo = c - 1
 
             sourceBeforeError = take offset source
-            sourceError = take (fromJust len) (drop offset source)
-            sourceAfterError = drop (fromJust len) (drop offset source)
+            sourceError = take len (drop offset source)
+            sourceAfterError = drop len (drop offset source)
             source' = sourceBeforeError ++ paintError sourceError ++ sourceAfterError
             sourceLines = lines source'
             rangeFrom = (lineNo - 2) `max` 0

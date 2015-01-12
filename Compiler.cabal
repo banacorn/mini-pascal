@@ -22,6 +22,7 @@ executable Compiler
     build-depends:    base                          >=4.7 && <4.8
                     , array                         >=0.5
                     , mtl                           >=2.2
+                    , transformers                  >=0.4
                     , ansi-terminal                 >=0.6
                     -- , llvm-general                  >=3.4
     hs-source-dirs: src/

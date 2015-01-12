@@ -281,16 +281,14 @@ alex_accept = listArray (0::Int,151) [AlexAccNone,AlexAccNone,AlexAccNone,AlexAc
 alexEOF :: Alex Token
 alexEOF = return (Token TokEOF Unknown)
 
-toPosition :: AlexPosn -> Position
-toPosition (AlexPn o l c) = Position o Nothing l c
-
-
+toPosition :: AlexPosn -> Int -> Position
+toPosition (AlexPn o l c) len = Position o len l c
 
 constant :: Tok -> AlexInput -> Int -> Alex Token
-constant tok (pos, _, _, _) _ = return $ Token tok (toPosition pos)
+constant tok (pos, _, _, _) len = return $ Token tok (toPosition pos len)
 
 unary :: (String -> Tok) -> AlexInput -> Int -> Alex Token
-unary tok (pos, _, _, str) len = return $ Token (tok (take len str)) (toPosition pos)
+unary tok (pos, _, _, str) len = return $ Token (tok (take len str)) (toPosition pos len)
 
 scan :: String -> Pipeline [Token]
 scan str = case runAlex str extractTokens of
@@ -304,24 +302,6 @@ scan str = case runAlex str extractTokens of
                     others         -> do
                         a <- extractTokens
                         return $ others : a
-{-
-scan :: String -> Pipeline [Token]
-scan str = go (alexStartPos, '\n', [], str)
-    where
-        go inp@(pos, _, _, str) = case alexScan inp 0 of
-            AlexEOF -> return []
-            AlexError (pos, _, _, _) -> error "lexer fucked up"
-            AlexSkip  inp_ len     -> go inp_
-            AlexToken inp_ len act -> do
-                xs <- go inp_
-                let Token tok pos_ = act pos (take len str)
-                let tokLength = labelLength pos_ len
-                let token = Token tok tokLength
-                case tok of
-                    TokError err -> throwError $ LexError token
-                    _ -> return $ token : xs
-        labelLength (Position o _ l n) len = Position o (Just len) l n
--}
 
 alex_action_2 =  constant TokProgram 
 alex_action_3 =  constant TokFunction 

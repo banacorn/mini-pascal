@@ -8,10 +8,13 @@ import Compiler.Type
 import Compiler.Pipeline
 
 
+import Control.Monad.IO.Class
+
 
 main :: IO ()
 main = handleError $ do
     testA
+    -- testWithSource "program asdf" >>= scan >>= parse >>= liftIO . print
 
 testA :: Pipeline ()
 -- testOne = readSource "./test/semantics/test-duplicate.p"

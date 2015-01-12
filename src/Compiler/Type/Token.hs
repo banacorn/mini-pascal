@@ -45,7 +45,7 @@ data Tok    = TokID String         -- identifiers
 
 data Position = Position
     {   posOffset :: Int
-    ,   posLength :: Maybe Int
+    ,   posLength :: Int
     ,   posLine :: Int
     ,   posColumn :: Int
     } | Unknown
