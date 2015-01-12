@@ -52,6 +52,9 @@ instance Serializable Symbol where
 instance Serializable String where
     serialize = id
 
+instance Serializable a => Serializable (Node a) where
+    serialize (Node pos a) = serialize a
+
 --------------------------------------------------------------------------------
 -- Tok instances
 

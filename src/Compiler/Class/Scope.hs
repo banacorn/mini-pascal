@@ -17,6 +17,9 @@ succDepth = map (\ (a, i) -> (a, succ i))
 class HasScope a where
     getScope :: a -> [Scope]
 
+instance HasScope a => HasScope (Node a) where
+    getScope (Node p a) = getScope a
+
 instance HasScope Program where
     getScope p@(Program i _ _ sub comp) = [Scope header symbols scopes]
         where
