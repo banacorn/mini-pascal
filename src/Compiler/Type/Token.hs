@@ -1,5 +1,8 @@
 module Compiler.Type.Token where
 
+import Data.Monoid
+import Control.Applicative
+
 data Tok    = TokID String         -- identifiers
             | TokLParen            -- (
             | TokRParen            -- )
@@ -55,5 +58,18 @@ instance Show Position where
     show (Position offset len line column) = "Position " ++ show offset ++ " " ++ show len ++ " L"++ show line ++ " C" ++ show column
     show Unknown = "Unknown"
 
-data Token = Token Tok Position
+instance Monoid Position where
+    mempty = Unknown
+    Position o n l c `mappend` Position o' n' _ _ = Position o (o' - o + n') l n
+
+data TokenF a = Token a Position
     deriving (Eq, Show)
+
+instance Functor TokenF where
+    fmap f (Token tok pos) = Token (f tok) pos
+
+instance Applicative TokenF where
+    pure tok = Token tok Unknown
+    Token f a <*> Token tok b = Token (f tok) (a <> b)
+
+type Token = TokenF Tok
