@@ -155,5 +155,7 @@ relop   : '<'   { S }
         | '!='  { NE }
 {
 parseError :: [Token] -> Pipeline a
-parseError tokens = throwError (ParseError (head tokens))
+parseError tokens = throwError (ParseError (maybeHead tokens))
+    where   maybeHead [] = Nothing
+            maybeHead (x:_) = Just x
 }

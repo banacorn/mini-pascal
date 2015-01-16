@@ -44,19 +44,17 @@ handleError f = do
             FileError path -> do
                 putStrLn $ paintError "[File Error]"
                 putStrLn $ "Input file " ++ paintWarn path ++ " does not exists"
-            LexError (Token (TokError tok) pos) -> do
+            ParseError Nothing -> do
+                putStrLn $ paintError "[Syntax Error]"
+                    ++ " Unable to parse, not enough input"
+                    ++ "... starting from L1 C1"
+            ParseError (Just (Token (TokError tok) pos)) -> do
                 putStrLn $ paintError "[Syntax Error]"
                     ++ " Unrecognizable token "
                     ++ paintWarn (serialize tok)
                     ++ " at L" ++ show (posLine pos) ++ " C" ++ show (posColumn pos)
                 printSyntaxError (fromJust source) pos
-            ParseError (Token (TokError tok) pos) -> do
-                putStrLn $ paintError "[Syntax Error]"
-                    ++ " Unrecognizable token "
-                    ++ paintWarn (serialize tok)
-                    ++ " at L" ++ show (posLine pos) ++ " C" ++ show (posColumn pos)
-                printSyntaxError (fromJust source) pos
-            ParseError (Token tok pos) -> do
+            ParseError (Just (Token tok pos)) -> do
                 putStrLn $ paintError "[Syntax Error]"
                     ++ " Unable to parse "
                     ++ paintWarn (serialize tok)
