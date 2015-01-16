@@ -21,7 +21,7 @@ getPath = do
 
 testWithSource :: String -> Pipeline String
 testWithSource input = do
-    put (Just input)
+    put (FileState (Just input) "interactive")
     return input
 
 -- read source from file
@@ -33,38 +33,37 @@ readSource path = do
     case result of
         Left  _ -> throwError $ FileError path
         Right s -> do
-            put (Just s)
+            put (FileState (Just s) path)
             return s
 
 handleError :: Pipeline a -> IO ()
 handleError f = do
-    (result, source) <- runStateT (runExceptT f) Nothing
+    (result, FileState source path) <- runStateT (runExceptT f) NoFileState
     case result of
         Left    err -> case err of
             FileError path -> do
                 putStrLn $ paintError "[File Error]"
                 putStrLn $ "Input file " ++ paintWarn path ++ " does not exists"
             ParseError Nothing -> do
-                putStrLn $ paintError "[Syntax Error]"
-                    ++ " Unable to parse, not enough input"
-                    ++ "... starting from L1 C1"
+                putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos Unknown ++ "\n"
+                    ++ "Unable to parse, not enough input"
             ParseError (Just (Token (TokError tok) pos)) -> do
-                putStrLn $ paintError "[Syntax Error]"
-                    ++ " Unrecognizable token "
+                putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos pos ++ "\n"
+                    ++ "Unrecognizable token "
                     ++ paintWarn (serialize tok)
-                    ++ " at L" ++ show (posLine pos) ++ " C" ++ show (posColumn pos)
                 printSyntaxError (fromJust source) pos
             ParseError (Just (Token tok pos)) -> do
-                putStrLn $ paintError "[Syntax Error]"
-                    ++ " Unable to parse "
+                putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos pos ++ "\n"
+                    ++ "Unable to parse "
                     ++ paintWarn (serialize tok)
-                    ++ "... starting from L" ++ show (posLine pos) ++ " C" ++ show (posColumn pos)
                 printSyntaxError (fromJust source) pos
             SemanticsError _ -> print err
 
         Right   src -> return ()
 
     where
+        printPos (Position o n l c) = ":" ++ show l ++ ":" ++ show c ++ ":"
+        printPos Unknown = ""
         paintError s = setSGRCode [SetColor Foreground Vivid Red] ++ s ++ setSGRCode []
         paintWarn s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
 
