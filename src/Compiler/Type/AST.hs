@@ -6,16 +6,6 @@ import Compiler.Type.Scope
 import Data.Monoid ((<>))
 import Control.Applicative
 
-data Node a = Node Position a
-
-instance Functor Node where
-    fmap f (Node p a) = Node p (f a)
-
-instance Applicative Node where
-    pure node = Node Unknown node
-    Node a f <*> Node b node = Node  (a <> b) (f node)
-
-
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
