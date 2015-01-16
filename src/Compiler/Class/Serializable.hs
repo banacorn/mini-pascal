@@ -40,14 +40,18 @@ yellow s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
 --------------------------------------------------------------------------------
 -- other instances
 
+instance Serializable Position where
+    serialize Unknown = "?"
+    serialize (Position o n l c) = show l ++ ":" ++ show c
+
 instance Serializable Scope where
     serialize (Scope name symbols scopes) =
         "Scope: " ++ serialize name ++ "\n" ++
         indent (map serialize symbols ++ map serialize scopes)
 
 instance Serializable Symbol where
-    serialize (Symbol Declared t i p) = green i ++ " : " ++ show t ++ show p
-    serialize (Symbol Used t i p) = yellow i ++ " : " ++ show t ++ show p
+    serialize (Symbol Declared t i p) = green i ++ " : " ++ show t ++ " " ++ serialize p
+    serialize (Symbol Used t i p) = yellow i ++ " : " ++ show t ++ " " ++ serialize p
 
 instance Serializable String where
     serialize = id
