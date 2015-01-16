@@ -1,7 +1,7 @@
 module Compiler.Type.AST where
 
 import Compiler.Type.Token
-import Compiler.Type.Scope
+import Compiler.Type.Symbol
 
 import Data.Monoid ((<>))
 import Control.Applicative

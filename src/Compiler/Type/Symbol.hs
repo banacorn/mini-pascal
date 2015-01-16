@@ -1,4 +1,4 @@
-module Compiler.Type.Scope where
+module Compiler.Type.Symbol where
 
 import Compiler.Type.Token
 
