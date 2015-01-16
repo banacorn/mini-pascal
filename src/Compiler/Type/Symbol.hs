@@ -7,7 +7,7 @@ import Data.List (intercalate)
 type Depth = Int
 
 --------------------------------------------------------------------------------
---  Type of Symbols
+--  Type
 
 data FOType = IntegerType
             | RealType
@@ -43,19 +43,27 @@ instance Show Type where
     show (HO t) = show t
     show Uninferred = "?"
 
-
+--------------------------------------------------------------------------------
+--  Status
 data SymbolStatus = Declared | Used deriving (Eq, Show)
 
+--------------------------------------------------------------------------------
+--  Symbol
 data Symbol = Symbol
     {   symStatus :: SymbolStatus
     ,   symType :: Type
     ,   symID :: String
     ,   symPos :: Position
-    }   deriving (Eq)
+    }
+
+instance Eq Symbol where
+    Symbol s t i _ == Symbol s' t' i' _ = s == s' && t == t' && i == i'
 
 instance Show Symbol where
     show (Symbol status t i p) = show status ++ " " ++ i ++ " : " ++ show t ++ show p
 
+--------------------------------------------------------------------------------
+--  Scope & Symbol Table
 type SymbolTable = [(Symbol, Depth)]
 
 data Scope  = Scope Symbol [Symbol] [Scope]
