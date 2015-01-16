@@ -6,15 +6,23 @@ import Compiler.Type.Scope
 import Data.Monoid ((<>))
 import Control.Applicative
 
+
+--------------------------------------------------------------------------------
+-- Helper functions
+
+toSym :: Token -> Sym
+toSym (Token (TokID i) p) = (i, p)
+
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
-data Program = Program ID [ID] [Declaration] SubprogSection CompoundStmt
+data Program = Program Sym [Sym] [Declaration] SubprogSection CompoundStmt
     deriving (Eq, Show)
 
 type ID = String
+type Sym = (ID, Position)
 
-data Declaration = Declaration [ID] TypeN
+data Declaration = Declaration [Sym] TypeN
     deriving (Eq, Show)
 
 type Number = String
@@ -28,14 +36,14 @@ data StandardTypeN = IntTypeN | RealTypeN | StringTypeN deriving (Eq, Show)
 data SubprogSection = SubprogSection [SubprogDec] deriving (Eq, Show)
 data SubprogDec = SubprogDec SubprogHead [Declaration] CompoundStmt deriving (Eq, Show)
 
-data SubprogHead    = SubprogHeadFunc ID Arguments StandardTypeN
-                    | SubprogHeadProc ID Arguments
+data SubprogHead    = SubprogHeadFunc Sym Arguments StandardTypeN
+                    | SubprogHeadProc Sym Arguments
                     deriving (Eq, Show)
 
 data Arguments  = EmptyArguments
                 | Arguments [Param]
                 deriving (Eq, Show)
-data Param = Param [ID] TypeN
+data Param = Param [Sym] TypeN
     deriving (Eq, Show)
 
 data CompoundStmt = CompoundStmt [Stmt]
@@ -48,12 +56,12 @@ data Stmt   = VarStmt Variable Expr
             | LoopStmt Expr Stmt
             deriving (Eq, Show)
 
-data Variable = Variable ID [Expr] -- e.g. a[1+2][3*4]
+data Variable = Variable Sym [Expr] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)
 
 -- procedure invocation
-data ProcedureStmt  = ProcedureStmtOnlyID ID
-                    | ProcedureStmtWithExprs ID [Expr]
+data ProcedureStmt  = ProcedureStmtOnlyID Sym
+                    | ProcedureStmtWithExprs Sym [Expr]
                     deriving (Eq, Show)
 
 data Expr   = UnaryExpr SimpleExpr
@@ -69,8 +77,8 @@ data Term   = FactorTerm Factor
             | NegTerm Factor
             deriving (Eq, Show)
 
-data Factor = IDSBFactor ID [Expr]  -- id[]
-            | IDPFactor ID [Expr]   -- id()
+data Factor = IDSBFactor Sym [Expr]  -- id[]
+            | IDPFactor Sym [Expr]   -- id()
             | NumFactor String
             | PFactor Expr
             | NotFactor Factor

@@ -73,3 +73,6 @@ instance Applicative TokenF where
     Token f a <*> Token tok b = Token (f tok) (a <> b)
 
 type Token = TokenF Tok
+
+getPosition :: TokenF a -> Position
+getPosition (Token _ p) = p

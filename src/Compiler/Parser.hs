@@ -561,26 +561,26 @@ happyReduction_1 (_ `HappyStk`
 	_ `HappyStk`
 	(HappyAbsSyn5  happy_var_4) `HappyStk`
 	_ `HappyStk`
-	(HappyTerminal (Token (TokID happy_var_2) _)) `HappyStk`
+	(HappyTerminal happy_var_2) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn4
-		 (Program happy_var_2 (reverse happy_var_4) (reverse happy_var_7) (SubprogSection (reverse happy_var_8)) happy_var_9
+		 (Program (toSym happy_var_2) (reverse happy_var_4) (reverse happy_var_7) (SubprogSection (reverse happy_var_8)) happy_var_9
 	) `HappyStk` happyRest
 
 happyReduce_2 = happySpecReduce_1  5 happyReduction_2
-happyReduction_2 (HappyTerminal (Token (TokID happy_var_1) _))
+happyReduction_2 (HappyTerminal happy_var_1)
 	 =  HappyAbsSyn5
-		 ([happy_var_1]
+		 ([toSym happy_var_1]
 	)
 happyReduction_2 _  = notHappyAtAll 
 
 happyReduce_3 = happySpecReduce_3  5 happyReduction_3
-happyReduction_3 (HappyTerminal (Token (TokID happy_var_3) _))
+happyReduction_3 (HappyTerminal happy_var_3)
 	_
 	(HappyAbsSyn5  happy_var_1)
 	 =  HappyAbsSyn5
-		 (happy_var_3 : happy_var_1
+		 (toSym happy_var_3 : happy_var_1
 	)
 happyReduction_3 _ _ _  = notHappyAtAll 
 
@@ -668,21 +668,21 @@ happyReduction_14 (_ `HappyStk`
 	(HappyAbsSyn8  happy_var_5) `HappyStk`
 	_ `HappyStk`
 	(HappyAbsSyn12  happy_var_3) `HappyStk`
-	(HappyTerminal (Token (TokID happy_var_2) _)) `HappyStk`
+	(HappyTerminal happy_var_2) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn11
-		 (SubprogHeadFunc happy_var_2 happy_var_3 happy_var_5
+		 (SubprogHeadFunc (toSym happy_var_2) happy_var_3 happy_var_5
 	) `HappyStk` happyRest
 
 happyReduce_15 = happyReduce 4 11 happyReduction_15
 happyReduction_15 (_ `HappyStk`
 	(HappyAbsSyn12  happy_var_3) `HappyStk`
-	(HappyTerminal (Token (TokID happy_var_2) _)) `HappyStk`
+	(HappyTerminal happy_var_2) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn11
-		 (SubprogHeadProc happy_var_2 happy_var_3
+		 (SubprogHeadProc (toSym happy_var_2) happy_var_3
 	) `HappyStk` happyRest
 
 happyReduce_16 = happySpecReduce_0  12 happyReduction_16
@@ -796,9 +796,9 @@ happyReduction_28 ((HappyAbsSyn16  happy_var_4) `HappyStk`
 
 happyReduce_29 = happySpecReduce_2  17 happyReduction_29
 happyReduction_29 (HappyAbsSyn18  happy_var_2)
-	(HappyTerminal (Token (TokID happy_var_1) _))
+	(HappyTerminal happy_var_1)
 	 =  HappyAbsSyn17
-		 (Variable happy_var_1 happy_var_2
+		 (Variable (toSym happy_var_1) happy_var_2
 	)
 happyReduction_29 _ _  = notHappyAtAll 
 
@@ -818,9 +818,9 @@ happyReduction_31 ((HappyAbsSyn18  happy_var_4) `HappyStk`
 	) `HappyStk` happyRest
 
 happyReduce_32 = happySpecReduce_1  19 happyReduction_32
-happyReduction_32 (HappyTerminal (Token (TokID happy_var_1) _))
+happyReduction_32 (HappyTerminal happy_var_1)
 	 =  HappyAbsSyn19
-		 (ProcedureStmtOnlyID happy_var_1
+		 (ProcedureStmtOnlyID (toSym happy_var_1)
 	)
 happyReduction_32 _  = notHappyAtAll 
 
@@ -828,10 +828,10 @@ happyReduce_33 = happyReduce 4 19 happyReduction_33
 happyReduction_33 (_ `HappyStk`
 	(HappyAbsSyn20  happy_var_3) `HappyStk`
 	_ `HappyStk`
-	(HappyTerminal (Token (TokID happy_var_1) _)) `HappyStk`
+	(HappyTerminal happy_var_1) `HappyStk`
 	happyRest)
 	 = HappyAbsSyn19
-		 (ProcedureStmtWithExprs happy_var_1 happy_var_3
+		 (ProcedureStmtWithExprs (toSym happy_var_1) happy_var_3
 	) `HappyStk` happyRest
 
 happyReduce_34 = happySpecReduce_1  20 happyReduction_34
@@ -908,9 +908,9 @@ happyReduction_42 _ _ _  = notHappyAtAll
 
 happyReduce_43 = happySpecReduce_2  24 happyReduction_43
 happyReduction_43 (HappyAbsSyn18  happy_var_2)
-	(HappyTerminal (Token (TokID happy_var_1) _))
+	(HappyTerminal happy_var_1)
 	 =  HappyAbsSyn24
-		 (IDSBFactor happy_var_1 happy_var_2
+		 (IDSBFactor (toSym happy_var_1) happy_var_2
 	)
 happyReduction_43 _ _  = notHappyAtAll 
 
@@ -918,10 +918,10 @@ happyReduce_44 = happyReduce 4 24 happyReduction_44
 happyReduction_44 (_ `HappyStk`
 	(HappyAbsSyn20  happy_var_3) `HappyStk`
 	_ `HappyStk`
-	(HappyTerminal (Token (TokID happy_var_1) _)) `HappyStk`
+	(HappyTerminal happy_var_1) `HappyStk`
 	happyRest)
 	 = HappyAbsSyn24
-		 (IDPFactor happy_var_1 happy_var_3
+		 (IDPFactor (toSym happy_var_1) happy_var_3
 	) `HappyStk` happyRest
 
 happyReduce_45 = happySpecReduce_1  24 happyReduction_45
@@ -1022,7 +1022,7 @@ happyNewToken action sts stk (tk:tks) =
 	Token TokComma _ -> cont 33;
 	Token TokLSB _ -> cont 34;
 	Token TokRSB _ -> cont 35;
-	Token (TokID happy_dollar_dollar) _ -> cont 36;
+	Token (TokID _) _ -> cont 36;
 	Token (TokNum happy_dollar_dollar) _ -> cont 37;
 	Token TokTypeStr _ -> cont 38;
 	Token TokTypeInt _ -> cont 39;

@@ -11,6 +11,9 @@ withDepth n xs = zip xs (repeat n)
 succDepth :: SymbolTable -> SymbolTable
 succDepth = map (\ (a, i) -> (a, succ i))
 
+toSymbol :: SymbolStatus -> Type -> (String, Position) -> Symbol
+toSymbol s t (i, p) = Symbol s t i p
+
 --------------------------------------------------------------------------------
 -- Class & Instances of HasScope
 
@@ -18,9 +21,9 @@ class HasScope a where
     getScope :: a -> [Scope]
 
 instance HasScope Program where
-    getScope p@(Program i _ _ sub comp) = [Scope header symbols scopes]
+    getScope p@(Program sym _ _ sub comp) = [Scope header symbols scopes]
         where
-            header = Symbol Declared (FO ProgramType) i
+            header = toSymbol Declared (FO ProgramType) sym
             symbols = getSymbol p
             scopes = getScope sub ++ getScope comp
 
@@ -37,7 +40,7 @@ instance HasScope SubprogDec where
 instance HasScope CompoundStmt where
     getScope p@(CompoundStmt stmts) = [Scope header symbols scopes]
         where
-            header = Symbol Declared (FO ProgramType) "Compound Statements"
+            header = Symbol Declared (FO ProgramType) "Compound Statements" Unknown
             symbols = getSymbol p
             scopes = stmts >>= getScope
 
@@ -91,12 +94,12 @@ class HasSymbol a where
 
 instance HasSymbol Program where
     getSymbol (Program _ params decs subprogs _) =
-        map (Symbol Declared (FO ProgramParamType)) params  ++
+        map (toSymbol Declared (FO ProgramParamType)) params  ++
         (decs >>= getSymbol) ++
         getSymbol subprogs
 
 instance HasSymbol Declaration where
-    getSymbol (Declaration ids t) = map (Symbol Declared (getType t)) ids
+    getSymbol (Declaration ids t) = map (toSymbol Declared (getType t)) ids
 
 instance HasSymbol SubprogSection where
     getSymbol (SubprogSection subprogs) = subprogs >>= getHeaderSymbol
@@ -110,15 +113,15 @@ instance HasSymbol SubprogDec where
                 getArgumentSymbols (SubprogHeadProc _ args) = getSymbol args
 
 instance HasSymbol SubprogHead where
-    getSymbol p@(SubprogHeadFunc i args ret) = [Symbol Declared (getType p) i]
-    getSymbol p@(SubprogHeadProc i args) = [Symbol Declared (getType p) i]
+    getSymbol s@(SubprogHeadFunc sym args ret) = [toSymbol Declared (getType s) sym]
+    getSymbol s@(SubprogHeadProc sym args) = [toSymbol Declared (getType s) sym]
 
 instance HasSymbol Arguments where
     getSymbol EmptyArguments = []
     getSymbol (Arguments xs) = xs >>= getSymbol
 
 instance HasSymbol Param where
-    getSymbol (Param ids t) = map (Symbol Declared (getType t)) ids
+    getSymbol (Param ids t) = map (toSymbol Declared (getType t)) ids
 
 instance HasSymbol CompoundStmt where
     getSymbol (CompoundStmt stmts) = stmts >>= getSymbol
@@ -131,11 +134,11 @@ instance HasSymbol Stmt where
     getSymbol (LoopStmt e _) = getSymbol e
 
 instance HasSymbol Variable where
-    getSymbol (Variable i exprs) = [Symbol Used Uninferred i] ++ (exprs >>= getSymbol)
+    getSymbol (Variable sym exprs) = [toSymbol Used Uninferred sym] ++ (exprs >>= getSymbol)
 
 instance HasSymbol ProcedureStmt where
-    getSymbol (ProcedureStmtOnlyID i) = [Symbol Used Uninferred i]
-    getSymbol (ProcedureStmtWithExprs i exprs) = [Symbol Used Uninferred i] ++ (exprs >>= getSymbol)
+    getSymbol (ProcedureStmtOnlyID sym) = [toSymbol Used Uninferred sym]
+    getSymbol (ProcedureStmtWithExprs sym exprs) = [toSymbol Used Uninferred sym] ++ (exprs >>= getSymbol)
 
 instance HasSymbol Expr where
     getSymbol (UnaryExpr expr) = getSymbol expr
@@ -151,8 +154,8 @@ instance HasSymbol Term where
     getSymbol (NegTerm f) = getSymbol f
 
 instance HasSymbol Factor where
-    getSymbol (IDSBFactor i exprs) = [Symbol Used Uninferred i] ++ (exprs >>= getSymbol)
-    getSymbol (IDPFactor i exprs) = [Symbol Used Uninferred i] ++ (exprs >>= getSymbol)
+    getSymbol (IDSBFactor sym exprs) = [toSymbol Used Uninferred sym] ++ (exprs >>= getSymbol)
+    getSymbol (IDPFactor sym exprs) = [toSymbol Used Uninferred sym] ++ (exprs >>= getSymbol)
     getSymbol (NumFactor _) = []
     getSymbol (PFactor expr) = getSymbol expr
     getSymbol (NotFactor f) = getSymbol f

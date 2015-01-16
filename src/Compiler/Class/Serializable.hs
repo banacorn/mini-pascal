@@ -46,8 +46,8 @@ instance Serializable Scope where
         indent (map serialize symbols ++ map serialize scopes)
 
 instance Serializable Symbol where
-    serialize (Symbol Declared t i) = green i ++ " : " ++ show t
-    serialize (Symbol Used t i) = yellow i ++ " : " ++ show t
+    serialize (Symbol Declared t i p) = green i ++ " : " ++ show t ++ show p
+    serialize (Symbol Used t i p) = yellow i ++ " : " ++ show t ++ show p
 
 instance Serializable String where
     serialize = id
@@ -101,7 +101,7 @@ instance Serializable Tok where
 -- AST instances
 
 instance Serializable Program where
-    serialize (Program i is decs subprogs comp) =
+    serialize (Program sym syms decs subprogs comp) =
         "\n" ++
         header ++ "\n" ++
         indent decs ++ "\n" ++
@@ -109,17 +109,17 @@ instance Serializable Program where
         indentBlock (serialize comp) ++
         ".\n"
         where
-            header = "program " ++ i ++ "(" ++ serializeIDs is ++ ") ;" ++ "\n"
+            header = "program " ++ fst sym ++ "(" ++ serializeIDs syms ++ ") ;" ++ "\n"
             serializeIDs [] = error "serialize empty ids"
-            serializeIDs [x] = x
-            serializeIDs (x:xs) = x ++ ", " ++ serializeIDs xs
+            serializeIDs [x] = fst x
+            serializeIDs (x:xs) = fst x ++ ", " ++ serializeIDs xs
 
 instance Serializable Declaration where
     serialize (Declaration [] _) = []
-    serialize (Declaration ids t) =
-        "var " ++ serializeIDs ids ++ " : " ++ serialize t ++ ";"
+    serialize (Declaration syms t) =
+        "var " ++ serializeIDs syms ++ " : " ++ serialize t ++ ";"
         where
-            serializeIDs = intercalate ", "
+            serializeIDs = intercalate ", " . map fst
 
 instance Serializable TypeN where
     serialize (StdTypeN t) = serialize t
@@ -140,10 +140,10 @@ instance Serializable SubprogDec where
         indentBlock (serialize comp)
 
 instance Serializable SubprogHead where
-    serialize (SubprogHeadFunc i args typ) =
-        "function " ++ i ++ serialize args ++ " : " ++ serialize typ ++ ";"
-    serialize (SubprogHeadProc i args) =
-        "procedure " ++ i ++ serialize args ++ ";"
+    serialize (SubprogHeadFunc sym args typ) =
+        "function " ++ fst sym ++ serialize args ++ " : " ++ serialize typ ++ ";"
+    serialize (SubprogHeadProc sym args) =
+        "procedure " ++ fst sym ++ serialize args ++ ";"
 
 instance Serializable Arguments where
     serialize EmptyArguments = ""
@@ -152,8 +152,8 @@ instance Serializable Arguments where
             serializeArgs = intercalate "; " (map serialize xs)
 
 instance Serializable Param where
-    serialize (Param ids t) = serializeIDs ++ ": " ++ serialize t
-        where   serializeIDs = intercalate ", " ids
+    serialize (Param syms t) = serializeIDs ++ ": " ++ serialize t
+        where   serializeIDs = intercalate ", " (map fst syms)
 
 instance Serializable CompoundStmt where
     serialize (CompoundStmt stmts) =
@@ -172,12 +172,12 @@ instance Serializable Stmt where
     serialize (LoopStmt e s) = "while " ++ serialize e ++ " do " ++ serialize s
 
 instance Serializable Variable where
-    serialize (Variable i es) = i ++ concat (map showSBExpr es)
+    serialize (Variable sym es) = fst sym ++ concat (map showSBExpr es)
         where   showSBExpr e = "[" ++ serialize e ++ "]"
 
 instance Serializable ProcedureStmt where
-    serialize (ProcedureStmtOnlyID i) = i
-    serialize (ProcedureStmtWithExprs i es) = i ++ "(" ++ serializeExpr ++ ")"
+    serialize (ProcedureStmtOnlyID sym) = fst sym
+    serialize (ProcedureStmtWithExprs sym es) = fst sym ++ "(" ++ serializeExpr ++ ")"
         where   serializeExpr = intercalate ", " (map serialize es)
 
 instance Serializable Expr where
@@ -194,9 +194,9 @@ instance Serializable Term where
     serialize (NegTerm f) = "-" ++ serialize f
 
 instance Serializable Factor where
-    serialize (IDSBFactor i es) = i ++ concat (map serialize es)
+    serialize (IDSBFactor sym es) = fst sym ++ concat (map serialize es)
         where   serializeSBExpr a = "[" ++ serialize a ++ "]"
-    serialize (IDPFactor i es)  = i ++ "(" ++ serializeExpr ++ ")"
+    serialize (IDPFactor sym es)  = fst sym ++ "(" ++ serializeExpr ++ ")"
         where   serializeExpr = intercalate ", " (map serialize es)
     serialize (NumFactor s) = s
     serialize (PFactor e) = serialize e

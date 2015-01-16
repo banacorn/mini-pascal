@@ -19,7 +19,7 @@ import Control.Monad.Except
     ','             { Token TokComma _ }
     '['             { Token TokLSB _ }
     ']'             { Token TokRSB _ }
-    id              { Token (TokID $$) _ }
+    id              { Token (TokID _) _ }
     num             { Token (TokNum $$) _ }
     string          { Token TokTypeStr _ }
     integer         { Token TokTypeInt _ }
@@ -55,12 +55,12 @@ import Control.Monad.Except
 
 
 program : progtok id '(' identifier_list ')' ';' declarations subprogram_declarations compound_statement '.' {
-    Program $2 (reverse $4) (reverse $7) (SubprogSection (reverse $8)) $9
+    Program (toSym $2) (reverse $4) (reverse $7) (SubprogSection (reverse $8)) $9
 }
 
 
-identifier_list : id                            { [$1] }
-                | identifier_list ',' id        { $3 : $1 }
+identifier_list : id                            { [toSym $1] }
+                | identifier_list ',' id        { toSym $3 : $1 }
 
 
 declarations    : {- empty -}                                       { [] }
@@ -82,8 +82,8 @@ subprogram_declarations : {- empty -}                                           
 
 subprogram_declaration : subprogram_head declarations compound_statement { SubprogDec $1 $2 $3 }
 
-subprogram_head : function id arguments ':' standard_type ';'       { SubprogHeadFunc $2 $3 $5 }
-                | procedure id arguments ';'                        { SubprogHeadProc $2 $3}
+subprogram_head : function id arguments ':' standard_type ';'       { SubprogHeadFunc (toSym $2) $3 $5 }
+                | procedure id arguments ';'                        { SubprogHeadProc (toSym $2) $3}
 
 
 arguments   : {- empty -}               { EmptyArguments }
@@ -108,13 +108,13 @@ statement   : variable ':=' expression                      { VarStmt $1 $3 }
             | while expression do statement                 { LoopStmt $2 $4 }
 
 
-variable : id tail  { Variable $1 $2 }
+variable : id tail  { Variable (toSym $1) $2 }
 
 tail    : {- empty -}                   { [] }
         | '[' expression ']' tail       { $2 : $4 }
 
-procedure_statement : id                            { ProcedureStmtOnlyID $1 }
-                    | id '(' expression_list ')'    { ProcedureStmtWithExprs $1 $3 }
+procedure_statement : id                            { ProcedureStmtOnlyID (toSym $1) }
+                    | id '(' expression_list ')'    { ProcedureStmtWithExprs (toSym $1) $3 }
 
 expression_list : expression                        { [$1] }
                 | expression_list ',' expression    { $3 : $1 }
@@ -133,8 +133,8 @@ term    : factor            { FactorTerm $1 }
         | term mulop factor { OpTerm $1 $2 $3 }
 
 
-factor  : id tail                       { IDSBFactor $1 $2 }
-        | id '(' expression_list ')'    { IDPFactor $1 $3 }
+factor  : id tail                       { IDSBFactor (toSym $1) $2 }
+        | id '(' expression_list ')'    { IDPFactor (toSym $1) $3 }
         | num                           { NumFactor $1 }
         | '(' expression ')'            { PFactor $2 }
         | not factor                    { NotFactor $2 }

@@ -1,8 +1,13 @@
 module Compiler.Type.Scope where
 
+import Compiler.Type.Token
+
 import Data.List (intercalate)
 
 type Depth = Int
+
+--------------------------------------------------------------------------------
+--  Type of Symbols
 
 data FOType = IntegerType
             | RealType
@@ -38,16 +43,18 @@ instance Show Type where
     show (HO t) = show t
     show Uninferred = "?"
 
+
 data SymbolStatus = Declared | Used deriving (Eq, Show)
 
 data Symbol = Symbol
     {   symStatus :: SymbolStatus
     ,   symType :: Type
     ,   symID :: String
+    ,   symPos :: Position
     }   deriving (Eq)
 
 instance Show Symbol where
-    show (Symbol status t i) = show status ++ " " ++ i ++ " : " ++ show t
+    show (Symbol status t i p) = show status ++ " " ++ i ++ " : " ++ show t ++ show p
 
 type SymbolTable = [(Symbol, Depth)]
 

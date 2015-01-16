@@ -13,8 +13,8 @@ import Control.Monad.IO.Class
 
 main :: IO ()
 main = handleError $ do
-    -- testA
-    testWithSource "program aaa(); begin end." >>= scan >>= parse >>= liftIO . print
+    testA
+    -- testWithSource "program aaa(); begin end." >>= scan >>= parse >>= liftIO . print
 
 testA :: Pipeline ()
 -- testOne = readSource "./test/semantics/test-duplicate.p"
