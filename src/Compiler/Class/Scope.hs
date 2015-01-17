@@ -21,9 +21,9 @@ class HasScope a where
     getScope :: a -> [Scope]
 
 instance HasScope Program where
-    getScope p@(Program sym _ _ sub comp) = [Scope header symbols scopes]
+    getScope p@(Program sym _ _ sub comp) = [Scope scopeType symbols scopes]
         where
-            header = toSymbol Declared (FO ProgramType) sym
+            scopeType = ProgramScope (fst sym)
             symbols = getSymbol p
             scopes = getScope sub ++ getScope comp
 
@@ -31,16 +31,16 @@ instance HasScope SubprogSection where
     getScope (SubprogSection subprogs) = subprogs >>= getScope
 
 instance HasScope SubprogDec where
-    getScope p@(SubprogDec header _ comp) = [Scope header' symbols scopes]
+    getScope p@(SubprogDec header _ comp) = [Scope scopeType symbols scopes]
         where
-            header' = head (getSymbol header)
+            scopeType = RegularScope $ head (getSymbol header)
             symbols = getSymbol p
             scopes = getScope comp
 
 instance HasScope CompoundStmt where
-    getScope p@(CompoundStmt stmts) = [Scope header symbols scopes]
+    getScope p@(CompoundStmt stmts) = [Scope scopeType symbols scopes]
         where
-            header = Symbol Declared (FO ProgramType) "Compound Statements" Unknown
+            scopeType = CompoundStatementScope
             symbols = getSymbol p
             scopes = stmts >>= getScope
 

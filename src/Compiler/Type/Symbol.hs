@@ -13,7 +13,6 @@ data FOType = IntegerType
             | RealType
             | StringType
             | ArrayType (String, String) FOType
-            | ProgramType       -- only for the top most program
             | ProgramParamType
             deriving (Eq)
 
@@ -22,7 +21,6 @@ instance Show FOType where
     show RealType = "Real"
     show StringType = "String"
     show (ArrayType (from, to) t) = "Array [" ++ from ++ " .. " ++ to ++"] " ++ show t
-    show ProgramType = "Prog"
     show ProgramParamType = "ProgArg"
 
 data HOType = FunctionType [FOType] FOType
@@ -66,5 +64,9 @@ instance Show Symbol where
 --  Scope & Symbol Table
 type SymbolTable = [(Symbol, Depth)]
 
-data Scope  = Scope Symbol [Symbol] [Scope]
+data ScopeType  = CompoundStatementScope
+                | ProgramScope String
+                | RegularScope Symbol -- functions, procedures ... usually with an associated symbol
+                deriving (Eq, Show)
+data Scope  = Scope ScopeType [Symbol] [Scope]
     deriving (Eq, Show)

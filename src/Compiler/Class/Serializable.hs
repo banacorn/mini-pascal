@@ -44,9 +44,14 @@ instance Serializable Position where
     serialize Unknown = "?"
     serialize (Position o n l c) = show l ++ ":" ++ show c
 
+instance Serializable ScopeType where
+    serialize CompoundStatementScope = ""
+    serialize (ProgramScope name) = "Program " ++ green name
+    serialize (RegularScope symbol) = serialize symbol
+
 instance Serializable Scope where
-    serialize (Scope name symbols scopes) =
-        "Scope: " ++ serialize name ++ "\n" ++
+    serialize (Scope scopeType symbols scopes) =
+        "Scope: " ++ serialize scopeType ++ "\n" ++
         indent (map serialize symbols ++ map serialize scopes)
 
 instance Serializable Symbol where
