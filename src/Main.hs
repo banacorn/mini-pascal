@@ -6,7 +6,7 @@ import Compiler.Class.Serializable
 import Compiler.Class.Scope
 import Compiler.Type
 import Compiler.Pipeline
-
+import Compiler.Semantics
 
 import Control.Monad.IO.Class
 
@@ -21,7 +21,7 @@ testA :: Pipeline ()
 testA = readSource "./test/semantics/test00-type-error-in-array.p"
     >>= scan
     >>= parse
-    >>= return . head . getScope
+    >>= return . extractDeclaration . head . getScope
     >>= draw
     -- >>= liftIO . draw
 

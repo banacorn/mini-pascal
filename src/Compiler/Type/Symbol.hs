@@ -54,6 +54,10 @@ data Symbol = Symbol
     ,   symPos :: Position
     }
 
+-- 2 Symbols are considered equal if
+--      1. both are variables or both are functions
+--      2. have the same name
+--      3. at the same level of scope
 instance Eq Symbol where
     Symbol s t i _ == Symbol s' t' i' _ = s == s' && t == t' && i == i'
 
