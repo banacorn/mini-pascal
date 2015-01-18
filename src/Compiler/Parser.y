@@ -90,14 +90,10 @@ subprogram_declaration
     : subprogram_head variable_declarations compound_statement { SubprogDec $1 $2 $3 }
 
 subprogram_head
-    : function id arguments ':' standard_type ';'       { SubprogHeadFunc (toSym $2) $3 $5 }
-    | procedure id arguments ';'                        { SubprogHeadProc (toSym $2) $3}
-
-
-arguments
-    : {- empty -}               { EmptyArguments }
-    | '(' parameter_list ')'    { Arguments $2 }
-
+    : function id ':' standard_type ';'                         { SubprogHeadFunc (toSym $2) [] $4 }
+    | function id '(' parameter_list ')' ':' standard_type ';'  { SubprogHeadFunc (toSym $2) $4 $7 }
+    | procedure id ';'                                          { SubprogHeadProc (toSym $2) []}
+    | procedure id '(' parameter_list ')' ';'                   { SubprogHeadProc (toSym $2) $4}
 
 parameter_list
     : identifier_list ':' type                      { [Param $1 $3] }

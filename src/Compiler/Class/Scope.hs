@@ -86,10 +86,8 @@ instance HasType TypeNode where
 
 
 instance HasType SubprogHead where
-    getType (SubprogHeadFunc _ EmptyArguments     ret) = HO $ FunctionType [] (getFOType ret)
-    getType (SubprogHeadFunc _ (Arguments params) ret) = HO $ FunctionType (map getFOType params) (getFOType ret)
-    getType (SubprogHeadProc _ EmptyArguments)         = HO $ ProcedureType []
-    getType (SubprogHeadProc _ (Arguments params))     = HO $ ProcedureType (map getFOType params)
+    getType (SubprogHeadFunc _ params ret) = HO $ FunctionType (map getFOType params) (getFOType ret)
+    getType (SubprogHeadProc _ params)     = HO $ ProcedureType (map getFOType params)
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasDeclaration
@@ -109,23 +107,13 @@ instance HasDeclaration ProgramNode where
             fromSubprogs (SubprogDec n@(SubprogHeadProc sym _    ) _ _) = [toSymbol (getType n) sym]
 
 instance HasDeclaration SubprogDec where
-    getDeclaration (SubprogDec (SubprogHeadFunc sym EmptyArguments ret) vars stmt) =
-        (vars >>= fromVars)
-        where
-            fromParams (Param ids t) = map (toSymbol (getType t)) ids
-            fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
-    getDeclaration (SubprogDec (SubprogHeadFunc sym (Arguments params) ret) vars stmt) =
+    getDeclaration (SubprogDec (SubprogHeadFunc sym params ret) vars stmt) =
         (params >>= fromParams) ++
         (vars >>= fromVars)
         where
             fromParams (Param ids t) = map (toSymbol (getType t)) ids
             fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
-    getDeclaration (SubprogDec (SubprogHeadProc sym EmptyArguments) vars stmt) =
-        (vars >>= fromVars)
-        where
-            fromParams (Param ids t) = map (toSymbol (getType t)) ids
-            fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
-    getDeclaration (SubprogDec (SubprogHeadProc sym (Arguments params)) vars stmt) =
+    getDeclaration (SubprogDec (SubprogHeadProc sym params) vars stmt) =
         (params >>= fromParams) ++
         (vars >>= fromVars)
         where

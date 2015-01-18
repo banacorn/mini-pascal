@@ -148,16 +148,14 @@ instance Serializable SubprogDec where
         indentBlock (serialize comp)
 
 instance Serializable SubprogHead where
+    serialize (SubprogHeadFunc sym [] typ) =
+        "function " ++ fst sym ++ " : " ++ serialize typ ++ ";"
     serialize (SubprogHeadFunc sym args typ) =
-        "function " ++ fst sym ++ serialize args ++ " : " ++ serialize typ ++ ";"
+        "function " ++ fst sym ++ "(" ++ intercalate ", " (map serialize args) ++ "): " ++ serialize typ ++ ";"
+    serialize (SubprogHeadProc sym []) =
+        "procedure " ++ fst sym ++ ";"
     serialize (SubprogHeadProc sym args) =
-        "procedure " ++ fst sym ++ serialize args ++ ";"
-
-instance Serializable Arguments where
-    serialize EmptyArguments = ""
-    serialize (Arguments xs) = "(" ++ serializeArgs ++ ")"
-        where
-            serializeArgs = intercalate "; " (map serialize xs)
+        "procedure " ++ fst sym ++ "(" ++ intercalate ", " (map serialize args) ++ ");"
 
 instance Serializable Param where
     serialize (Param syms t) = serializeIDs ++ ": " ++ serialize t
