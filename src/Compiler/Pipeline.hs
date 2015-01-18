@@ -42,6 +42,14 @@ readSource path = do
             updateFileState (Just s) (Just path)
             return s
 
+-- stores the error in Zustand
+throwSemanticsError :: SemanticsError -> Pipeline ()
+throwSemanticsError err = do
+    errors <- gets zustandSemanticsError
+    modify $ \state -> state
+        { zustandSemanticsError = err : errors }
+
+
 handleError :: Pipeline a -> IO ()
 handleError f = do
     (result, Zustand source (Just path) semErr) <- runStateT (runExceptT f) (Zustand Nothing Nothing [])
@@ -63,10 +71,10 @@ handleError f = do
                     ++ "Unable to parse "
                     ++ paintWarn (serialize tok)
                 printSyntaxError (fromJust source) pos
-            SemanticsError ->
-                putStrLn $ paintError "[Semantics Error]"  ++ path ++ "\n"
+            SemanticsErrorFlag -> do
+                putStrLn $ paintError "[Semantics Error]" ++ path ++ "\n"
+                print semErr
                 -- mapM_ (printDeclarationDuplicationError path) partitions
-
 
 
         Right   src -> return ()

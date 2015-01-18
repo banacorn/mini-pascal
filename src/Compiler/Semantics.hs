@@ -1,8 +1,10 @@
 module Compiler.Semantics where
 
 import Compiler.Type
+import Compiler.Pipeline
 
 import Control.Monad.Except
+import Control.Monad.State
 
 --------------------------------------------------------------------------------
 -- A Symbol is either Declared or Used, here we keep the declared symbols only
@@ -17,8 +19,8 @@ checkDeclarationDuplication :: Scope -> Pipeline ()
 checkDeclarationDuplication scope = case declarationDuplications scope of
     [] -> return ()
     xs -> do
-        
-        throwError SemanticsError
+        throwSemanticsError (DeclarationDuplication xs)
+        throwSemanticsError (DeclarationDuplication xs)
 
 -- Duplicate if
 --      1. both are variables OR both are functions/procedures

@@ -10,7 +10,7 @@ import Control.Monad.State
 data Zustand = Zustand
     {   zustandFileSource :: Maybe String
     ,   zustandFilePath :: Maybe String
-    ,   zuStandSemanticsErrors :: [SemanticsErrorType]
+    ,   zustandSemanticsError :: [SemanticsError]
     }
 
 type Pipeline = ExceptT PipelineError (StateT Zustand IO)
@@ -21,10 +21,10 @@ type Pipeline = ExceptT PipelineError (StateT Zustand IO)
 -- semantics errors are collected in Zustand
 data PipelineError  = FileError String
                     | ParseError (Maybe Token)
-                    | SemanticsError
+                    | SemanticsErrorFlag
                     deriving (Eq)
 
-data SemanticsErrorType = DeclarationDuplication [[Symbol]]
+data SemanticsError = DeclarationDuplication [[Symbol]]
     deriving (Eq, Show)
 
 instance Show PipelineError where
@@ -32,4 +32,4 @@ instance Show PipelineError where
         ++ e
     show (ParseError msg) = "Parse Error: \n"
         ++ show msg
-    show SemanticsError = "Semantics Error"
+    show SemanticsErrorFlag = "Semantics Error"
