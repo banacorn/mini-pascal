@@ -21,35 +21,40 @@ class HasScope a where
     getScope :: a -> [Scope]
 
 instance HasScope ProgramNode where
-    getScope p@(ProgramNode sym _ _ subprogs stmt) = [Scope scopeType decs scopes]
+    getScope p@(ProgramNode sym _ _ subprogs stmts) = [Scope scopeType decs scopes]
         where
             scopeType = ProgramScope (fst sym)
             decs = getDeclaration p
-            scopes = getScope subprogs ++ getScope stmt
+            scopes = getScope subprogs ++ [] -- getScope stmts
 
 instance HasScope SubprogramSectionNode where
     getScope (SubprogramSectionNode subprogs) = subprogs >>= getScope
 
 instance HasScope SubprogDec where
-    getScope p@(SubprogDec header _ stmt) = [Scope scopeType decs scopes]
+    getScope p@(SubprogDec h@(SubprogHeadFunc sym _ _) _ stmts) = [Scope scopeType decs scopes]
         where
-            scopeType = RegularScope (head (getSymbol header))
+            scopeType = RegularScope (toSymbol (getType h) sym)
             decs = getDeclaration p
-            scopes = getScope stmt
-
-instance HasScope CompoundStmt where
-    getScope p@(CompoundStmt stmts) = [Scope scopeType symbols scopes]
+            scopes = [] --getScope stmts
+    getScope p@(SubprogDec h@(SubprogHeadProc sym _) _ stmts) = [Scope scopeType decs scopes]
         where
-            scopeType = CompoundStatementScope
-            symbols = getSymbol p
-            scopes = stmts >>= getScope
+            scopeType = RegularScope (toSymbol (getType h) sym)
+            decs = getDeclaration p
+            scopes = [] --getScope stmts
 
-instance HasScope Stmt where
-    getScope (VarStmt _ _) = []
-    getScope (ProcStmt _) = []
-    getScope (CompStmt c) = getScope c
-    getScope (BranchStmt _ s t) = getScope s ++ getScope t
-    getScope (LoopStmt _ s) = getScope s
+-- instance HasScope CompoundStmt where
+--     getScope p@(CompoundStmt stmts) = [Scope scopeType symbols scopes]
+--         where
+--             scopeType = CompoundStatementScope
+--             symbols = getSymbol p
+--             scopes = stmts >>= getScope
+--
+-- instance HasScope Stmt where
+--     getScope (VarStmt _ _) = []
+--     getScope (ProcStmt _) = []
+--     getScope (CompStmt c) = getScope c
+--     getScope (BranchStmt _ s t) = getScope s ++ getScope t
+--     getScope (LoopStmt _ s) = getScope s
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasType
@@ -130,75 +135,75 @@ instance HasDeclaration SubprogDec where
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasSymbol
-
-class HasSymbol a where
-    getSymbol :: a -> [Symbol]
-
-instance HasSymbol ProgramNode where
-    getSymbol (ProgramNode _ params decs subprogs _) =
-        map (toSymbol (FO ProgramParamType)) params  ++
-        (decs >>= getSymbol) ++
-        getSymbol subprogs
-
-instance HasSymbol VarDecNode where
-    getSymbol (VarDecNode ids t) = map (toSymbol (getType t)) ids
-
-instance HasSymbol SubprogramSectionNode where
-    getSymbol (SubprogramSectionNode subprogs) = subprogs >>= getHeaderSymbol
-        where   getHeaderSymbol (SubprogDec header _ _) = getSymbol header
-
-instance HasSymbol SubprogDec where
-    getSymbol (SubprogDec header decs _) =
-        getArgumentSymbols header ++
-        (decs >>= getSymbol)
-        where   getArgumentSymbols (SubprogHeadFunc _ args _) = getSymbol args
-                getArgumentSymbols (SubprogHeadProc _ args) = getSymbol args
-
-instance HasSymbol SubprogHead where
-    getSymbol s@(SubprogHeadFunc sym args ret) = [toSymbol (getType s) sym]
-    getSymbol s@(SubprogHeadProc sym args) = [toSymbol (getType s) sym]
-
-instance HasSymbol Arguments where
-    getSymbol EmptyArguments = []
-    getSymbol (Arguments xs) = xs >>= getSymbol
-
-instance HasSymbol Param where
-    getSymbol (Param ids t) = map (toSymbol (getType t)) ids
-
-instance HasSymbol CompoundStmt where
-    getSymbol (CompoundStmt stmts) = stmts >>= getSymbol
-
-instance HasSymbol Stmt where
-    getSymbol (VarStmt var expr) = getSymbol var ++ getSymbol expr
-    getSymbol (ProcStmt p) = getSymbol p
-    getSymbol (CompStmt _) = []
-    getSymbol (BranchStmt e _ _) = getSymbol e
-    getSymbol (LoopStmt e _) = getSymbol e
-
--- used
-instance HasSymbol Variable where
-    getSymbol (Variable sym exprs) = [toSymbol Uninferred sym] ++ (exprs >>= getSymbol)
-
-instance HasSymbol ProcedureStmt where
-    getSymbol (ProcedureStmtOnlyID sym) = [toSymbol Uninferred sym]
-    getSymbol (ProcedureStmtWithExprs sym exprs) = [toSymbol Uninferred sym] ++ (exprs >>= getSymbol)
-
-instance HasSymbol Expr where
-    getSymbol (UnaryExpr expr) = getSymbol expr
-    getSymbol (BinaryExpr a _ b) = getSymbol a ++ getSymbol b
-
-instance HasSymbol SimpleExpr where
-    getSymbol (SimpleExprTerm term) = getSymbol term
-    getSymbol (SimpleExprOp a _ b) = getSymbol a ++ getSymbol b
-
-instance HasSymbol Term where
-    getSymbol (FactorTerm t) = getSymbol t
-    getSymbol (OpTerm a _ b) = getSymbol a ++ getSymbol b
-    getSymbol (NegTerm f) = getSymbol f
-
-instance HasSymbol Factor where
-    getSymbol (IDSBFactor sym exprs) = [toSymbol Uninferred sym] ++ (exprs >>= getSymbol)
-    getSymbol (IDPFactor sym exprs) = [toSymbol Uninferred sym] ++ (exprs >>= getSymbol)
-    getSymbol (NumFactor _) = []
-    getSymbol (PFactor expr) = getSymbol expr
-    getSymbol (NotFactor f) = getSymbol f
+--
+-- class HasSymbol a where
+--     getSymbol :: a -> [Symbol]
+--
+-- instance HasSymbol ProgramNode where
+--     getSymbol (ProgramNode _ params decs subprogs _) =
+--         map (toSymbol (FO ProgramParamType)) params  ++
+--         (decs >>= getSymbol) ++
+--         getSymbol subprogs
+--
+-- instance HasSymbol VarDecNode where
+--     getSymbol (VarDecNode ids t) = map (toSymbol (getType t)) ids
+--
+-- instance HasSymbol SubprogramSectionNode where
+--     getSymbol (SubprogramSectionNode subprogs) = subprogs >>= getHeaderSymbol
+--         where   getHeaderSymbol (SubprogDec header _ _) = getSymbol header
+--
+-- instance HasSymbol SubprogDec where
+--     getSymbol (SubprogDec header decs _) =
+--         getArgumentSymbols header ++
+--         (decs >>= getSymbol)
+--         where   getArgumentSymbols (SubprogHeadFunc _ args _) = getSymbol args
+--                 getArgumentSymbols (SubprogHeadProc _ args) = getSymbol args
+--
+-- instance HasSymbol SubprogHead where
+--     getSymbol s@(SubprogHeadFunc sym args ret) = [toSymbol (getType s) sym]
+--     getSymbol s@(SubprogHeadProc sym args) = [toSymbol (getType s) sym]
+--
+-- instance HasSymbol Arguments where
+--     getSymbol EmptyArguments = []
+--     getSymbol (Arguments xs) = xs >>= getSymbol
+--
+-- instance HasSymbol Param where
+--     getSymbol (Param ids t) = map (toSymbol (getType t)) ids
+--
+-- instance HasSymbol CompoundStmt where
+--     getSymbol (CompoundStmt stmts) = stmts >>= getSymbol
+--
+-- instance HasSymbol Stmt where
+--     getSymbol (VarStmt var expr) = getSymbol var ++ getSymbol expr
+--     getSymbol (ProcStmt p) = getSymbol p
+--     getSymbol (CompStmt _) = []
+--     getSymbol (BranchStmt e _ _) = getSymbol e
+--     getSymbol (LoopStmt e _) = getSymbol e
+--
+-- -- used
+-- instance HasSymbol Variable where
+--     getSymbol (Variable sym exprs) = [toSymbol Uninferred sym] ++ (exprs >>= getSymbol)
+--
+-- instance HasSymbol ProcedureStmt where
+--     getSymbol (ProcedureStmtOnlyID sym) = [toSymbol Uninferred sym]
+--     getSymbol (ProcedureStmtWithExprs sym exprs) = [toSymbol Uninferred sym] ++ (exprs >>= getSymbol)
+--
+-- instance HasSymbol Expr where
+--     getSymbol (UnaryExpr expr) = getSymbol expr
+--     getSymbol (BinaryExpr a _ b) = getSymbol a ++ getSymbol b
+--
+-- instance HasSymbol SimpleExpr where
+--     getSymbol (SimpleExprTerm term) = getSymbol term
+--     getSymbol (SimpleExprOp a _ b) = getSymbol a ++ getSymbol b
+--
+-- instance HasSymbol Term where
+--     getSymbol (FactorTerm t) = getSymbol t
+--     getSymbol (OpTerm a _ b) = getSymbol a ++ getSymbol b
+--     getSymbol (NegTerm f) = getSymbol f
+--
+-- instance HasSymbol Factor where
+--     getSymbol (IDSBFactor sym exprs) = [toSymbol Uninferred sym] ++ (exprs >>= getSymbol)
+--     getSymbol (IDPFactor sym exprs) = [toSymbol Uninferred sym] ++ (exprs >>= getSymbol)
+--     getSymbol (NumFactor _) = []
+--     getSymbol (PFactor expr) = getSymbol expr
+--     getSymbol (NotFactor f) = getSymbol f
