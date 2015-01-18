@@ -54,8 +54,8 @@ instance Serializable Scope where
         indent (map serialize symbols ++ map serialize scopes)
 
 instance Serializable Symbol where
-    serialize (Symbol Declared t i p) = green i ++ " : " ++ show t ++ " " ++ serialize p
-    serialize (Symbol Used t i p) = yellow i ++ " : " ++ show t ++ " " ++ serialize p
+    serialize (Symbol t i p) = green i ++ " : " ++ show t ++ " " ++ serialize p
+    -- serialize (Symbol Used t i p) = yellow i ++ " : " ++ show t ++ " " ++ serialize p
 
 instance Serializable String where
     serialize = id

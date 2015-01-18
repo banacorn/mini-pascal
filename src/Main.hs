@@ -23,8 +23,8 @@ testA = do
         >>= scan
         >>= parse
         >>= return . head . getScope
-    checkDeclarationDuplication (extractDeclaration scope)
-    draw (extractDeclaration scope)
+    checkDeclarationDuplication scope
+    draw scope
     -- >>= liftIO . draw
 
 testAll :: Pipeline ()

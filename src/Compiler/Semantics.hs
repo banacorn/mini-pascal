@@ -6,15 +6,6 @@ import Compiler.Pipeline
 import Control.Monad.Except
 import Control.Monad.State
 
---------------------------------------------------------------------------------
--- A Symbol is either Declared or Used, here we keep the declared symbols only
-extractDeclaration :: Scope -> Scope
-extractDeclaration (Scope scopeType symbols subScopes) =
-    Scope scopeType (filter isDeclaration symbols) (map extractDeclaration subScopes)
-    where   isDeclaration :: Symbol -> Bool
-            isDeclaration (Symbol Declared _ _ _) = True
-            isDeclaration _                     = False
-
 checkDeclarationDuplication :: Scope -> Pipeline ()
 checkDeclarationDuplication scope = case declarationDuplications scope of
     [] -> return ()

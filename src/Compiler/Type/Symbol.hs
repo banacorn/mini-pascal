@@ -43,13 +43,12 @@ instance Show Type where
 
 --------------------------------------------------------------------------------
 --  Status
-data SymbolStatus = Declared | Used deriving (Eq, Show)
+-- data SymbolStatus = Declared | Used deriving (Eq, Show)
 
 --------------------------------------------------------------------------------
 --  Symbol
 data Symbol = Symbol
-    {   symStatus :: SymbolStatus
-    ,   symType :: Type
+    {   symType :: Type
     ,   symID :: String
     ,   symPos :: Position
     }
@@ -58,12 +57,12 @@ data Symbol = Symbol
 --      1. both are variables OR both are functions/procedures
 --      2. have the same name
 instance Eq Symbol where
-    Symbol s (FO _) i _ == Symbol s' (FO _) i' _ = s == s' && i == i'
-    Symbol s (HO _) i _ == Symbol s' (HO _) i' _ = s == s' && i == i'
-    Symbol _ _ _ _ == Symbol _ _ _ _ = False
+    Symbol (FO _) i _ == Symbol (FO _) i' _ = i == i'
+    Symbol (HO _) i _ == Symbol (HO _) i' _ = i == i'
+    Symbol _ _ _ == Symbol _ _ _ = False
 
 instance Show Symbol where
-    show (Symbol status t i p) = show status ++ " " ++ i ++ " : " ++ show t ++ show p
+    show (Symbol t i p) = " " ++ i ++ " : " ++ show t ++ show p
 
 --------------------------------------------------------------------------------
 --  Scope & Symbol Table
