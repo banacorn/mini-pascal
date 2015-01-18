@@ -598,7 +598,7 @@ happyReduction_5 (_ `HappyStk`
 	(HappyAbsSyn6  happy_var_1) `HappyStk`
 	happyRest)
 	 = HappyAbsSyn6
-		 (DeclarationNode (reverse happy_var_3) happy_var_5 : happy_var_1
+		 (VarDecNode (reverse happy_var_3) happy_var_5 : happy_var_1
 	) `HappyStk` happyRest
 
 happyReduce_6 = happySpecReduce_1  7 happyReduction_6

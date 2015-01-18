@@ -20,7 +20,7 @@ data ProgramNode =
     ProgramNode
         Sym                         -- program name
         [Sym]                       -- program arguments
-        [DeclarationNode]           -- variable declarations
+        [VarDecNode]           -- variable declarations
         SubprogramSectionNode       -- subprogram declarations
         CompoundStmt                -- compound statement
     deriving (Eq, Show)
@@ -28,7 +28,7 @@ data ProgramNode =
 type ID = String
 type Sym = (ID, Position)
 
-data DeclarationNode = DeclarationNode [Sym] TypeNode
+data VarDecNode = VarDecNode [Sym] TypeNode
     deriving (Eq, Show)
 
 type Number = String
@@ -41,7 +41,7 @@ data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq
 
 -- Subprogram
 data SubprogramSectionNode = SubprogramSectionNode [SubprogDec] deriving (Eq, Show)
-data SubprogDec = SubprogDec SubprogHead [DeclarationNode] CompoundStmt deriving (Eq, Show)
+data SubprogDec = SubprogDec SubprogHead [VarDecNode] CompoundStmt deriving (Eq, Show)
 
 data SubprogHead    = SubprogHeadFunc Sym Arguments StandardTypeNode
                     | SubprogHeadProc Sym Arguments
