@@ -98,8 +98,8 @@ instance HasSymbol ProgramNode where
         (decs >>= getSymbol) ++
         getSymbol subprogs
 
-instance HasSymbol Declaration where
-    getSymbol (Declaration ids t) = map (toSymbol Declared (getType t)) ids
+instance HasSymbol DeclarationNode where
+    getSymbol (DeclarationNode ids t) = map (toSymbol Declared (getType t)) ids
 
 instance HasSymbol SubprogSection where
     getSymbol (SubprogSection subprogs) = subprogs >>= getHeaderSymbol

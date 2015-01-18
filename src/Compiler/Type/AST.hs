@@ -16,13 +16,13 @@ toSym (Token (TokID i) p) = (i, p)
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
-data ProgramNode = ProgramNode Sym [Sym] [Declaration] SubprogSection CompoundStmt
+data ProgramNode = ProgramNode Sym [Sym] [DeclarationNode] SubprogSection CompoundStmt
     deriving (Eq, Show)
 
 type ID = String
 type Sym = (ID, Position)
 
-data Declaration = Declaration [Sym] TypeN
+data DeclarationNode = DeclarationNode [Sym] TypeN
     deriving (Eq, Show)
 
 type Number = String
@@ -34,7 +34,7 @@ data TypeN  = StdTypeN StandardTypeN
 data StandardTypeN = IntTypeN | RealTypeN | StringTypeN deriving (Eq, Show)
 
 data SubprogSection = SubprogSection [SubprogDec] deriving (Eq, Show)
-data SubprogDec = SubprogDec SubprogHead [Declaration] CompoundStmt deriving (Eq, Show)
+data SubprogDec = SubprogDec SubprogHead [DeclarationNode] CompoundStmt deriving (Eq, Show)
 
 data SubprogHead    = SubprogHeadFunc Sym Arguments StandardTypeN
                     | SubprogHeadProc Sym Arguments

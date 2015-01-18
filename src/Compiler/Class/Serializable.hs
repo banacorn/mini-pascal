@@ -125,9 +125,9 @@ instance Serializable ProgramNode where
             serializeIDs [x] = fst x
             serializeIDs (x:xs) = fst x ++ ", " ++ serializeIDs xs
 
-instance Serializable Declaration where
-    serialize (Declaration [] _) = []
-    serialize (Declaration syms t) =
+instance Serializable DeclarationNode where
+    serialize (DeclarationNode [] _) = []
+    serialize (DeclarationNode syms t) =
         "var " ++ serializeIDs syms ++ " : " ++ serialize t ++ ";"
         where
             serializeIDs = intercalate ", " . map fst

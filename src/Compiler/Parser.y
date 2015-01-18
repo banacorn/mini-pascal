@@ -64,7 +64,7 @@ identifier_list : id                            { [toSym $1] }
 
 
 declarations    : {- empty -}                                       { [] }
-                | declarations var identifier_list ':' type ';'     { Declaration (reverse $3) $5 : $1 }
+                | declarations var identifier_list ':' type ';'     { DeclarationNode (reverse $3) $5 : $1 }
 
 
 type    : standard_type                          { StdTypeN $1 }
