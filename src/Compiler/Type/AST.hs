@@ -30,11 +30,11 @@ type SymbolNode = (String, Position)
 data VarDecNode = VarDecNode [SymbolNode] TypeNode
     deriving (Eq, Show)
 
-type Number = String
+type NumberNode = String
 
 -- Type
 data TypeNode   = BaseTypeNode StandardTypeNode
-                | ArrayTypeNode (Number, Number) TypeNode
+                | ArrayTypeNode (NumberNode, NumberNode) TypeNode
                 deriving (Eq, Show)
 data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq, Show)
 
