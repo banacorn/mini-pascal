@@ -187,9 +187,9 @@ instance Serializable ParameterNode where
 --         "end"
 
 instance Serializable StmtNode where
-    serialize (VarStmtNode v e) = serialize v ++ " := " ++ serialize e
-    serialize (SubprogInvokeStmt sym []) = fst sym
-    serialize (SubprogInvokeStmt sym exprs) = fst sym ++ "(" ++ serializeExprs ++ ")"
+    serialize (AssignStmtNode v e) = serialize v ++ " := " ++ serialize e
+    serialize (SubprogInvokeStmtNode sym []) = fst sym
+    serialize (SubprogInvokeStmtNode sym exprs) = fst sym ++ "(" ++ serializeExprs ++ ")"
         where   serializeExprs = intercalate ", " (map serialize exprs)
     serialize (CompStmtNode stmts) =
         "    begin" ++ "\n" ++
@@ -201,41 +201,41 @@ instance Serializable StmtNode where
         "    else " ++ serialize t
     serialize (LoopStmtNode e s) = "while " ++ serialize e ++ " do\n" ++ serialize s
 
-instance Serializable Variable where
-    serialize (Variable sym es) = fst sym ++ concat (map showSBExpr es)
+instance Serializable VariableNode where
+    serialize (VariableNode sym es) = fst sym ++ concat (map showSBExpr es)
         where   showSBExpr e = "[" ++ serialize e ++ "]"
 
-instance Serializable Expr where
-    serialize (UnaryExpr e) = serialize e
-    serialize (BinaryExpr a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+instance Serializable ExprNode where
+    serialize (UnaryExprNode e) = serialize e
+    serialize (BinaryExprNode a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
 
-instance Serializable SimpleExpr where
-    serialize (SimpleExprTerm t) = serialize t
-    serialize (SimpleExprOp a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+instance Serializable SimpleExprNode where
+    serialize (SimpleExprTermNode t) = serialize t
+    serialize (SimpleExprOpNode a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
 
-instance Serializable Term where
-    serialize (FactorTerm f) = serialize f
-    serialize (OpTerm a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
-    serialize (NegTerm f) = "-" ++ serialize f
+instance Serializable TermNode where
+    serialize (FactorTermNode f) = serialize f
+    serialize (OpTermNode a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+    serialize (NegTermNode f) = "-" ++ serialize f
 
-instance Serializable Factor where
-    serialize (IDSBFactor sym es) = fst sym ++ concat (map serialize es)
+instance Serializable FactorNode where
+    serialize (ArrayAccessFactorNode sym es) = fst sym ++ concat (map serialize es)
         where   serializeSBExpr a = "[" ++ serialize a ++ "]"
-    serialize (IDPFactor sym es)  = fst sym ++ "(" ++ serializeExpr ++ ")"
+    serialize (SubprogInvokeFactorNode sym es)  = fst sym ++ "(" ++ serializeExpr ++ ")"
         where   serializeExpr = intercalate ", " (map serialize es)
-    serialize (NumFactor s) = s
-    serialize (PFactor e) = serialize e
-    serialize (NotFactor f) = "not " ++ serialize f
+    serialize (NumFactorNode s) = s
+    serialize (SubFactorNode e) = serialize e
+    serialize (NotFactorNode f) = "not " ++ serialize f
 
-instance Serializable AddOp where
+instance Serializable AddOpNode where
     serialize Plus = "+"
     serialize Minus = "-"
 
-instance Serializable MulOp where
+instance Serializable MulOpNode where
     serialize Mul = "*"
     serialize Div = "/"
 
-instance Serializable Relop where
+instance Serializable RelOpNode where
     serialize S = "<"
     serialize L = ">"
     serialize E = "="

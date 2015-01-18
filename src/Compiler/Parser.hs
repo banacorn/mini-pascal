@@ -794,14 +794,14 @@ happyReduction_23 (HappyAbsSyn18  happy_var_3)
 	_
 	(HappyAbsSyn15  happy_var_1)
 	 =  HappyAbsSyn14
-		 (VarStmtNode happy_var_1 happy_var_3
+		 (AssignStmtNode happy_var_1 happy_var_3
 	)
 happyReduction_23 _ _ _  = notHappyAtAll 
 
 happyReduce_24 = happySpecReduce_1  14 happyReduction_24
 happyReduction_24 (HappyTerminal happy_var_1)
 	 =  HappyAbsSyn14
-		 (SubprogInvokeStmt (toSym happy_var_1) []
+		 (SubprogInvokeStmtNode (toSym happy_var_1) []
 	)
 happyReduction_24 _  = notHappyAtAll 
 
@@ -812,7 +812,7 @@ happyReduction_25 (_ `HappyStk`
 	(HappyTerminal happy_var_1) `HappyStk`
 	happyRest)
 	 = HappyAbsSyn14
-		 (SubprogInvokeStmt (toSym happy_var_1) happy_var_3
+		 (SubprogInvokeStmtNode (toSym happy_var_1) happy_var_3
 	) `HappyStk` happyRest
 
 happyReduce_26 = happySpecReduce_1  14 happyReduction_26
@@ -848,7 +848,7 @@ happyReduce_29 = happySpecReduce_2  15 happyReduction_29
 happyReduction_29 (HappyAbsSyn16  happy_var_2)
 	(HappyTerminal happy_var_1)
 	 =  HappyAbsSyn15
-		 (Variable (toSym happy_var_1) happy_var_2
+		 (VariableNode (toSym happy_var_1) happy_var_2
 	)
 happyReduction_29 _ _  = notHappyAtAll 
 
@@ -886,7 +886,7 @@ happyReduction_33 _ _ _  = notHappyAtAll
 happyReduce_34 = happySpecReduce_1  18 happyReduction_34
 happyReduction_34 (HappyAbsSyn19  happy_var_1)
 	 =  HappyAbsSyn18
-		 (UnaryExpr happy_var_1
+		 (UnaryExprNode happy_var_1
 	)
 happyReduction_34 _  = notHappyAtAll 
 
@@ -895,14 +895,14 @@ happyReduction_35 (HappyAbsSyn19  happy_var_3)
 	(HappyAbsSyn24  happy_var_2)
 	(HappyAbsSyn19  happy_var_1)
 	 =  HappyAbsSyn18
-		 (BinaryExpr happy_var_1 happy_var_2 happy_var_3
+		 (BinaryExprNode happy_var_1 happy_var_2 happy_var_3
 	)
 happyReduction_35 _ _ _  = notHappyAtAll 
 
 happyReduce_36 = happySpecReduce_1  19 happyReduction_36
 happyReduction_36 (HappyAbsSyn20  happy_var_1)
 	 =  HappyAbsSyn19
-		 (SimpleExprTerm happy_var_1
+		 (SimpleExprTermNode happy_var_1
 	)
 happyReduction_36 _  = notHappyAtAll 
 
@@ -911,14 +911,14 @@ happyReduction_37 (HappyAbsSyn20  happy_var_3)
 	(HappyAbsSyn22  happy_var_2)
 	(HappyAbsSyn19  happy_var_1)
 	 =  HappyAbsSyn19
-		 (SimpleExprOp happy_var_1 happy_var_2 happy_var_3
+		 (SimpleExprOpNode happy_var_1 happy_var_2 happy_var_3
 	)
 happyReduction_37 _ _ _  = notHappyAtAll 
 
 happyReduce_38 = happySpecReduce_1  20 happyReduction_38
 happyReduction_38 (HappyAbsSyn21  happy_var_1)
 	 =  HappyAbsSyn20
-		 (FactorTerm happy_var_1
+		 (FactorTermNode happy_var_1
 	)
 happyReduction_38 _  = notHappyAtAll 
 
@@ -926,7 +926,7 @@ happyReduce_39 = happySpecReduce_2  20 happyReduction_39
 happyReduction_39 (HappyAbsSyn21  happy_var_2)
 	_
 	 =  HappyAbsSyn20
-		 (NegTerm happy_var_2
+		 (NegTermNode happy_var_2
 	)
 happyReduction_39 _ _  = notHappyAtAll 
 
@@ -935,7 +935,7 @@ happyReduction_40 (HappyAbsSyn21  happy_var_3)
 	(HappyAbsSyn23  happy_var_2)
 	(HappyAbsSyn20  happy_var_1)
 	 =  HappyAbsSyn20
-		 (OpTerm happy_var_1 happy_var_2 happy_var_3
+		 (OpTermNode happy_var_1 happy_var_2 happy_var_3
 	)
 happyReduction_40 _ _ _  = notHappyAtAll 
 
@@ -943,7 +943,7 @@ happyReduce_41 = happySpecReduce_2  21 happyReduction_41
 happyReduction_41 (HappyAbsSyn16  happy_var_2)
 	(HappyTerminal happy_var_1)
 	 =  HappyAbsSyn21
-		 (IDSBFactor (toSym happy_var_1) happy_var_2
+		 (ArrayAccessFactorNode (toSym happy_var_1) happy_var_2
 	)
 happyReduction_41 _ _  = notHappyAtAll 
 
@@ -954,13 +954,13 @@ happyReduction_42 (_ `HappyStk`
 	(HappyTerminal happy_var_1) `HappyStk`
 	happyRest)
 	 = HappyAbsSyn21
-		 (IDPFactor (toSym happy_var_1) happy_var_3
+		 (SubprogInvokeFactorNode (toSym happy_var_1) happy_var_3
 	) `HappyStk` happyRest
 
 happyReduce_43 = happySpecReduce_1  21 happyReduction_43
 happyReduction_43 (HappyTerminal (Token (TokNum happy_var_1) _))
 	 =  HappyAbsSyn21
-		 (NumFactor happy_var_1
+		 (NumFactorNode happy_var_1
 	)
 happyReduction_43 _  = notHappyAtAll 
 
@@ -969,7 +969,7 @@ happyReduction_44 _
 	(HappyAbsSyn18  happy_var_2)
 	_
 	 =  HappyAbsSyn21
-		 (PFactor happy_var_2
+		 (SubFactorNode happy_var_2
 	)
 happyReduction_44 _ _ _  = notHappyAtAll 
 
@@ -977,7 +977,7 @@ happyReduce_45 = happySpecReduce_2  21 happyReduction_45
 happyReduction_45 (HappyAbsSyn21  happy_var_2)
 	_
 	 =  HappyAbsSyn21
-		 (NotFactor happy_var_2
+		 (NotFactorNode happy_var_2
 	)
 happyReduction_45 _ _  = notHappyAtAll 
 

@@ -111,16 +111,16 @@ statement_list
 
 
 statement
-    : variable ':=' expression                      { VarStmtNode $1 $3 }
-    | id                                            { SubprogInvokeStmt (toSym $1) [] }
-    | id '(' expression_list ')'                    { SubprogInvokeStmt (toSym $1) $3 }
+    : variable ':=' expression                      { AssignStmtNode $1 $3 }
+    | id                                            { SubprogInvokeStmtNode (toSym $1) [] }
+    | id '(' expression_list ')'                    { SubprogInvokeStmtNode (toSym $1) $3 }
     | compound_statement                            { CompStmtNode $1 }
     | if expression then statement else statement   { BranchStmtNode $2 $4 $6 }
     | while expression do statement                 { LoopStmtNode $2 $4 }
 
 
 variable
-    : id tail  { Variable (toSym $1) $2 }
+    : id tail  { VariableNode (toSym $1) $2 }
 
 tail
     : {- empty -}                   { [] }
@@ -131,27 +131,27 @@ expression_list : expression                        { $1 : [] }
 
 
 expression
-    : simple_expression                         { UnaryExpr $1 }
-    | simple_expression relop simple_expression { BinaryExpr $1 $2 $3 }
+    : simple_expression                         { UnaryExprNode $1 }
+    | simple_expression relop simple_expression { BinaryExprNode $1 $2 $3 }
 
 
 simple_expression
-    : term                              { SimpleExprTerm $1 }
-    | simple_expression addop term      { SimpleExprOp $1 $2 $3 }
+    : term                              { SimpleExprTermNode $1 }
+    | simple_expression addop term      { SimpleExprOpNode $1 $2 $3 }
 
 
 term
-    : factor            { FactorTerm $1 }
-    | '-' factor        { NegTerm $2  }
-    | term mulop factor { OpTerm $1 $2 $3 }
+    : factor            { FactorTermNode $1 }
+    | '-' factor        { NegTermNode $2  }
+    | term mulop factor { OpTermNode $1 $2 $3 }
 
 
 factor
-    : id tail                       { IDSBFactor (toSym $1) $2 }
-    | id '(' expression_list ')'    { IDPFactor (toSym $1) $3 }
-    | num                           { NumFactor $1 }
-    | '(' expression ')'            { PFactor $2 }
-    | not factor                    { NotFactor $2 }
+    : id tail                       { ArrayAccessFactorNode (toSym $1) $2 }
+    | id '(' expression_list ')'    { SubprogInvokeFactorNode (toSym $1) $3 }
+    | num                           { NumFactorNode $1 }
+    | '(' expression ')'            { SubFactorNode $2 }
+    | not factor                    { NotFactorNode $2 }
 
 
 addop

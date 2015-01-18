@@ -57,36 +57,37 @@ data SubprogDecNode = FuncDecNode
 data ParameterNode = ParameterNode [SymbolNode] TypeNode
     deriving (Eq, Show)
 
-data StmtNode   = VarStmtNode Variable Expr
-                | SubprogInvokeStmt SymbolNode [Expr]
+-- Statement Declaration
+data StmtNode   = AssignStmtNode VariableNode ExprNode
+                | SubprogInvokeStmtNode SymbolNode [ExprNode]
                 | CompStmtNode [StmtNode]
-                | BranchStmtNode Expr StmtNode StmtNode
-                | LoopStmtNode Expr StmtNode
+                | BranchStmtNode ExprNode StmtNode StmtNode
+                | LoopStmtNode ExprNode StmtNode
                 deriving (Eq, Show)
 
-data Variable = Variable SymbolNode [Expr] -- e.g. a[1+2][3*4]
+data VariableNode = VariableNode SymbolNode [ExprNode] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)
 
-data Expr   = UnaryExpr SimpleExpr
-            | BinaryExpr SimpleExpr Relop SimpleExpr
-            deriving (Eq, Show)
-
-data SimpleExpr = SimpleExprTerm Term
-                | SimpleExprOp SimpleExpr AddOp Term
+data ExprNode   = UnaryExprNode SimpleExprNode
+                | BinaryExprNode SimpleExprNode RelOpNode SimpleExprNode
                 deriving (Eq, Show)
 
-data Term   = FactorTerm Factor
-            | OpTerm Term MulOp Factor
-            | NegTerm Factor
-            deriving (Eq, Show)
+data SimpleExprNode = SimpleExprTermNode TermNode
+                    | SimpleExprOpNode SimpleExprNode AddOpNode TermNode
+                    deriving (Eq, Show)
 
-data Factor = IDSBFactor SymbolNode [Expr]  -- id[]
-            | IDPFactor SymbolNode [Expr]   -- id()
-            | NumFactor String
-            | PFactor Expr
-            | NotFactor Factor
-            deriving (Eq, Show)
+data TermNode   = FactorTermNode FactorNode
+                | OpTermNode TermNode MulOpNode FactorNode
+                | NegTermNode FactorNode
+                deriving (Eq, Show)
 
-data AddOp = Plus | Minus deriving (Eq, Show)
-data MulOp = Mul | Div deriving (Eq, Show)
-data Relop = S | L | E | NE | SE | LE deriving (Eq, Show)
+data FactorNode = ArrayAccessFactorNode     SymbolNode [ExprNode]   -- id[]
+                | SubprogInvokeFactorNode   SymbolNode [ExprNode]   -- id()
+                | NumFactorNode             NumberNode
+                | SubFactorNode             ExprNode                -- ( ... )
+                | NotFactorNode             FactorNode              -- -id
+                deriving (Eq, Show)
+
+data AddOpNode = Plus | Minus deriving (Eq, Show)
+data MulOpNode = Mul | Div deriving (Eq, Show)
+data RelOpNode = S | L | E | NE | SE | LE deriving (Eq, Show)
