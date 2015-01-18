@@ -21,21 +21,21 @@ class HasScope a where
     getScope :: a -> [Scope]
 
 instance HasScope ProgramNode where
-    getScope p@(ProgramNode sym _ _ subprogs comp) = [Scope scopeType decs scopes]
+    getScope p@(ProgramNode sym _ _ subprogs stmt) = [Scope scopeType decs scopes]
         where
             scopeType = ProgramScope (fst sym)
             decs = getDeclaration p
-            scopes = getScope subprogs ++ getScope comp
+            scopes = getScope subprogs ++ getScope stmt
 
 instance HasScope SubprogramSectionNode where
     getScope (SubprogramSectionNode subprogs) = subprogs >>= getScope
 
 instance HasScope SubprogDec where
-    getScope p@(SubprogDec header _ comp) = [Scope scopeType symbols scopes]
+    getScope p@(SubprogDec header _ stmt) = [Scope scopeType decs scopes]
         where
-            scopeType = RegularScope $ head (getSymbol header)
-            symbols = getSymbol p
-            scopes = getScope comp
+            scopeType = RegularScope (head (getSymbol header))
+            decs = getDeclaration p
+            scopes = getScope stmt
 
 instance HasScope CompoundStmt where
     getScope p@(CompoundStmt stmts) = [Scope scopeType symbols scopes]
@@ -101,6 +101,32 @@ instance HasDeclaration ProgramNode where
             fromParams n = [toSymbol (FO ProgramParamType) n]
             fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
             fromSubprogs (SubprogDec n@(SubprogHeadFunc sym _ ret) _ _) = [toSymbol (getType n) sym]
+            fromSubprogs (SubprogDec n@(SubprogHeadProc sym _    ) _ _) = [toSymbol (getType n) sym]
+
+instance HasDeclaration SubprogDec where
+    getDeclaration (SubprogDec (SubprogHeadFunc sym EmptyArguments ret) vars stmt) =
+        (vars >>= fromVars)
+        where
+            fromParams (Param ids t) = map (toSymbol (getType t)) ids
+            fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
+    getDeclaration (SubprogDec (SubprogHeadFunc sym (Arguments params) ret) vars stmt) =
+        (params >>= fromParams) ++
+        (vars >>= fromVars)
+        where
+            fromParams (Param ids t) = map (toSymbol (getType t)) ids
+            fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
+    getDeclaration (SubprogDec (SubprogHeadProc sym EmptyArguments) vars stmt) =
+        (vars >>= fromVars)
+        where
+            fromParams (Param ids t) = map (toSymbol (getType t)) ids
+            fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
+    getDeclaration (SubprogDec (SubprogHeadProc sym (Arguments params)) vars stmt) =
+        (params >>= fromParams) ++
+        (vars >>= fromVars)
+        where
+            fromParams (Param ids t) = map (toSymbol (getType t)) ids
+            fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
+
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasSymbol
