@@ -27,18 +27,15 @@ instance HasScope ProgramNode where
             decs = getDeclaration p
             scopes = subprogs >>= getScope -- getScope stmts
 
--- instance HasScope SubprogramSectionNode where
---     getScope (SubprogramSectionNode subprogs) = subprogs >>= getScope
-
-instance HasScope SubprogDec where
-    getScope p@(SubprogDec h@(SubprogHeadFunc sym _ _) _ stmts) = [Scope scopeType decs scopes]
+instance HasScope SubprogDecNode where
+    getScope p@(FuncDecNode sym _ _ _ stmts) = [Scope scopeType decs scopes]
         where
-            scopeType = RegularScope (toSymbol (getType h) sym)
+            scopeType = RegularScope (toSymbol (getType p) sym)
             decs = getDeclaration p
             scopes = [] --getScope stmts
-    getScope p@(SubprogDec h@(SubprogHeadProc sym _) _ stmts) = [Scope scopeType decs scopes]
+    getScope p@(ProcDecNode sym _ _ stmts) = [Scope scopeType decs scopes]
         where
-            scopeType = RegularScope (toSymbol (getType h) sym)
+            scopeType = RegularScope (toSymbol (getType p) sym)
             decs = getDeclaration p
             scopes = [] --getScope stmts
 
@@ -84,10 +81,9 @@ instance HasType StandardTypeNode where
 instance HasType TypeNode where
     getType = FO . getFOType
 
-
-instance HasType SubprogHead where
-    getType (SubprogHeadFunc _ params ret) = HO $ FunctionType (map getFOType params) (getFOType ret)
-    getType (SubprogHeadProc _ params)     = HO $ ProcedureType (map getFOType params)
+instance HasType SubprogDecNode where
+    getType (FuncDecNode _ params ret _ _) = HO $ FunctionType  (map getFOType params) (getFOType ret)
+    getType (ProcDecNode _ params     _ _) = HO $ ProcedureType (map getFOType params)
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasDeclaration
@@ -103,17 +99,17 @@ instance HasDeclaration ProgramNode where
         where
             fromParams n = [toSymbol (FO ProgramParamType) n]
             fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
-            fromSubprogs (SubprogDec n@(SubprogHeadFunc sym _ ret) _ _) = [toSymbol (getType n) sym]
-            fromSubprogs (SubprogDec n@(SubprogHeadProc sym _    ) _ _) = [toSymbol (getType n) sym]
+            fromSubprogs n@(FuncDecNode sym _ ret _ _) = [toSymbol (getType n) sym]
+            fromSubprogs n@(ProcDecNode sym _     _ _) = [toSymbol (getType n) sym]
 
-instance HasDeclaration SubprogDec where
-    getDeclaration (SubprogDec (SubprogHeadFunc sym params ret) vars stmt) =
+instance HasDeclaration SubprogDecNode where
+    getDeclaration (FuncDecNode sym params ret vars stmt) =
         (params >>= fromParams) ++
         (vars >>= fromVars)
         where
             fromParams (ParameterNode ids t) = map (toSymbol (getType t)) ids
             fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
-    getDeclaration (SubprogDec (SubprogHeadProc sym params) vars stmt) =
+    getDeclaration (ProcDecNode sym params vars stmt) =
         (params >>= fromParams) ++
         (vars >>= fromVars)
         where

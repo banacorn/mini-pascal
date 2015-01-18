@@ -22,11 +22,11 @@ type SymbolNode = (String, Position)
 
 data ProgramNode =
     ProgramNode
-        SymbolNode                         -- program name
-        [SymbolNode]                       -- program arguments
-        [VarDecNode]           -- variable declarations
-        [SubprogDec]        -- subprogram declarations
-        [StmtNode]                -- compound statement
+        SymbolNode          -- program name
+        [SymbolNode]        -- program arguments
+        [VarDecNode]        -- variable declarations
+        [SubprogDecNode]    -- subprogram declarations
+        [StmtNode]          -- compound statement
     deriving (Eq, Show)
 
 
@@ -41,10 +41,17 @@ data TypeNode   = BaseTypeNode StandardTypeNode
 data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq, Show)
 
 -- Subprogram
-data SubprogDec = SubprogDec SubprogHead [VarDecNode] [StmtNode] deriving (Eq, Show)
-
-data SubprogHead    = SubprogHeadFunc SymbolNode [ParameterNode] StandardTypeNode
-                    | SubprogHeadProc SymbolNode [ParameterNode]
+data SubprogDecNode = FuncDecNode
+                        SymbolNode          -- function name
+                        [ParameterNode]     -- function parameters
+                        StandardTypeNode    -- function return type
+                        [VarDecNode]        -- variable declarations
+                        [StmtNode]          -- compound statement
+                    | ProcDecNode
+                        SymbolNode          -- procedure name
+                        [ParameterNode]     -- function parameters
+                        [VarDecNode]        -- variable declarations
+                        [StmtNode]          -- compound statement
                     deriving (Eq, Show)
 
 data ParameterNode = ParameterNode [SymbolNode] TypeNode

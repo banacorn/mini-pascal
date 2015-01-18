@@ -146,22 +146,35 @@ instance Serializable StandardTypeNode where
     serialize RealTypeNode = "real"
     serialize StringTypeNode = "string"
 
-instance Serializable SubprogDec where
-    serialize (SubprogDec header decs stmts) =
-        serialize header ++ "\n" ++
-        indent decs ++
+instance Serializable SubprogDecNode where
+    serialize (FuncDecNode sym [] typ vars stmts) =
+        "function " ++ fst sym ++ " : " ++ serialize typ ++ ";" ++ "\n" ++
+        indent vars ++
         "    begin" ++ "\n" ++
         indentWith (prefix "    " . suffix ";\n") stmts ++
         "    end"
-instance Serializable SubprogHead where
-    serialize (SubprogHeadFunc sym [] typ) =
-        "function " ++ fst sym ++ " : " ++ serialize typ ++ ";"
-    serialize (SubprogHeadFunc sym args typ) =
-        "function " ++ fst sym ++ "(" ++ intercalate ", " (map serialize args) ++ "): " ++ serialize typ ++ ";"
-    serialize (SubprogHeadProc sym []) =
-        "procedure " ++ fst sym ++ ";"
-    serialize (SubprogHeadProc sym args) =
-        "procedure " ++ fst sym ++ "(" ++ intercalate ", " (map serialize args) ++ ");"
+
+    serialize (FuncDecNode sym args typ vars stmts) =
+        "function " ++ fst sym ++ "(" ++ intercalate ", " (map serialize args) ++ "): " ++ serialize typ ++ ";" ++ "\n" ++
+        indent vars ++
+        "    begin" ++ "\n" ++
+        indentWith (prefix "    " . suffix ";\n") stmts ++
+        "    end"
+
+    serialize (ProcDecNode sym [] vars stmts) =
+        "procedure " ++ fst sym ++ ";" ++ "\n" ++
+        indent vars ++
+        "    begin" ++ "\n" ++
+        indentWith (prefix "    " . suffix ";\n") stmts ++
+        "    end"
+
+    serialize (ProcDecNode sym args vars stmts) =
+        "procedure " ++ fst sym ++ "(" ++ intercalate ", " (map serialize args) ++ ");" ++ "\n" ++
+        indent vars ++
+        "    begin" ++ "\n" ++
+        indentWith (prefix "    " . suffix ";\n") stmts ++
+        "    end"
+
 
 instance Serializable ParameterNode where
     serialize (ParameterNode syms t) = serializeIDs ++ ": " ++ serialize t

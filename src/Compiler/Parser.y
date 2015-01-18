@@ -87,13 +87,14 @@ subprogram_declarations
 
 
 subprogram_declaration
-    : subprogram_head variable_declarations compound_statement { SubprogDec $1 $2 $3 }
-
-subprogram_head
-    : function id ':' standard_type ';'                         { SubprogHeadFunc (toSym $2) [] $4 }
-    | function id '(' parameter_list ')' ':' standard_type ';'  { SubprogHeadFunc (toSym $2) $4 $7 }
-    | procedure id ';'                                          { SubprogHeadProc (toSym $2) []}
-    | procedure id '(' parameter_list ')' ';'                   { SubprogHeadProc (toSym $2) $4}
+    : function id ':' standard_type ';' variable_declarations compound_statement
+        { FuncDecNode (toSym $2) [] $4 $6 $7 }
+    | function id '(' parameter_list ')' ':' standard_type ';' variable_declarations compound_statement
+        { FuncDecNode (toSym $2) $4 $7 $9 $10 }
+    | procedure id ';' variable_declarations compound_statement
+        { ProcDecNode (toSym $2) [] $4 $5 }
+    | procedure id '(' parameter_list ')' ';' variable_declarations compound_statement
+        { ProcDecNode (toSym $2) $4 $7 $8 }
 
 parameter_list
     : identifier_list ':' type                      { ParameterNode $1 $3 : [] }
