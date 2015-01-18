@@ -72,8 +72,8 @@ instance HasFOType TypeNode where
     getFOType (BaseTypeNode t) = getFOType t
     getFOType (ArrayTypeNode range t) = ArrayType range (getFOType t)
 
-instance HasFOType Param where
-    getFOType (Param _ t) = getFOType t
+instance HasFOType ParameterNode where
+    getFOType (ParameterNode _ t) = getFOType t
 
 class HasType a where
     getType :: a -> Type
@@ -111,13 +111,13 @@ instance HasDeclaration SubprogDec where
         (params >>= fromParams) ++
         (vars >>= fromVars)
         where
-            fromParams (Param ids t) = map (toSymbol (getType t)) ids
+            fromParams (ParameterNode ids t) = map (toSymbol (getType t)) ids
             fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
     getDeclaration (SubprogDec (SubprogHeadProc sym params) vars stmt) =
         (params >>= fromParams) ++
         (vars >>= fromVars)
         where
-            fromParams (Param ids t) = map (toSymbol (getType t)) ids
+            fromParams (ParameterNode ids t) = map (toSymbol (getType t)) ids
             fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
 
 

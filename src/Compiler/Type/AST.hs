@@ -42,11 +42,11 @@ data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq
 -- Subprogram
 data SubprogDec = SubprogDec SubprogHead [VarDecNode] CompoundStmt deriving (Eq, Show)
 
-data SubprogHead    = SubprogHeadFunc Sym [Param] StandardTypeNode
-                    | SubprogHeadProc Sym [Param]
+data SubprogHead    = SubprogHeadFunc Sym [ParameterNode] StandardTypeNode
+                    | SubprogHeadProc Sym [ParameterNode]
                     deriving (Eq, Show)
 
-data Param = Param [Sym] TypeNode
+data ParameterNode = ParameterNode [Sym] TypeNode
     deriving (Eq, Show)
 
 data CompoundStmt = CompoundStmt [Stmt]

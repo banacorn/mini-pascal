@@ -61,7 +61,7 @@ program
 
 
 identifier_list
-    : id                            { [toSym $1] }
+    : id                            { toSym $1 : [] }
     | identifier_list ',' id        { toSym $3 : $1 }
 
 
@@ -96,8 +96,8 @@ subprogram_head
     | procedure id '(' parameter_list ')' ';'                   { SubprogHeadProc (toSym $2) $4}
 
 parameter_list
-    : identifier_list ':' type                      { [Param $1 $3] }
-    | parameter_list ';' identifier_list ':' type   { Param $3 $5 : $1  }
+    : identifier_list ':' type                      { ParameterNode $1 $3 : [] }
+    | parameter_list ';' identifier_list ':' type   { ParameterNode $3 $5 : $1  }
 
 
 compound_statement
@@ -128,7 +128,7 @@ procedure_statement
     : id                            { ProcedureStmtOnlyID (toSym $1) }
     | id '(' expression_list ')'    { ProcedureStmtWithExprs (toSym $1) $3 }
 
-expression_list : expression                        { [$1] }
+expression_list : expression                        { $1 : [] }
                 | expression_list ',' expression    { $3 : $1 }
 
 

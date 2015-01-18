@@ -157,8 +157,8 @@ instance Serializable SubprogHead where
     serialize (SubprogHeadProc sym args) =
         "procedure " ++ fst sym ++ "(" ++ intercalate ", " (map serialize args) ++ ");"
 
-instance Serializable Param where
-    serialize (Param syms t) = serializeIDs ++ ": " ++ serialize t
+instance Serializable ParameterNode where
+    serialize (ParameterNode syms t) = serializeIDs ++ ": " ++ serialize t
         where   serializeIDs = intercalate ", " (map fst syms)
 
 instance Serializable CompoundStmt where

@@ -590,7 +590,7 @@ happyReduction_1 (_ `HappyStk`
 happyReduce_2 = happySpecReduce_1  5 happyReduction_2
 happyReduction_2 (HappyTerminal happy_var_1)
 	 =  HappyAbsSyn5
-		 ([toSym happy_var_1]
+		 (toSym happy_var_1 : []
 	)
 happyReduction_2 _  = notHappyAtAll 
 
@@ -733,7 +733,7 @@ happyReduction_18 (HappyAbsSyn7  happy_var_3)
 	_
 	(HappyAbsSyn5  happy_var_1)
 	 =  HappyAbsSyn12
-		 ([Param happy_var_1 happy_var_3]
+		 (ParameterNode happy_var_1 happy_var_3 : []
 	)
 happyReduction_18 _ _ _  = notHappyAtAll 
 
@@ -745,7 +745,7 @@ happyReduction_19 ((HappyAbsSyn7  happy_var_5) `HappyStk`
 	(HappyAbsSyn12  happy_var_1) `HappyStk`
 	happyRest)
 	 = HappyAbsSyn12
-		 (Param happy_var_3 happy_var_5 : happy_var_1
+		 (ParameterNode happy_var_3 happy_var_5 : happy_var_1
 	) `HappyStk` happyRest
 
 happyReduce_20 = happySpecReduce_3  13 happyReduction_20
@@ -866,7 +866,7 @@ happyReduction_33 (_ `HappyStk`
 happyReduce_34 = happySpecReduce_1  19 happyReduction_34
 happyReduction_34 (HappyAbsSyn20  happy_var_1)
 	 =  HappyAbsSyn19
-		 ([happy_var_1]
+		 (happy_var_1 : []
 	)
 happyReduction_34 _  = notHappyAtAll 
 
