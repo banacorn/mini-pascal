@@ -1,6 +1,7 @@
 module Compiler.Pipeline where
 
 import Compiler.Type
+import Compiler.Semantics
 import Compiler.Class.Serializable
 
 import Control.Exception (try, IOException)
@@ -11,28 +12,20 @@ import Data.List (intercalate)
 import System.Environment (getArgs)
 import System.Console.ANSI
 
+--------------------------------------------------------------------------------
+-- get path from command argument
+--  Exception: throws FileError if argument not given
 getPath :: Pipeline String
 getPath = do
     args <- liftIO getArgs
     case args of
-        []      -> throwError $ FileError "no input file"
+        []      -> throwError $ ArgError "no input file"
         (x:_)   -> return x
 
-
-updateFileState :: Maybe String -> Maybe String -> Pipeline ()
-updateFileState source path = modify $ \state -> state
-    { zustandFileSource = source
-    , zustandFilePath = path
-    }
-
-testWithSource :: String -> Pipeline String
-testWithSource input = do
-    updateFileState (Just input) (Just "interactive")
-    return input
-
+--------------------------------------------------------------------------------
 -- read source from file
--- Exception: throws FileError if file not found
--- State: saves source if possible
+--  Exception: throws FileError if file not found
+--  State: saves source if possible
 readSource :: String -> Pipeline String
 readSource path = do
     result <- liftIO $ try (readFile path) :: Pipeline (Either IOException String)
@@ -42,6 +35,21 @@ readSource path = do
             updateFileState (Just s) (Just path)
             return s
 
+
+--------------------------------------------------------------------------------
+-- helper functions
+
+testWithSource :: String -> Pipeline String
+testWithSource input = do
+    updateFileState (Just input) (Just "interactive")
+    return input
+
+updateFileState :: Maybe String -> Maybe String -> Pipeline ()
+updateFileState source path = modify $ \state -> state
+    { zustandFileSource = source
+    , zustandFilePath = path
+    }
+
 -- stores the error in Zustand
 throwSemanticsError :: SemanticsError -> Pipeline ()
 throwSemanticsError err = do
@@ -50,8 +58,28 @@ throwSemanticsError err = do
         { zustandSemanticsError = err : errors }
 
 
-handleError :: Pipeline a -> IO ()
-handleError f = do
+--------------------------------------------------------------------------------
+-- Semantics Checking: Declaration Duplication
+--  Exception: throws SemanticsError if any declaration duplicated (implicitly)
+--  State: saves SemanticsError if there's any
+checkDeclarationDuplication :: Scope -> Pipeline ()
+checkDeclarationDuplication scope = case declarationDuplications scope of
+    [] -> return ()
+    xs -> throwSemanticsError (DeclarationDuplication xs)
+
+--------------------------------------------------------------------------------
+-- Semantics Checking: ?
+--  Exception: throws SemanticsError if any semantics error stored in der Zustand
+checkSemantics :: Pipeline () -> Pipeline ()
+checkSemantics f = do
+    f
+    errors <- gets zustandSemanticsError
+    case errors of
+        [] -> return () -- no semantics error
+        xs -> throwError SemanticsErrorFlag
+
+pipeline :: Pipeline () -> IO ()
+pipeline f = do
     (result, Zustand source (Just path) semErr) <- runStateT (runExceptT f) (Zustand Nothing Nothing [])
     case result of
         Left    err -> case err of
@@ -77,7 +105,8 @@ handleError f = do
                 -- mapM_ (printDeclarationDuplicationError path) partitions
 
 
-        Right   src -> return ()
+        Right   () -> do
+            return ()
 
     where
         printPos (Position o n l c) = ":" ++ show l ++ ":" ++ show c ++ ":"
@@ -114,14 +143,5 @@ printSyntaxError source (Position offset len l c) = do
             paintError s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
             paintLineNo s = setSGRCode [SetColor Foreground Vivid Green] ++ s ++ setSGRCode []
 
-
--- main :: IO ()
--- main = do
---     source <- testOne
---     let parseTree = parse (scan source)
---     print parseTree
---     draw . head $ getScope parseTree
---     draw parseTree
---
 draw :: Serializable a => a -> Pipeline ()
 draw = liftIO . putStrLn . serialize

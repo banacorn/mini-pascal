@@ -19,7 +19,8 @@ type Pipeline = ExceptT PipelineError (StateT Zustand IO)
 -- Compile Errors
 
 -- semantics errors are collected in Zustand
-data PipelineError  = FileError String
+data PipelineError  = ArgError String
+                    | FileError String
                     | ParseError (Maybe Token)
                     | SemanticsErrorFlag
                     deriving (Eq)
@@ -28,8 +29,7 @@ data SemanticsError = DeclarationDuplication [[Symbol]]
     deriving (Eq, Show)
 
 instance Show PipelineError where
-    show (FileError e) = "File Error: \n"
-        ++ e
-    show (ParseError msg) = "Parse Error: \n"
-        ++ show msg
+    show (ArgError e) = "Command Line Error: \n" ++ e
+    show (FileError e) = "File Error: \n" ++ e
+    show (ParseError msg) = "Parse Error: \n" ++ show msg
     show SemanticsErrorFlag = "Semantics Error"

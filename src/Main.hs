@@ -12,18 +12,22 @@ import Control.Monad.IO.Class
 
 
 main :: IO ()
-main = handleError $ do
+main = pipeline $ do
     testA
     -- testWithSource "program aaa(); begin end." >>= scan >>= parse >>= liftIO . print
 
 testA :: Pipeline ()
 testA = do
+
     ast <- readSource "./test/semantics/test00-type-error-in-array.p"
-    -- scope <- readSource "./test/semantics/test-duplicate.p"
+    -- ast <- readSource "./test/semantics/test-duplicate.p"
         >>= scan
         >>= parse
+
     let scope = head (getScope ast)
-    checkDeclarationDuplication scope
+
+    checkSemantics $ do
+        checkDeclarationDuplication scope
     draw ast
     draw scope
     -- >>= liftIO . draw
