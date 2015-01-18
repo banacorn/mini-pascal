@@ -82,8 +82,8 @@ pipeline :: Pipeline () -> IO ()
 pipeline f = do
     (result, state) <- runStateT (runExceptT (checkSemantics f)) (Zustand Nothing Nothing [])
     case result of
-        Left err -> return ()
-            -- mapM_ (putStrLn . serialize) (diagnoseError state err)
+        Left err ->
+            mapM_ (putStrLn . serialize) (diagnoseError state err)
             -- FileError path -> do
             --     putStrLn $ paintError "[File Error]"
             --     putStrLn $ "Input file " ++ paintWarn path ++ " does not exists"
@@ -120,7 +120,8 @@ pipeline f = do
             putStrLn $ path ++ "\n"
 
 
-
+--------------------------------------------------------------------------------
+-- Diagnose and refine errors
 diagnoseError :: Zustand -> ErrorClass -> [PipelineError]
 diagnoseError (Zustand _ Nothing _) _ = [InvalidArgument]
 diagnoseError (Zustand Nothing (Just path) _) _ = [NoSuchFile path]
@@ -135,8 +136,10 @@ diagnoseSemanticsError path src [] = error "Semantics Error Class raised yet no 
 diagnoseSemanticsError path src (DeclarationDuplication ps : xs) = map (DeclarationDuplicationError path src) ps
 
 
-printSyntaxError :: String -> Position -> IO ()
-printSyntaxError source (Position offset len l c) = do
+--------------------------------------------------------------------------------
+-- print code block
+printCodeBlock :: String -> Position -> IO ()
+printCodeBlock source (Position offset len l c) = do
     putStrLn ""
     putStrLn (unlines $ zipWith addLineNo lineNos reportLines)
     where   lineNo = l - 1

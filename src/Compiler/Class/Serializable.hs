@@ -39,6 +39,10 @@ green s = setSGRCode [SetColor Foreground Vivid Green] ++ s ++ setSGRCode []
 yellow :: String -> String
 yellow s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
 
+red :: String -> String
+red s = setSGRCode [SetColor Foreground Vivid Red] ++ s ++ setSGRCode []
+
+
 --------------------------------------------------------------------------------
 -- other instances
 
@@ -66,6 +70,22 @@ instance Serializable String where
 instance Serializable a => Serializable [a] where
     serialize xs = "[" ++ intercalate ", " (map serialize xs) ++ "]"
 
+instance Serializable PipelineError where
+    serialize InvalidArgument = "invalid argument"
+    serialize (NoSuchFile path) = "no such path: " ++ yellow path
+    serialize (NotEnoughInput path src) =
+        path ++ ":\n"
+        ++ "    Not enough input"
+    serialize (LexError path src tok pos) =
+        path ++ ":" ++ serialize pos ++ ":\n"
+        ++ "    Unrecognizable token " ++ yellow tok ++ "\n"
+    serialize (ParseError path src tok pos) =
+        path ++ ":" ++ serialize pos ++ ":\n"
+        ++ "    Unable to parse " ++ yellow (serialize tok) ++ "\n"
+    serialize (DeclarationDuplicationError path src partition) =
+        let Symbol _ i pos = head partition in
+        path ++ ":" ++ serialize pos ++ ":\n"
+        ++ "    Declaration Duplicated  " ++ yellow (serialize i) ++ "\n"
 --------------------------------------------------------------------------------
 -- Tok instances
 

@@ -5,9 +5,9 @@
 PROGRAM foo(input, output, error) ;
    // variable declaraions
    var a, b, c: integer;
-   var d, e: array [ 1 .. 10 ] of integer; 
+   var d, e: array [ 1 .. 10 ] of integer;
    var g, h: real;
-   var k: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real; 
+   var k: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real;
    var a: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real;  // WRONG 1: redefined variables
 
 
@@ -37,7 +37,7 @@ PROGRAM foo(input, output, error) ;
 
 
    function  addition(a, b: real) : real;
-   // WARNING 6: Does you compiler allow over-loading? 
+   // WARNING 6: Does you compiler allow over-loading?
       var c: integer;  // local declaration
       begin
          addition := a + b   // this is the return value
@@ -49,7 +49,7 @@ PROGRAM foo(input, output, error) ;
       while a < 10 do
       begin
          sum := sum + a;
-         a   := a + 1 
+         a   := a + 1
       end;
       begin  // nested compound statement
          b := 1;
@@ -58,7 +58,7 @@ PROGRAM foo(input, output, error) ;
             d[b] := b + b * (b - 1);
             b := b +1
          end;
-         sort(d)   // a procedure call          
+         sort(d)   // a procedure call
       end;
       k[25][26] := 3;        // wrong element type
       k[25][26] := 3.14;     // good
@@ -77,15 +77,15 @@ PROGRAM foo(input, output, error) ;
 
 
        // Warning 9: How do your compiler handle conditional compilation?
- 
+
       #if !defined(__unix__)
-      #include Long40.h¡¨
+      #include Long40.hï¿½ï¿½
        k[25][26] := k[25][26] + 5;     // good
       #elif defined(_TMS320C6200)
       #define assert(a)
        k[25][26] := k[25][26] + 333;     // good
       #else
-      #include ¡¨Long40.h¡¨
+      #include ï¿½ï¿½Long40.hï¿½ï¿½
        k[25][26] := k[25][26] + 6666;     // good
       #include <assert.h>
       #endif
@@ -99,7 +99,7 @@ PROGRAM foo(input, output, error) ;
        while b <= k do
        begin
          sum := sum + a[b];
-         b   := b + 1 
+         b   := b + 1
        end;
 
 
