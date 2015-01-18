@@ -25,10 +25,10 @@ instance HasScope ProgramNode where
         where
             scopeType = ProgramScope (fst sym)
             decs = getDeclaration p
-            scopes = getScope subprogs ++ [] -- getScope stmts
+            scopes = subprogs >>= getScope -- getScope stmts
 
-instance HasScope SubprogramSectionNode where
-    getScope (SubprogramSectionNode subprogs) = subprogs >>= getScope
+-- instance HasScope SubprogramSectionNode where
+--     getScope (SubprogramSectionNode subprogs) = subprogs >>= getScope
 
 instance HasScope SubprogDec where
     getScope p@(SubprogDec h@(SubprogHeadFunc sym _ _) _ stmts) = [Scope scopeType decs scopes]
@@ -98,7 +98,7 @@ class HasScope a => HasDeclaration a where
     getDeclaration :: a -> [Symbol]
 
 instance HasDeclaration ProgramNode where
-    getDeclaration (ProgramNode _ params vars (SubprogramSectionNode subprogs) _) =
+    getDeclaration (ProgramNode _ params vars subprogs _) =
         (params   >>= fromParams) ++
         (vars     >>= fromVars) ++
         (subprogs >>= fromSubprogs)

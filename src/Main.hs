@@ -18,12 +18,13 @@ main = handleError $ do
 
 testA :: Pipeline ()
 testA = do
-    scope <- readSource "./test/semantics/test00-type-error-in-array.p"
+    ast <- readSource "./test/semantics/test00-type-error-in-array.p"
     -- scope <- readSource "./test/semantics/test-duplicate.p"
         >>= scan
         >>= parse
-        >>= return . head . getScope
+    let scope = head (getScope ast)
     checkDeclarationDuplication scope
+    draw ast
     draw scope
     -- >>= liftIO . draw
 

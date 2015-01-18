@@ -21,7 +21,7 @@ data ProgramNode =
         Sym                         -- program name
         [Sym]                       -- program arguments
         [VarDecNode]           -- variable declarations
-        SubprogramSectionNode       -- subprogram declarations
+        [SubprogDec]       -- subprogram declarations
         CompoundStmt                -- compound statement
     deriving (Eq, Show)
 
@@ -40,7 +40,6 @@ data TypeNode   = BaseTypeNode StandardTypeNode
 data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq, Show)
 
 -- Subprogram
-data SubprogramSectionNode = SubprogramSectionNode [SubprogDec] deriving (Eq, Show)
 data SubprogDec = SubprogDec SubprogHead [VarDecNode] CompoundStmt deriving (Eq, Show)
 
 data SubprogHead    = SubprogHeadFunc Sym Arguments StandardTypeNode

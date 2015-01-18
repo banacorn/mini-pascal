@@ -116,7 +116,7 @@ instance Serializable ProgramNode where
         "\n" ++
         header ++ "\n" ++
         indent decs ++ "\n" ++
-        indentBlock (serialize subprogs) ++
+        indent subprogs ++ "\n" ++
         indentBlock (serialize comp) ++
         ".\n"
         where
@@ -140,9 +140,6 @@ instance Serializable StandardTypeNode where
     serialize IntTypeNode = "int"
     serialize RealTypeNode = "real"
     serialize StringTypeNode = "string"
-
-instance Serializable SubprogramSectionNode where
-    serialize (SubprogramSectionNode decs) = intercalate "\n" (map serialize decs)
 
 instance Serializable SubprogDec where
     serialize (SubprogDec header decs comp) =

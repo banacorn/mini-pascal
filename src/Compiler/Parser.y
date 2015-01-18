@@ -54,105 +54,131 @@ import Control.Monad.Except
 %%
 
 
-program : progtok id '(' identifier_list ')' ';' declarations subprogram_declarations compound_statement '.' {
-    ProgramNode (toSym $2) (reverse $4) (reverse $7) (SubprogramSectionNode (reverse $8)) $9
-}
+program
+    : progtok id '(' identifier_list ')' ';' variable_declarations subprogram_declarations compound_statement '.' {
+        ProgramNode (toSym $2) (reverse $4) (reverse $7) (reverse $8) $9
+    }
 
 
-identifier_list : id                            { [toSym $1] }
-                | identifier_list ',' id        { toSym $3 : $1 }
+identifier_list
+    : id                            { [toSym $1] }
+    | identifier_list ',' id        { toSym $3 : $1 }
 
 
-declarations    : {- empty -}                                       { [] }
-                | declarations var identifier_list ':' type ';'     { VarDecNode (reverse $3) $5 : $1 }
+variable_declarations
+    : {- empty -}                                               { [] }
+    | variable_declarations var identifier_list ':' type ';'    { VarDecNode (reverse $3) $5 : $1 }
 
 
-type    : standard_type                          { BaseTypeNode $1 }
-        | array '[' num '..' num ']' of type     { ArrayTypeNode ($3, $5) $8 }
+type
+    : standard_type                          { BaseTypeNode $1 }
+    | array '[' num '..' num ']' of type     { ArrayTypeNode ($3, $5) $8 }
 
 
-standard_type   : integer       { IntTypeNode }
-                | real          { RealTypeNode }
-                | string        { StringTypeNode }
+standard_type
+    : integer       { IntTypeNode }
+    | real          { RealTypeNode }
+    | string        { StringTypeNode }
 
 
-subprogram_declarations : {- empty -}                                           { [] }
-                        | subprogram_declarations subprogram_declaration ';'    { $2 : $1 }
+subprogram_declarations
+    : {- empty -}                                           { [] }
+    | subprogram_declarations subprogram_declaration ';'    { $2 : $1 }
 
 
-subprogram_declaration : subprogram_head declarations compound_statement { SubprogDec $1 $2 $3 }
+subprogram_declaration
+    : subprogram_head variable_declarations compound_statement { SubprogDec $1 $2 $3 }
 
-subprogram_head : function id arguments ':' standard_type ';'       { SubprogHeadFunc (toSym $2) $3 $5 }
-                | procedure id arguments ';'                        { SubprogHeadProc (toSym $2) $3}
-
-
-arguments   : {- empty -}               { EmptyArguments }
-            | '(' parameter_list ')'    { Arguments $2 }
+subprogram_head
+    : function id arguments ':' standard_type ';'       { SubprogHeadFunc (toSym $2) $3 $5 }
+    | procedure id arguments ';'                        { SubprogHeadProc (toSym $2) $3}
 
 
-parameter_list  : identifier_list ':' type                      { [Param $1 $3] }
-                | parameter_list ';' identifier_list ':' type   { Param $3 $5 : $1  }
+arguments
+    : {- empty -}               { EmptyArguments }
+    | '(' parameter_list ')'    { Arguments $2 }
 
 
-compound_statement : begin statement_list end  { CompoundStmt (reverse $2) }
-
-statement_list  : {- empty -}                   { [] }
-                | statement                     { [$1] }
-                | statement_list ';' statement  { $3 : $1 }
+parameter_list
+    : identifier_list ':' type                      { [Param $1 $3] }
+    | parameter_list ';' identifier_list ':' type   { Param $3 $5 : $1  }
 
 
-statement   : variable ':=' expression                      { VarStmt $1 $3 }
-            | procedure_statement                           { ProcStmt $1 }
-            | compound_statement                            { CompStmt $1 }
-            | if expression then statement else statement   { BranchStmt $2 $4 $6 }
-            | while expression do statement                 { LoopStmt $2 $4 }
+compound_statement
+    : begin statement_list end  { CompoundStmt (reverse $2) }
+
+statement_list
+    : {- empty -}                   { [] }
+    | statement                     { [$1] }
+    | statement_list ';' statement  { $3 : $1 }
 
 
-variable : id tail  { Variable (toSym $1) $2 }
+statement
+    : variable ':=' expression                      { VarStmt $1 $3 }
+    | procedure_statement                           { ProcStmt $1 }
+    | compound_statement                            { CompStmt $1 }
+    | if expression then statement else statement   { BranchStmt $2 $4 $6 }
+    | while expression do statement                 { LoopStmt $2 $4 }
 
-tail    : {- empty -}                   { [] }
-        | '[' expression ']' tail       { $2 : $4 }
 
-procedure_statement : id                            { ProcedureStmtOnlyID (toSym $1) }
-                    | id '(' expression_list ')'    { ProcedureStmtWithExprs (toSym $1) $3 }
+variable
+    : id tail  { Variable (toSym $1) $2 }
+
+tail
+    : {- empty -}                   { [] }
+    | '[' expression ']' tail       { $2 : $4 }
+
+procedure_statement
+    : id                            { ProcedureStmtOnlyID (toSym $1) }
+    | id '(' expression_list ')'    { ProcedureStmtWithExprs (toSym $1) $3 }
 
 expression_list : expression                        { [$1] }
                 | expression_list ',' expression    { $3 : $1 }
 
 
-expression  : simple_expression                         { UnaryExpr $1 }
-            | simple_expression relop simple_expression { BinaryExpr $1 $2 $3 }
+expression
+    : simple_expression                         { UnaryExpr $1 }
+    | simple_expression relop simple_expression { BinaryExpr $1 $2 $3 }
 
 
-simple_expression   : term                              { SimpleExprTerm $1 }
-                    | simple_expression addop term      { SimpleExprOp $1 $2 $3 }
+simple_expression
+    : term                              { SimpleExprTerm $1 }
+    | simple_expression addop term      { SimpleExprOp $1 $2 $3 }
 
 
-term    : factor            { FactorTerm $1 }
-        | '-' factor        { NegTerm $2  }
-        | term mulop factor { OpTerm $1 $2 $3 }
+term
+    : factor            { FactorTerm $1 }
+    | '-' factor        { NegTerm $2  }
+    | term mulop factor { OpTerm $1 $2 $3 }
 
 
-factor  : id tail                       { IDSBFactor (toSym $1) $2 }
-        | id '(' expression_list ')'    { IDPFactor (toSym $1) $3 }
-        | num                           { NumFactor $1 }
-        | '(' expression ')'            { PFactor $2 }
-        | not factor                    { NotFactor $2 }
-addop   : '+'   { Plus }
-        | '-'   { Minus }
+factor
+    : id tail                       { IDSBFactor (toSym $1) $2 }
+    | id '(' expression_list ')'    { IDPFactor (toSym $1) $3 }
+    | num                           { NumFactor $1 }
+    | '(' expression ')'            { PFactor $2 }
+    | not factor                    { NotFactor $2 }
 
 
-mulop   : '*'   { Mul }
-        | '/'   { Div }
+addop
+    : '+'   { Plus }
+    | '-'   { Minus }
+
+
+mulop
+    : '*'   { Mul }
+    | '/'   { Div }
 
 
 
-relop   : '<'   { S }
-        | '>'   { L }
-        | '='   { E }
-        | '<='  { SE }
-        | '>='  { LE }
-        | '!='  { NE }
+relop
+    : '<'   { S }
+    | '>'   { L }
+    | '='   { E }
+    | '<='  { SE }
+    | '>='  { LE }
+    | '!='  { NE }
+
 {
 parseError :: [Token] -> Pipeline a
 parseError tokens = throwError (ParseError (maybeHead tokens))
