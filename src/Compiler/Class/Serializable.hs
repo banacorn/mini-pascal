@@ -188,7 +188,9 @@ instance Serializable ParameterNode where
 
 instance Serializable StmtNode where
     serialize (VarStmtNode v e) = serialize v ++ " := " ++ serialize e
-    serialize (ProcStmtNode p) = serialize p
+    serialize (SubprogInvokeStmt sym []) = fst sym
+    serialize (SubprogInvokeStmt sym exprs) = fst sym ++ "(" ++ serializeExprs ++ ")"
+        where   serializeExprs = intercalate ", " (map serialize exprs)
     serialize (CompStmtNode stmts) =
         "    begin" ++ "\n" ++
         indentWith (prefix "    " . suffix ";\n") stmts ++
@@ -202,11 +204,6 @@ instance Serializable StmtNode where
 instance Serializable Variable where
     serialize (Variable sym es) = fst sym ++ concat (map showSBExpr es)
         where   showSBExpr e = "[" ++ serialize e ++ "]"
-
-instance Serializable ProcedureStmt where
-    serialize (ProcedureStmtOnlyID sym) = fst sym
-    serialize (ProcedureStmtWithExprs sym es) = fst sym ++ "(" ++ serializeExpr ++ ")"
-        where   serializeExpr = intercalate ", " (map serialize es)
 
 instance Serializable Expr where
     serialize (UnaryExpr e) = serialize e

@@ -112,7 +112,8 @@ statement_list
 
 statement
     : variable ':=' expression                      { VarStmtNode $1 $3 }
-    | procedure_statement                           { ProcStmtNode $1 }
+    | id                                            { SubprogInvokeStmt (toSym $1) [] }
+    | id '(' expression_list ')'                    { SubprogInvokeStmt (toSym $1) $3 }
     | compound_statement                            { CompStmtNode $1 }
     | if expression then statement else statement   { BranchStmtNode $2 $4 $6 }
     | while expression do statement                 { LoopStmtNode $2 $4 }
@@ -124,10 +125,6 @@ variable
 tail
     : {- empty -}                   { [] }
     | '[' expression ']' tail       { $2 : $4 }
-
-procedure_statement
-    : id                            { ProcedureStmtOnlyID (toSym $1) }
-    | id '(' expression_list ')'    { ProcedureStmtWithExprs (toSym $1) $3 }
 
 expression_list : expression                        { $1 : [] }
                 | expression_list ',' expression    { $3 : $1 }

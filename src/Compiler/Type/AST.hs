@@ -20,6 +20,7 @@ toSym (Token (TokID i) p) = (i, p)
 type NumberNode = String
 type SymbolNode = (String, Position)
 
+-- Program Declaration
 data ProgramNode =
     ProgramNode
         SymbolNode          -- program name
@@ -29,18 +30,17 @@ data ProgramNode =
         [StmtNode]          -- compound statement
     deriving (Eq, Show)
 
-
-data VarDecNode = VarDecNode [SymbolNode] TypeNode
-    deriving (Eq, Show)
-
-
 -- Type
 data TypeNode   = BaseTypeNode StandardTypeNode
                 | ArrayTypeNode (NumberNode, NumberNode) TypeNode
                 deriving (Eq, Show)
 data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq, Show)
 
--- Subprogram
+-- Variable Declaration
+data VarDecNode = VarDecNode [SymbolNode] TypeNode
+    deriving (Eq, Show)
+
+-- Subprogram Declaration
 data SubprogDecNode = FuncDecNode
                         SymbolNode          -- function name
                         [ParameterNode]     -- function parameters
@@ -58,7 +58,7 @@ data ParameterNode = ParameterNode [SymbolNode] TypeNode
     deriving (Eq, Show)
 
 data StmtNode   = VarStmtNode Variable Expr
-                | ProcStmtNode ProcedureStmt
+                | SubprogInvokeStmt SymbolNode [Expr]
                 | CompStmtNode [StmtNode]
                 | BranchStmtNode Expr StmtNode StmtNode
                 | LoopStmtNode Expr StmtNode
@@ -66,11 +66,6 @@ data StmtNode   = VarStmtNode Variable Expr
 
 data Variable = Variable SymbolNode [Expr] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)
-
--- procedure invocation
-data ProcedureStmt  = ProcedureStmtOnlyID SymbolNode
-                    | ProcedureStmtWithExprs SymbolNode [Expr]
-                    deriving (Eq, Show)
 
 data Expr   = UnaryExpr SimpleExpr
             | BinaryExpr SimpleExpr Relop SimpleExpr
