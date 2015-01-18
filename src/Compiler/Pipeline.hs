@@ -80,9 +80,10 @@ checkSemantics f = do
 
 pipeline :: Pipeline () -> IO ()
 pipeline f = do
-    (result, Zustand source (Just path) semErr) <- runStateT (runExceptT (checkSemantics f)) (Zustand Nothing Nothing [])
+    (result, state) <- runStateT (runExceptT (checkSemantics f)) (Zustand Nothing Nothing [])
     case result of
-        Left    err -> return ()
+        Left err -> return ()
+            -- mapM_ (putStrLn . serialize) (diagnoseError state err)
             -- FileError path -> do
             --     putStrLn $ paintError "[File Error]"
             --     putStrLn $ "Input file " ++ paintWarn path ++ " does not exists"
@@ -117,6 +118,22 @@ pipeline f = do
         printDeclarationDuplicationError :: String -> [Symbol] -> IO ()
         printDeclarationDuplicationError path partition = do
             putStrLn $ path ++ "\n"
+
+
+
+diagnoseError :: Zustand -> ErrorClass -> [PipelineError]
+diagnoseError (Zustand _ Nothing _) _ = [InvalidArgument]
+diagnoseError (Zustand Nothing (Just path) _) _ = [NoSuchFile path]
+diagnoseError (Zustand _ (Just path) _) FileErrorClass = [NoSuchFile path]
+diagnoseError (Zustand (Just src) (Just path) _) (SyntaxErrorClass (Just (Token (TokError tok) pos))) = [LexError path src tok pos]
+diagnoseError (Zustand (Just src) (Just path) _) (SyntaxErrorClass (Just (Token tok pos))) = [ParseError path src tok pos]
+diagnoseError (Zustand (Just src) (Just path) _) (SyntaxErrorClass Nothing) = [NotEnoughInput path src]
+diagnoseError (Zustand (Just src) (Just path) err) SemanticsErrorClass = diagnoseSemanticsError path src err
+
+diagnoseSemanticsError :: FilePath -> Source -> [SemanticsError] -> [PipelineError]
+diagnoseSemanticsError path src [] = error "Semantics Error Class raised yet no semantics error found"
+diagnoseSemanticsError path src (DeclarationDuplication ps : xs) = map (DeclarationDuplicationError path src) ps
+
 
 printSyntaxError :: String -> Position -> IO ()
 printSyntaxError source (Position offset len l c) = do

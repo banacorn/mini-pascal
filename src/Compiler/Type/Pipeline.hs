@@ -7,12 +7,12 @@ import Control.Monad.State
 
 --------------------------------------------------------------------------------
 -- State of the compilation process
+type Source = String
 data Zustand = Zustand
-    {   zustandFileSource :: Maybe String
-    ,   zustandFilePath :: Maybe String
+    {   zustandFileSource :: Maybe Source
+    ,   zustandFilePath :: Maybe FilePath
     ,   zustandSemanticsError :: [SemanticsError]
     }
-
 type Pipeline = ExceptT ErrorClass (StateT Zustand IO)
 
 --------------------------------------------------------------------------------
@@ -25,6 +25,14 @@ data ErrorClass = CommandLineErrorClass
                 | SyntaxErrorClass (Maybe Token)
                 | SemanticsErrorClass
                 deriving (Eq)
+
+data PipelineError  = InvalidArgument           -- EINVAL
+                    | NoSuchFile FilePath       -- ENOENT
+                    | NotEnoughInput FilePath Source
+                    | LexError FilePath Source String Position
+                    | ParseError FilePath Source Tok Position
+                    | DeclarationDuplicationError FilePath Source [Symbol]
+                    deriving Show
 
 data SemanticsError = DeclarationDuplication [[Symbol]]
     deriving (Eq, Show)
