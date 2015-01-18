@@ -6,12 +6,12 @@ import Control.Monad.Except
 import Control.Monad.State
 
 -- Pipeline
-data FileState = FileState
-    {   fileSource :: Maybe String
-    ,   filePath :: String
-    } | NoFileState
+data Zustand = Zustand
+    {   pipelineFileSource :: Maybe String
+    ,   pipelineFilePath :: String
+    } | NoZustand
 
-type Pipeline = ExceptT PipelineError (StateT FileState IO)
+type Pipeline = ExceptT PipelineError (StateT Zustand IO)
 
 data PipelineError  = FileError String
                     | ParseError (Maybe Token)

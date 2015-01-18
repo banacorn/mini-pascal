@@ -21,7 +21,7 @@ getPath = do
 
 testWithSource :: String -> Pipeline String
 testWithSource input = do
-    put (FileState (Just input) "interactive")
+    put (Zustand (Just input) "interactive")
     return input
 
 -- read source from file
@@ -33,12 +33,12 @@ readSource path = do
     case result of
         Left  _ -> throwError $ FileError path
         Right s -> do
-            put (FileState (Just s) path)
+            put (Zustand (Just s) path)
             return s
 
 handleError :: Pipeline a -> IO ()
 handleError f = do
-    (result, FileState source path) <- runStateT (runExceptT f) NoFileState
+    (result, Zustand source path) <- runStateT (runExceptT f) NoZustand
     case result of
         Left    err -> case err of
             FileError path -> do
