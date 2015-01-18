@@ -111,8 +111,8 @@ instance Serializable Tok where
 --------------------------------------------------------------------------------
 -- AST instances
 
-instance Serializable Program where
-    serialize (Program sym syms decs subprogs comp) =
+instance Serializable ProgramNode where
+    serialize (ProgramNode sym syms decs subprogs comp) =
         "\n" ++
         header ++ "\n" ++
         indent decs ++ "\n" ++

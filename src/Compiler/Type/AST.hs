@@ -16,7 +16,7 @@ toSym (Token (TokID i) p) = (i, p)
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
-data Program = Program Sym [Sym] [Declaration] SubprogSection CompoundStmt
+data ProgramNode = ProgramNode Sym [Sym] [Declaration] SubprogSection CompoundStmt
     deriving (Eq, Show)
 
 type ID = String

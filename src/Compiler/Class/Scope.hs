@@ -20,8 +20,8 @@ toSymbol s t (i, p) = Symbol s t i p
 class HasScope a where
     getScope :: a -> [Scope]
 
-instance HasScope Program where
-    getScope p@(Program sym _ _ sub comp) = [Scope scopeType symbols scopes]
+instance HasScope ProgramNode where
+    getScope p@(ProgramNode sym _ _ sub comp) = [Scope scopeType symbols scopes]
         where
             scopeType = ProgramScope (fst sym)
             symbols = getSymbol p
@@ -92,8 +92,8 @@ instance HasType SubprogHead where
 class HasSymbol a where
     getSymbol :: a -> [Symbol]
 
-instance HasSymbol Program where
-    getSymbol (Program _ params decs subprogs _) =
+instance HasSymbol ProgramNode where
+    getSymbol (ProgramNode _ params decs subprogs _) =
         map (toSymbol Declared (FO ProgramParamType)) params  ++
         (decs >>= getSymbol) ++
         getSymbol subprogs
