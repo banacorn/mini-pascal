@@ -65,8 +65,7 @@ instance Show Symbol where
     show (Symbol t i p) = " " ++ i ++ " : " ++ show t ++ show p
 
 --------------------------------------------------------------------------------
---  Scope & Symbol Table
-type SymbolTable = [(Symbol, Depth)]
+--  Scope
 
 data ScopeType  = CompoundStatementScope
                 | ProgramScope String

@@ -180,12 +180,6 @@ instance Serializable ParameterNode where
     serialize (ParameterNode syms t) = serializeIDs ++ ": " ++ serialize t
         where   serializeIDs = intercalate ", " (map fst syms)
 
--- instance Serializable CompoundStmt where
---     serialize (CompoundStmt stmts) =
---         "begin" ++ "\n" ++
---         indentWith (suffix ";\n") stmts ++
---         "end"
-
 instance Serializable StmtNode where
     serialize (AssignStmtNode v e) = serialize v ++ " := " ++ serialize e
     serialize (SubprogInvokeStmtNode sym []) = fst sym
