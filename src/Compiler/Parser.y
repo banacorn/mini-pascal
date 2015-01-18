@@ -67,13 +67,13 @@ declarations    : {- empty -}                                       { [] }
                 | declarations var identifier_list ':' type ';'     { DeclarationNode (reverse $3) $5 : $1 }
 
 
-type    : standard_type                          { StdTypeN $1 }
-        | array '[' num '..' num ']' of type     { ArrayTypeN ($3, $5) $8 }
+type    : standard_type                          { BaseTypeNode $1 }
+        | array '[' num '..' num ']' of type     { ArrayTypeNode ($3, $5) $8 }
 
 
-standard_type   : integer       { IntTypeN }
-                | real          { RealTypeN }
-                | string        { StringTypeN }
+standard_type   : integer       { IntTypeNode }
+                | real          { RealTypeNode }
+                | string        { StringTypeNode }
 
 
 subprogram_declarations : {- empty -}                                           { [] }

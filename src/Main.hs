@@ -24,7 +24,7 @@ testA = do
         >>= parse
         >>= return . head . getScope
     checkDeclarationDuplication (extractDeclaration scope)
-    -- >>= liftIO . print
+    draw (extractDeclaration scope)
     -- >>= liftIO . draw
 
 testAll :: Pipeline ()

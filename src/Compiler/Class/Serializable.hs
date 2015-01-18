@@ -132,14 +132,14 @@ instance Serializable DeclarationNode where
         where
             serializeIDs = intercalate ", " . map fst
 
-instance Serializable TypeN where
-    serialize (StdTypeN t) = serialize t
-    serialize (ArrayTypeN (a, b) t) = "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
+instance Serializable TypeNode where
+    serialize (BaseTypeNode t) = serialize t
+    serialize (ArrayTypeNode (a, b) t) = "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
 
-instance Serializable StandardTypeN where
-    serialize IntTypeN = "int"
-    serialize RealTypeN = "real"
-    serialize StringTypeN = "string"
+instance Serializable StandardTypeNode where
+    serialize IntTypeNode = "int"
+    serialize RealTypeNode = "real"
+    serialize StringTypeNode = "string"
 
 instance Serializable SubprogSection where
     serialize (SubprogSection decs) = intercalate "\n" (map serialize decs)

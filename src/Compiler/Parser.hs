@@ -604,7 +604,7 @@ happyReduction_5 (_ `HappyStk`
 happyReduce_6 = happySpecReduce_1  7 happyReduction_6
 happyReduction_6 (HappyAbsSyn8  happy_var_1)
 	 =  HappyAbsSyn7
-		 (StdTypeN happy_var_1
+		 (BaseTypeNode happy_var_1
 	)
 happyReduction_6 _  = notHappyAtAll 
 
@@ -619,25 +619,25 @@ happyReduction_7 ((HappyAbsSyn7  happy_var_8) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn7
-		 (ArrayTypeN (happy_var_3, happy_var_5) happy_var_8
+		 (ArrayTypeNode (happy_var_3, happy_var_5) happy_var_8
 	) `HappyStk` happyRest
 
 happyReduce_8 = happySpecReduce_1  8 happyReduction_8
 happyReduction_8 _
 	 =  HappyAbsSyn8
-		 (IntTypeN
+		 (IntTypeNode
 	)
 
 happyReduce_9 = happySpecReduce_1  8 happyReduction_9
 happyReduction_9 _
 	 =  HappyAbsSyn8
-		 (RealTypeN
+		 (RealTypeNode
 	)
 
 happyReduce_10 = happySpecReduce_1  8 happyReduction_10
 happyReduction_10 _
 	 =  HappyAbsSyn8
-		 (StringTypeN
+		 (StringTypeNode
 	)
 
 happyReduce_11 = happySpecReduce_0  9 happyReduction_11

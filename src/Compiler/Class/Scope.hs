@@ -58,14 +58,14 @@ class HasFOType a where
     getFOType :: a -> FOType
 
 
-instance HasFOType StandardTypeN where
-    getFOType IntTypeN = IntegerType
-    getFOType RealTypeN = RealType
-    getFOType StringTypeN = StringType
+instance HasFOType StandardTypeNode where
+    getFOType IntTypeNode    = IntegerType
+    getFOType RealTypeNode   = RealType
+    getFOType StringTypeNode = StringType
 
-instance HasFOType TypeN where
-    getFOType (StdTypeN t) = getFOType t
-    getFOType (ArrayTypeN range t) = ArrayType range (getFOType t)
+instance HasFOType TypeNode where
+    getFOType (BaseTypeNode t) = getFOType t
+    getFOType (ArrayTypeNode range t) = ArrayType range (getFOType t)
 
 instance HasFOType Param where
     getFOType (Param _ t) = getFOType t
@@ -73,10 +73,10 @@ instance HasFOType Param where
 class HasType a where
     getType :: a -> Type
 
-instance HasType StandardTypeN where
+instance HasType StandardTypeNode where
     getType = FO . getFOType
 
-instance HasType TypeN where
+instance HasType TypeNode where
     getType = FO . getFOType
 
 

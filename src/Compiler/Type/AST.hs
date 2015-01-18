@@ -22,28 +22,28 @@ data ProgramNode = ProgramNode Sym [Sym] [DeclarationNode] SubprogSection Compou
 type ID = String
 type Sym = (ID, Position)
 
-data DeclarationNode = DeclarationNode [Sym] TypeN
+data DeclarationNode = DeclarationNode [Sym] TypeNode
     deriving (Eq, Show)
 
 type Number = String
 
-data TypeN  = StdTypeN StandardTypeN
-            | ArrayTypeN (Number, Number) TypeN
-            deriving (Eq, Show)
+data TypeNode   = BaseTypeNode StandardTypeNode
+                | ArrayTypeNode (Number, Number) TypeNode
+                deriving (Eq, Show)
 
-data StandardTypeN = IntTypeN | RealTypeN | StringTypeN deriving (Eq, Show)
+data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq, Show)
 
 data SubprogSection = SubprogSection [SubprogDec] deriving (Eq, Show)
 data SubprogDec = SubprogDec SubprogHead [DeclarationNode] CompoundStmt deriving (Eq, Show)
 
-data SubprogHead    = SubprogHeadFunc Sym Arguments StandardTypeN
+data SubprogHead    = SubprogHeadFunc Sym Arguments StandardTypeNode
                     | SubprogHeadProc Sym Arguments
                     deriving (Eq, Show)
 
 data Arguments  = EmptyArguments
                 | Arguments [Param]
                 deriving (Eq, Show)
-data Param = Param [Sym] TypeN
+data Param = Param [Sym] TypeNode
     deriving (Eq, Show)
 
 data CompoundStmt = CompoundStmt [Stmt]
