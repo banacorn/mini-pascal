@@ -87,6 +87,22 @@ instance HasType SubprogHead where
     getType (SubprogHeadProc _ (Arguments params))     = HO $ ProcedureType (map getFOType params)
 
 --------------------------------------------------------------------------------
+-- Class & Instances of HasDeclaration
+
+class HasScope a => HasDeclaration a where
+    getDeclaration :: a -> [Symbol]
+
+instance HasDeclaration ProgramNode where
+    getDeclaration (ProgramNode _ params vars (SubprogramSectionNode subprogs) _) =
+        (params   >>= fromParams) ++
+        (vars     >>= fromVars) ++
+        (subprogs >>= fromSubprogs)
+        where
+            fromParams n = [toSymbol (FO ProgramParamType) n]
+            fromVars (DeclarationNode ids t) = map (toSymbol (getType t)) ids
+            fromSubprogs (SubprogDec n@(SubprogHeadFunc sym _ ret) _ _) = [toSymbol (getType n) sym]
+
+--------------------------------------------------------------------------------
 -- Class & Instances of HasSymbol
 
 class HasSymbol a where
