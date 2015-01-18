@@ -10,7 +10,7 @@ import Control.Applicative
 --------------------------------------------------------------------------------
 -- Helper functions
 
-toSym :: Token -> Sym
+toSym :: Token -> SymbolNode
 toSym (Token (TokID i) p) = (i, p)
 
 --------------------------------------------------------------------------------
@@ -18,17 +18,16 @@ toSym (Token (TokID i) p) = (i, p)
 
 data ProgramNode =
     ProgramNode
-        Sym                         -- program name
-        [Sym]                       -- program arguments
+        SymbolNode                         -- program name
+        [SymbolNode]                       -- program arguments
         [VarDecNode]           -- variable declarations
         [SubprogDec]       -- subprogram declarations
         CompoundStmt                -- compound statement
     deriving (Eq, Show)
 
-type ID = String
-type Sym = (ID, Position)
+type SymbolNode = (String, Position)
 
-data VarDecNode = VarDecNode [Sym] TypeNode
+data VarDecNode = VarDecNode [SymbolNode] TypeNode
     deriving (Eq, Show)
 
 type Number = String
@@ -42,11 +41,11 @@ data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq
 -- Subprogram
 data SubprogDec = SubprogDec SubprogHead [VarDecNode] CompoundStmt deriving (Eq, Show)
 
-data SubprogHead    = SubprogHeadFunc Sym [ParameterNode] StandardTypeNode
-                    | SubprogHeadProc Sym [ParameterNode]
+data SubprogHead    = SubprogHeadFunc SymbolNode [ParameterNode] StandardTypeNode
+                    | SubprogHeadProc SymbolNode [ParameterNode]
                     deriving (Eq, Show)
 
-data ParameterNode = ParameterNode [Sym] TypeNode
+data ParameterNode = ParameterNode [SymbolNode] TypeNode
     deriving (Eq, Show)
 
 data CompoundStmt = CompoundStmt [Stmt]
@@ -59,12 +58,12 @@ data Stmt   = VarStmt Variable Expr
             | LoopStmt Expr Stmt
             deriving (Eq, Show)
 
-data Variable = Variable Sym [Expr] -- e.g. a[1+2][3*4]
+data Variable = Variable SymbolNode [Expr] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)
 
 -- procedure invocation
-data ProcedureStmt  = ProcedureStmtOnlyID Sym
-                    | ProcedureStmtWithExprs Sym [Expr]
+data ProcedureStmt  = ProcedureStmtOnlyID SymbolNode
+                    | ProcedureStmtWithExprs SymbolNode [Expr]
                     deriving (Eq, Show)
 
 data Expr   = UnaryExpr SimpleExpr
@@ -80,8 +79,8 @@ data Term   = FactorTerm Factor
             | NegTerm Factor
             deriving (Eq, Show)
 
-data Factor = IDSBFactor Sym [Expr]  -- id[]
-            | IDPFactor Sym [Expr]   -- id()
+data Factor = IDSBFactor SymbolNode [Expr]  -- id[]
+            | IDPFactor SymbolNode [Expr]   -- id()
             | NumFactor String
             | PFactor Expr
             | NotFactor Factor
