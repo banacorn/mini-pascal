@@ -101,7 +101,7 @@ parameter_list
 
 
 compound_statement
-    : begin statement_list end  { CompoundStmt (reverse $2) }
+    : begin statement_list end  { reverse $2 }
 
 statement_list
     : {- empty -}                   { [] }

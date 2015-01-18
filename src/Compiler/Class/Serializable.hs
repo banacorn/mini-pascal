@@ -24,6 +24,9 @@ indent = indentWith addNewLine
 suffix :: String -> String -> String
 suffix s x = x ++ s
 
+prefix :: String -> String -> String
+prefix s x = s ++ x
+
 addNewLine :: String -> String
 addNewLine = suffix "\n"
 
@@ -112,12 +115,14 @@ instance Serializable Tok where
 -- AST instances
 
 instance Serializable ProgramNode where
-    serialize (ProgramNode sym syms decs subprogs comp) =
+    serialize (ProgramNode sym syms decs subprogs stmts) =
         "\n" ++
         header ++ "\n" ++
         indent decs ++ "\n" ++
         indent subprogs ++ "\n" ++
-        indentBlock (serialize comp) ++
+        "    begin" ++ "\n" ++
+        indentWith (prefix "    " . suffix ";\n") stmts ++
+        "    end" ++
         ".\n"
         where
             header = "program " ++ fst sym ++ "(" ++ serializeIDs syms ++ ") ;" ++ "\n"
@@ -142,11 +147,12 @@ instance Serializable StandardTypeNode where
     serialize StringTypeNode = "string"
 
 instance Serializable SubprogDec where
-    serialize (SubprogDec header decs comp) =
+    serialize (SubprogDec header decs stmts) =
         serialize header ++ "\n" ++
         indent decs ++
-        indentBlock (serialize comp)
-
+        "    begin" ++ "\n" ++
+        indentWith (prefix "    " . suffix ";\n") stmts ++
+        "    end"
 instance Serializable SubprogHead where
     serialize (SubprogHeadFunc sym [] typ) =
         "function " ++ fst sym ++ " : " ++ serialize typ ++ ";"
@@ -161,21 +167,24 @@ instance Serializable ParameterNode where
     serialize (ParameterNode syms t) = serializeIDs ++ ": " ++ serialize t
         where   serializeIDs = intercalate ", " (map fst syms)
 
-instance Serializable CompoundStmt where
-    serialize (CompoundStmt stmts) =
-        "begin" ++ "\n" ++
-        indentWith (suffix ";\n") stmts ++
-        "end"
+-- instance Serializable CompoundStmt where
+--     serialize (CompoundStmt stmts) =
+--         "begin" ++ "\n" ++
+--         indentWith (suffix ";\n") stmts ++
+--         "end"
 
 instance Serializable StmtNode where
     serialize (VarStmtNode v e) = serialize v ++ " := " ++ serialize e
     serialize (ProcStmtNode p) = serialize p
-    serialize (CompStmtNode c) = serialize c
+    serialize (CompStmtNode stmts) =
+        "    begin" ++ "\n" ++
+        indentWith (prefix "    " . suffix ";\n") stmts ++
+        "    end"
     serialize (BranchStmtNode e s t) =
         "if " ++ serialize e ++ "\n" ++
         "    then " ++ serialize s ++ "\n" ++
         "    else " ++ serialize t
-    serialize (LoopStmtNode e s) = "while " ++ serialize e ++ " do " ++ serialize s
+    serialize (LoopStmtNode e s) = "while " ++ serialize e ++ " do\n" ++ serialize s
 
 instance Serializable Variable where
     serialize (Variable sym es) = fst sym ++ concat (map showSBExpr es)

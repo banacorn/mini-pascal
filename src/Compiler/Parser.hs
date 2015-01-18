@@ -753,7 +753,7 @@ happyReduction_20 _
 	(HappyAbsSyn14  happy_var_2)
 	_
 	 =  HappyAbsSyn13
-		 (CompoundStmt (reverse happy_var_2)
+		 (reverse happy_var_2
 	)
 happyReduction_20 _ _ _  = notHappyAtAll 
 

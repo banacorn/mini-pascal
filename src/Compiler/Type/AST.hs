@@ -25,8 +25,8 @@ data ProgramNode =
         SymbolNode                         -- program name
         [SymbolNode]                       -- program arguments
         [VarDecNode]           -- variable declarations
-        [SubprogDec]       -- subprogram declarations
-        CompoundStmt                -- compound statement
+        [SubprogDec]        -- subprogram declarations
+        [StmtNode]                -- compound statement
     deriving (Eq, Show)
 
 
@@ -41,7 +41,7 @@ data TypeNode   = BaseTypeNode StandardTypeNode
 data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq, Show)
 
 -- Subprogram
-data SubprogDec = SubprogDec SubprogHead [VarDecNode] CompoundStmt deriving (Eq, Show)
+data SubprogDec = SubprogDec SubprogHead [VarDecNode] [StmtNode] deriving (Eq, Show)
 
 data SubprogHead    = SubprogHeadFunc SymbolNode [ParameterNode] StandardTypeNode
                     | SubprogHeadProc SymbolNode [ParameterNode]
@@ -50,12 +50,9 @@ data SubprogHead    = SubprogHeadFunc SymbolNode [ParameterNode] StandardTypeNod
 data ParameterNode = ParameterNode [SymbolNode] TypeNode
     deriving (Eq, Show)
 
-data CompoundStmt = CompoundStmt [StmtNode]
-    deriving (Eq, Show)
-
 data StmtNode   = VarStmtNode Variable Expr
                 | ProcStmtNode ProcedureStmt
-                | CompStmtNode CompoundStmt
+                | CompStmtNode [StmtNode]
                 | BranchStmtNode Expr StmtNode StmtNode
                 | LoopStmtNode Expr StmtNode
                 deriving (Eq, Show)
