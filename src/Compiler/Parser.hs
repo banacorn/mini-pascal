@@ -1109,7 +1109,7 @@ happySeq = happyDontSeq
 
 
 parseError :: [Token] -> Pipeline a
-parseError tokens = throwError (ParseError (maybeHead tokens))
+parseError tokens = throwError (SyntaxErrorClass (maybeHead tokens))
     where   maybeHead [] = Nothing
             maybeHead (x:_) = Just x
 {-# LINE 1 "templates/GenericTemplate.hs" #-}

@@ -13,23 +13,18 @@ data Zustand = Zustand
     ,   zustandSemanticsError :: [SemanticsError]
     }
 
-type Pipeline = ExceptT PipelineError (StateT Zustand IO)
+type Pipeline = ExceptT ErrorClass (StateT Zustand IO)
 
 --------------------------------------------------------------------------------
 -- Compile Errors
 
+-- indicates error class
 -- semantics errors are collected in Zustand
-data PipelineError  = ArgError String
-                    | FileError String
-                    | ParseError (Maybe Token)
-                    | SemanticsErrorFlag
-                    deriving (Eq)
+data ErrorClass = CommandLineErrorClass
+                | FileErrorClass
+                | SyntaxErrorClass (Maybe Token)
+                | SemanticsErrorClass
+                deriving (Eq)
 
 data SemanticsError = DeclarationDuplication [[Symbol]]
     deriving (Eq, Show)
-
-instance Show PipelineError where
-    show (ArgError e) = "Command Line Error: \n" ++ e
-    show (FileError e) = "File Error: \n" ++ e
-    show (ParseError msg) = "Parse Error: \n" ++ show msg
-    show SemanticsErrorFlag = "Semantics Error"

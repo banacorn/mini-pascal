@@ -19,7 +19,7 @@ getPath :: Pipeline String
 getPath = do
     args <- liftIO getArgs
     case args of
-        []      -> throwError $ ArgError "no input file"
+        []      -> throwError CommandLineErrorClass
         (x:_)   -> return x
 
 --------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ readSource :: String -> Pipeline String
 readSource path = do
     result <- liftIO $ try (readFile path) :: Pipeline (Either IOException String)
     case result of
-        Left  _ -> throwError $ FileError path
+        Left  _ -> throwError FileErrorClass
         Right s -> do
             updateFileState (Just s) (Just path)
             return s
@@ -76,33 +76,33 @@ checkSemantics f = do
     errors <- gets zustandSemanticsError
     case errors of
         [] -> return () -- no semantics error
-        xs -> throwError SemanticsErrorFlag
+        xs -> throwError SemanticsErrorClass
 
 pipeline :: Pipeline () -> IO ()
 pipeline f = do
-    (result, Zustand source (Just path) semErr) <- runStateT (runExceptT f) (Zustand Nothing Nothing [])
+    (result, Zustand source (Just path) semErr) <- runStateT (runExceptT (checkSemantics f)) (Zustand Nothing Nothing [])
     case result of
-        Left    err -> case err of
-            FileError path -> do
-                putStrLn $ paintError "[File Error]"
-                putStrLn $ "Input file " ++ paintWarn path ++ " does not exists"
-            ParseError Nothing -> do
-                putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos Unknown ++ "\n"
-                    ++ "Unable to parse, not enough input"
-            ParseError (Just (Token (TokError tok) pos)) -> do
-                putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos pos ++ "\n"
-                    ++ "Unrecognizable token "
-                    ++ paintWarn (serialize tok)
-                printSyntaxError (fromJust source) pos
-            ParseError (Just (Token tok pos)) -> do
-                putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos pos ++ "\n"
-                    ++ "Unable to parse "
-                    ++ paintWarn (serialize tok)
-                printSyntaxError (fromJust source) pos
-            SemanticsErrorFlag -> do
-                putStrLn $ paintError "[Semantics Error]" ++ path ++ "\n"
-                print semErr
-                -- mapM_ (printDeclarationDuplicationError path) partitions
+        Left    err -> return ()
+            -- FileError path -> do
+            --     putStrLn $ paintError "[File Error]"
+            --     putStrLn $ "Input file " ++ paintWarn path ++ " does not exists"
+            -- ParseError Nothing -> do
+            --     putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos Unknown ++ "\n"
+            --         ++ "Unable to parse, not enough input"
+            -- ParseError (Just (Token (TokError tok) pos)) -> do
+            --     putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos pos ++ "\n"
+            --         ++ "Unrecognizable token "
+            --         ++ paintWarn (serialize tok)
+            --     printSyntaxError (fromJust source) pos
+            -- ParseError (Just (Token tok pos)) -> do
+            --     putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos pos ++ "\n"
+            --         ++ "Unable to parse "
+            --         ++ paintWarn (serialize tok)
+            --     printSyntaxError (fromJust source) pos
+            -- SemanticsErrorFlag -> do
+            --     putStrLn $ paintError "[Semantics Error]" ++ path ++ "\n"
+            --     print semErr
+            --     -- mapM_ (printDeclarationDuplicationError path) partitions
 
 
         Right   () -> do

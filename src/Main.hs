@@ -26,8 +26,7 @@ testA = do
 
     let scope = head (getScope ast)
 
-    checkSemantics $ do
-        checkDeclarationDuplication scope
+    checkDeclarationDuplication scope
     draw ast
     draw scope
     -- >>= liftIO . draw
