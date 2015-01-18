@@ -19,12 +19,15 @@ getPath = do
         (x:_)   -> return x
 
 
+updateFileState :: Maybe String -> Maybe String -> Pipeline ()
+updateFileState source path = modify $ \state -> state
+    { zustandFileSource = source
+    , zustandFilePath = path
+    }
+
 testWithSource :: String -> Pipeline String
 testWithSource input = do
-    modify $ \state -> state
-        { zustandFileSource = Just input
-        , zustandFilePath = Just "interactive"
-        }
+    updateFileState (Just input) (Just "interactive")
     return input
 
 -- read source from file
@@ -36,10 +39,7 @@ readSource path = do
     case result of
         Left  _ -> throwError $ FileError path
         Right s -> do
-            modify $ \state -> state
-                { zustandFileSource = Just s
-                , zustandFilePath = Just path
-                }
+            updateFileState (Just s) (Just path)
             return s
 
 handleError :: Pipeline a -> IO ()
