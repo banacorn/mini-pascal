@@ -16,6 +16,10 @@ toSym (Token (TokID i) p) = (i, p)
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
+-- synomyms for some values
+type NumberNode = String
+type SymbolNode = (String, Position)
+
 data ProgramNode =
     ProgramNode
         SymbolNode                         -- program name
@@ -25,12 +29,10 @@ data ProgramNode =
         CompoundStmt                -- compound statement
     deriving (Eq, Show)
 
-type SymbolNode = (String, Position)
 
 data VarDecNode = VarDecNode [SymbolNode] TypeNode
     deriving (Eq, Show)
 
-type NumberNode = String
 
 -- Type
 data TypeNode   = BaseTypeNode StandardTypeNode
@@ -48,15 +50,15 @@ data SubprogHead    = SubprogHeadFunc SymbolNode [ParameterNode] StandardTypeNod
 data ParameterNode = ParameterNode [SymbolNode] TypeNode
     deriving (Eq, Show)
 
-data CompoundStmt = CompoundStmt [Stmt]
+data CompoundStmt = CompoundStmt [StmtNode]
     deriving (Eq, Show)
 
-data Stmt   = VarStmt Variable Expr
-            | ProcStmt ProcedureStmt
-            | CompStmt CompoundStmt
-            | BranchStmt Expr Stmt Stmt
-            | LoopStmt Expr Stmt
-            deriving (Eq, Show)
+data StmtNode   = VarStmtNode Variable Expr
+                | ProcStmtNode ProcedureStmt
+                | CompStmtNode CompoundStmt
+                | BranchStmtNode Expr StmtNode StmtNode
+                | LoopStmtNode Expr StmtNode
+                deriving (Eq, Show)
 
 data Variable = Variable SymbolNode [Expr] -- e.g. a[1+2][3*4]
     deriving (Eq, Show)

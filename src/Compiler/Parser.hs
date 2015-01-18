@@ -783,21 +783,21 @@ happyReduction_24 (HappyAbsSyn20  happy_var_3)
 	_
 	(HappyAbsSyn16  happy_var_1)
 	 =  HappyAbsSyn15
-		 (VarStmt happy_var_1 happy_var_3
+		 (VarStmtNode happy_var_1 happy_var_3
 	)
 happyReduction_24 _ _ _  = notHappyAtAll 
 
 happyReduce_25 = happySpecReduce_1  15 happyReduction_25
 happyReduction_25 (HappyAbsSyn18  happy_var_1)
 	 =  HappyAbsSyn15
-		 (ProcStmt happy_var_1
+		 (ProcStmtNode happy_var_1
 	)
 happyReduction_25 _  = notHappyAtAll 
 
 happyReduce_26 = happySpecReduce_1  15 happyReduction_26
 happyReduction_26 (HappyAbsSyn13  happy_var_1)
 	 =  HappyAbsSyn15
-		 (CompStmt happy_var_1
+		 (CompStmtNode happy_var_1
 	)
 happyReduction_26 _  = notHappyAtAll 
 
@@ -810,7 +810,7 @@ happyReduction_27 ((HappyAbsSyn15  happy_var_6) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn15
-		 (BranchStmt happy_var_2 happy_var_4 happy_var_6
+		 (BranchStmtNode happy_var_2 happy_var_4 happy_var_6
 	) `HappyStk` happyRest
 
 happyReduce_28 = happyReduce 4 15 happyReduction_28
@@ -820,7 +820,7 @@ happyReduction_28 ((HappyAbsSyn15  happy_var_4) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn15
-		 (LoopStmt happy_var_2 happy_var_4
+		 (LoopStmtNode happy_var_2 happy_var_4
 	) `HappyStk` happyRest
 
 happyReduce_29 = happySpecReduce_2  16 happyReduction_29

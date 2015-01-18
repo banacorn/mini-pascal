@@ -110,11 +110,11 @@ statement_list
 
 
 statement
-    : variable ':=' expression                      { VarStmt $1 $3 }
-    | procedure_statement                           { ProcStmt $1 }
-    | compound_statement                            { CompStmt $1 }
-    | if expression then statement else statement   { BranchStmt $2 $4 $6 }
-    | while expression do statement                 { LoopStmt $2 $4 }
+    : variable ':=' expression                      { VarStmtNode $1 $3 }
+    | procedure_statement                           { ProcStmtNode $1 }
+    | compound_statement                            { CompStmtNode $1 }
+    | if expression then statement else statement   { BranchStmtNode $2 $4 $6 }
+    | while expression do statement                 { LoopStmtNode $2 $4 }
 
 
 variable

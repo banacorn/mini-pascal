@@ -167,15 +167,15 @@ instance Serializable CompoundStmt where
         indentWith (suffix ";\n") stmts ++
         "end"
 
-instance Serializable Stmt where
-    serialize (VarStmt v e) = serialize v ++ " := " ++ serialize e
-    serialize (ProcStmt p) = serialize p
-    serialize (CompStmt c) = serialize c
-    serialize (BranchStmt e s t) =
+instance Serializable StmtNode where
+    serialize (VarStmtNode v e) = serialize v ++ " := " ++ serialize e
+    serialize (ProcStmtNode p) = serialize p
+    serialize (CompStmtNode c) = serialize c
+    serialize (BranchStmtNode e s t) =
         "if " ++ serialize e ++ "\n" ++
         "    then " ++ serialize s ++ "\n" ++
         "    else " ++ serialize t
-    serialize (LoopStmt e s) = "while " ++ serialize e ++ " do " ++ serialize s
+    serialize (LoopStmtNode e s) = "while " ++ serialize e ++ " do " ++ serialize s
 
 instance Serializable Variable where
     serialize (Variable sym es) = fst sym ++ concat (map showSBExpr es)
