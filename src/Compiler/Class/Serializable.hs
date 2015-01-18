@@ -1,5 +1,4 @@
-{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
-
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances, OverlappingInstances #-}
 module Compiler.Class.Serializable where
 
 import Compiler.Type
@@ -60,6 +59,9 @@ instance Serializable Symbol where
 
 instance Serializable String where
     serialize = id
+
+instance Serializable a => Serializable [a] where
+    serialize xs = "[" ++ intercalate ", " (map serialize xs) ++ "]"
 
 --------------------------------------------------------------------------------
 -- Tok instances

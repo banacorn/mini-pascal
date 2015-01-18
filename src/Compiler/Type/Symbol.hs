@@ -55,11 +55,12 @@ data Symbol = Symbol
     }
 
 -- 2 Symbols are considered equal if
---      1. both are variables or both are functions
+--      1. both are variables OR both are functions/procedures
 --      2. have the same name
---      3. at the same level of scope
 instance Eq Symbol where
-    Symbol s t i _ == Symbol s' t' i' _ = s == s' && t == t' && i == i'
+    Symbol s (FO _) i _ == Symbol s' (FO _) i' _ = s == s' && i == i'
+    Symbol s (HO _) i _ == Symbol s' (HO _) i' _ = s == s' && i == i'
+    Symbol _ _ _ _ == Symbol _ _ _ _ = False
 
 instance Show Symbol where
     show (Symbol status t i p) = show status ++ " " ++ i ++ " : " ++ show t ++ show p

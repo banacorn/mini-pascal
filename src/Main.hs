@@ -17,11 +17,12 @@ main = handleError $ do
     -- testWithSource "program aaa(); begin end." >>= scan >>= parse >>= liftIO . print
 
 testA :: Pipeline ()
--- testOne = readSource "./test/semantics/test-duplicate.p"
-testA = readSource "./test/semantics/test00-type-error-in-array.p"
+testA = readSource "./test/semantics/test-duplicate.p"
+-- testA = readSource "./test/semantics/test00-type-error-in-array.p"
     >>= scan
     >>= parse
-    >>= return . extractDeclaration . head . getScope
+    >>= return . checkDeclarationDuplication . extractDeclaration . head . getScope
+    -- >>= liftIO . print
     >>= draw
     -- >>= liftIO . draw
 
