@@ -16,7 +16,13 @@ toSym (Token (TokID i) p) = (i, p)
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
-data ProgramNode = ProgramNode Sym [Sym] [DeclarationNode] SubprogSection CompoundStmt
+data ProgramNode =
+    ProgramNode
+        Sym                         -- program name
+        [Sym]                       -- program arguments
+        [DeclarationNode]           -- variable declarations
+        SubprogramSectionNode       -- subprogram declarations
+        CompoundStmt                -- compound statement
     deriving (Eq, Show)
 
 type ID = String
@@ -27,13 +33,14 @@ data DeclarationNode = DeclarationNode [Sym] TypeNode
 
 type Number = String
 
+-- Type
 data TypeNode   = BaseTypeNode StandardTypeNode
                 | ArrayTypeNode (Number, Number) TypeNode
                 deriving (Eq, Show)
-
 data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq, Show)
 
-data SubprogSection = SubprogSection [SubprogDec] deriving (Eq, Show)
+-- Subprogram
+data SubprogramSectionNode = SubprogramSectionNode [SubprogDec] deriving (Eq, Show)
 data SubprogDec = SubprogDec SubprogHead [DeclarationNode] CompoundStmt deriving (Eq, Show)
 
 data SubprogHead    = SubprogHeadFunc Sym Arguments StandardTypeNode

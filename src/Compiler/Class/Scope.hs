@@ -27,8 +27,8 @@ instance HasScope ProgramNode where
             symbols = getSymbol p
             scopes = getScope sub ++ getScope comp
 
-instance HasScope SubprogSection where
-    getScope (SubprogSection subprogs) = subprogs >>= getScope
+instance HasScope SubprogramSectionNode where
+    getScope (SubprogramSectionNode subprogs) = subprogs >>= getScope
 
 instance HasScope SubprogDec where
     getScope p@(SubprogDec header _ comp) = [Scope scopeType symbols scopes]
@@ -101,8 +101,8 @@ instance HasSymbol ProgramNode where
 instance HasSymbol DeclarationNode where
     getSymbol (DeclarationNode ids t) = map (toSymbol Declared (getType t)) ids
 
-instance HasSymbol SubprogSection where
-    getSymbol (SubprogSection subprogs) = subprogs >>= getHeaderSymbol
+instance HasSymbol SubprogramSectionNode where
+    getSymbol (SubprogramSectionNode subprogs) = subprogs >>= getHeaderSymbol
         where   getHeaderSymbol (SubprogDec header _ _) = getSymbol header
 
 instance HasSymbol SubprogDec where

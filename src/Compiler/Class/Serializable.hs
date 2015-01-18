@@ -141,8 +141,8 @@ instance Serializable StandardTypeNode where
     serialize RealTypeNode = "real"
     serialize StringTypeNode = "string"
 
-instance Serializable SubprogSection where
-    serialize (SubprogSection decs) = intercalate "\n" (map serialize decs)
+instance Serializable SubprogramSectionNode where
+    serialize (SubprogramSectionNode decs) = intercalate "\n" (map serialize decs)
 
 instance Serializable SubprogDec where
     serialize (SubprogDec header decs comp) =
