@@ -57,7 +57,10 @@ handleError f = do
                     ++ "Unable to parse "
                     ++ paintWarn (serialize tok)
                 printSyntaxError (fromJust source) pos
-            SemanticsError _ -> print err
+            SemanticsError (DeclarationDuplication partitions) ->
+                mapM_ (printDeclarationDuplicationError path) partitions
+
+
 
         Right   src -> return ()
 
@@ -67,6 +70,9 @@ handleError f = do
         paintError s = setSGRCode [SetColor Foreground Vivid Red] ++ s ++ setSGRCode []
         paintWarn s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
 
+        printDeclarationDuplicationError :: String -> [Symbol] -> IO ()
+        printDeclarationDuplicationError path partition = do
+            putStrLn $ path ++ "\n"
 
 printSyntaxError :: String -> Position -> IO ()
 printSyntaxError source (Position offset len l c) = do

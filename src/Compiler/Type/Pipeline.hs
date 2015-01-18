@@ -1,6 +1,7 @@
 module Compiler.Type.Pipeline where
 
 import Compiler.Type.Token
+import Compiler.Type.Symbol
 import Control.Monad.Except
 import Control.Monad.State
 
@@ -14,12 +15,15 @@ type Pipeline = ExceptT PipelineError (StateT FileState IO)
 
 data PipelineError  = FileError String
                     | ParseError (Maybe Token)
-                    | SemanticsError String
+                    | SemanticsError SemanticsErrorType
                     deriving (Eq)
+
+data SemanticsErrorType = DeclarationDuplication [[Symbol]]
+    deriving (Eq, Show)
 
 instance Show PipelineError where
     show (FileError e) = "File Error: \n"
         ++ e
     show (ParseError msg) = "Parse Error: \n"
         ++ show msg
-    show (SemanticsError e) = e
+    show (SemanticsError e) = show e
