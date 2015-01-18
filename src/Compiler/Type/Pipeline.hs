@@ -5,17 +5,23 @@ import Compiler.Type.Symbol
 import Control.Monad.Except
 import Control.Monad.State
 
--- Pipeline
+--------------------------------------------------------------------------------
+-- State of the compilation process
 data Zustand = Zustand
-    {   pipelineFileSource :: Maybe String
-    ,   pipelineFilePath :: String
-    } | NoZustand
+    {   zustandFileSource :: Maybe String
+    ,   zustandFilePath :: Maybe String
+    ,   zuStandSemanticsErrors :: [SemanticsErrorType]
+    }
 
 type Pipeline = ExceptT PipelineError (StateT Zustand IO)
 
+--------------------------------------------------------------------------------
+-- Compile Errors
+
+-- semantics errors are collected in Zustand
 data PipelineError  = FileError String
                     | ParseError (Maybe Token)
-                    | SemanticsError SemanticsErrorType
+                    | SemanticsError
                     deriving (Eq)
 
 data SemanticsErrorType = DeclarationDuplication [[Symbol]]
@@ -26,4 +32,4 @@ instance Show PipelineError where
         ++ e
     show (ParseError msg) = "Parse Error: \n"
         ++ show msg
-    show (SemanticsError e) = show e
+    show SemanticsError = "Semantics Error"

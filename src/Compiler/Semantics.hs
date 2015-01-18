@@ -16,7 +16,9 @@ extractDeclaration (Scope scopeType symbols subScopes) =
 checkDeclarationDuplication :: Scope -> Pipeline ()
 checkDeclarationDuplication scope = case declarationDuplications scope of
     [] -> return ()
-    xs -> throwError $ SemanticsError (DeclarationDuplication xs)
+    xs -> do
+        
+        throwError SemanticsError
 
 -- Duplicate if
 --      1. both are variables OR both are functions/procedures

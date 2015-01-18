@@ -21,7 +21,10 @@ getPath = do
 
 testWithSource :: String -> Pipeline String
 testWithSource input = do
-    put (Zustand (Just input) "interactive")
+    modify $ \state -> state
+        { zustandFileSource = Just input
+        , zustandFilePath = Just "interactive"
+        }
     return input
 
 -- read source from file
@@ -33,12 +36,15 @@ readSource path = do
     case result of
         Left  _ -> throwError $ FileError path
         Right s -> do
-            put (Zustand (Just s) path)
+            modify $ \state -> state
+                { zustandFileSource = Just s
+                , zustandFilePath = Just path
+                }
             return s
 
 handleError :: Pipeline a -> IO ()
 handleError f = do
-    (result, Zustand source path) <- runStateT (runExceptT f) NoZustand
+    (result, Zustand source (Just path) semErr) <- runStateT (runExceptT f) (Zustand Nothing Nothing [])
     case result of
         Left    err -> case err of
             FileError path -> do
@@ -57,8 +63,9 @@ handleError f = do
                     ++ "Unable to parse "
                     ++ paintWarn (serialize tok)
                 printSyntaxError (fromJust source) pos
-            SemanticsError (DeclarationDuplication partitions) ->
-                mapM_ (printDeclarationDuplicationError path) partitions
+            SemanticsError ->
+                putStrLn $ paintError "[Semantics Error]"  ++ path ++ "\n"
+                -- mapM_ (printDeclarationDuplicationError path) partitions
 
 
 
