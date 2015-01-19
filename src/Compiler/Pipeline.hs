@@ -83,7 +83,7 @@ pipeline f = do
     (result, state) <- runStateT (runExceptT (checkSemantics f)) (Zustand Nothing Nothing [])
     case result of
         Left err ->
-            mapM_ (putStrLn . serialize) (diagnoseError state err)
+            mapM_ (putStrLn . (++) "\n" . serialize) (diagnoseError state err)
             -- FileError path -> do
             --     putStrLn $ paintError "[File Error]"
             --     putStrLn $ "Input file " ++ paintWarn path ++ " does not exists"

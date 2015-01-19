@@ -46,6 +46,9 @@ n >>>> xs = map (indents n) (map serialize xs >>= lines)
 --------------------------------------------------------------------------------
 -- colours!
 
+cyan :: String -> String
+cyan s = setSGRCode [SetColor Foreground Vivid Cyan] ++ s ++ setSGRCode []
+
 green :: String -> String
 green s = setSGRCode [SetColor Foreground Vivid Green] ++ s ++ setSGRCode []
 
@@ -55,6 +58,8 @@ yellow s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
 red :: String -> String
 red s = setSGRCode [SetColor Foreground Vivid Red] ++ s ++ setSGRCode []
 
+dull :: String -> String
+dull s = setSGRCode [SetColor Foreground Dull White] ++ s ++ setSGRCode []
 
 --------------------------------------------------------------------------------
 -- other instances
@@ -90,15 +95,14 @@ instance Serializable PipelineError where
             0 >>>> [path ++ ":"]
         ++  1 >>>> ["Not enough input"]
     serialize (LexError path src tok pos) = paragraph $
-            0 >>>> [path ++ ":" ++ serialize pos ++ ":"]
-        ++  1 >>>> ["Unrecognizable token " ++ yellow tok]
+            0 >>>> [red "Unrecognizable token: " ++ yellow tok]
+        ++  1 >>>> toCodeBlocks path src [pos]
     serialize (ParseError path src tok pos) = paragraph $
-            0 >>>> [path ++ ":" ++ serialize pos ++ ":"]
-        ++  1 >>>> ["Unable to parse " ++ yellow (serialize tok)]
+            0 >>>> [red "Unable to parse " ++ yellow (serialize tok)]
+        ++  1 >>>> toCodeBlocks path src [pos]
     serialize (DeclarationDuplicationError path src partition) = paragraph $
-            0 >>>> [path ++ ":" ++ serialize pos ++ ":"]
-        ++  1 >>>> ["Declaration Duplicated " ++ yellow (serialize i)]
-        ++  2 >>>> codeBlocks
+            0 >>>> [red "Declaration Duplicated: " ++ yellow (serialize i)]
+        ++  1 >>>> codeBlocks
         where   partition' = sort partition         -- sort symbols base on their position
                 Symbol t i pos = head partition'    -- get the foremost symbol
                 markPosition symbol = path ++ ":" ++ serialize (symPos symbol)
@@ -106,8 +110,11 @@ instance Serializable PipelineError where
 
 instance Serializable CodeBlock where
     serialize (CodeBlock path src positions (from, to)) = paragraph $
-            0 >>>> (map markPosition positions)
+            0 >>>> [" "]
+        ++  0 >>>> (map markPosition positions)
+        ++  0 >>>> ["----------------------------------------------------------------"]
         ++  0 >>>> numberedLines
+        ++  0 >>>> [" "]
         where   markPosition pos = path ++ ":" ++ serialize pos
                 colouredSource = colourSource 0 positions src
                 markedLines = drop from (take to (lines colouredSource))
@@ -115,7 +122,7 @@ instance Serializable CodeBlock where
 
                 numberedLines = zipWith (++) lineNumberStrs markedLines
                 lineNumbers = [from + 1 .. to + 1]
-                lineNumberStrs = map (green . fillSpace . show) lineNumbers
+                lineNumberStrs = map (cyan . fillSpace . show) lineNumbers
                     where   widest = length (show (to + 1))     -- the longest line number
                             fillSpace s = replicate (widest - length s) ' ' ++ s ++ " "
 
