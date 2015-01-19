@@ -38,11 +38,10 @@ indents :: Int -> String -> Line
 indents 0 = Un
 indents n = Indent . indents (n - 1)
 
+-- indent list of Chunks
 (>>>>) :: Serializable a => Int -> [a] -> [Line]
-n >>>> xs = map (indents n . serialize) xs
+n >>>> xs = map (indents n) (map serialize xs >>= lines)
 
-(>>>|) :: Serializable a => Int -> [a] -> [Line]
-n >>>| xs = map (indents n) (map serialize xs >>= lines)
 
 --------------------------------------------------------------------------------
 -- colours!
@@ -155,9 +154,9 @@ instance Serializable ProgramNode where
     serialize (ProgramNode sym params vars subprogs stmts) = paragraph $
             0 >>>> [header]
         ++  1 >>>> vars
-        ++  1 >>>| subprogs
+        ++  1 >>>> subprogs
         ++  1 >>>> ["begin"]
-        ++  2 >>>| stmts
+        ++  2 >>>> stmts
         ++  1 >>>> ["end"]
         where
             header = "program " ++ fst sym ++ "(" ++ paramList ++ ") ;"
@@ -227,7 +226,7 @@ instance Serializable StmtNode where
         where   exprs' = intercalate' ", " exprs
     serialize (CompStmtNode stmts) = paragraph $
             0 >>>> ["begin"]
-        ++  1 >>>| stmts
+        ++  1 >>>> stmts
         ++  0 >>>> ["end"]
     serialize (BranchStmtNode e s t) = paragraph $
             0 >>>> ["if " ++ serialize e]
@@ -235,7 +234,7 @@ instance Serializable StmtNode where
         ++  1 >>>> ["else " ++ serialize s]
     serialize (LoopStmtNode e s) = paragraph $
             0 >>>> ["while " ++ serialize e ++ " do"]
-        ++  1 >>>| [s]
+        ++  1 >>>> [s]
 
 instance Serializable VariableNode where
     serialize (VariableNode sym es) = fst sym ++ (es >>= showArrayAccess)
