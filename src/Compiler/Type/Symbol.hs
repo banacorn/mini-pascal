@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs #-}
+-- {-# LANGUAGE GADTs #-}
 
 module Compiler.Type.Symbol where
 
@@ -77,6 +77,9 @@ data ScopeType  = CompoundStatementScope
                 | ProgramScope String
                 | RegularScope Symbol -- functions, procedures ... usually with an associated symbol
                 deriving (Eq, Show)
-data Scope a where
-    Scope :: ScopeType -> [Scope a] -> [a] -> Scope a
-    -- deriving (Eq, Show)
+
+-- data Scope a = Scope ScopeType [Scope a] [a]
+
+
+data Scope a    = ConcreteScope ScopeType [Scope a] [a]
+                | AbstractScope ScopeType [[a] -> Scope a] [a]

@@ -11,7 +11,7 @@ import Compiler.Type
 --      2. have the same name
 --      3. at the same level of scope
 declarationDuplications :: Scope Symbol -> [[Symbol]]
-declarationDuplications (Scope scopeType subScopes symbols) =
+declarationDuplications (ConcreteScope scopeType subScopes symbols) =
     pickDuplicated (equivalenceClassPartition symbols)
     ++ (subScopes >>= declarationDuplications)
     where   pickDuplicated = filter ((>1) . length)
