@@ -32,7 +32,7 @@ instance Serializable Paragraph where
 paragraph :: [Line] -> String
 paragraph = serialize . Paragraph
 
--- paragraph with top & bottom newline paddings 
+-- paragraph with top & bottom newline paddings
 paragraphPadded :: [Line] -> String
 paragraphPadded = serialize . Paragraph . addPadding
     where   addPadding xs = 0 >>>> [" "] ++ xs ++ 0 >>>> [" "]
@@ -128,7 +128,7 @@ instance Serializable CodeBlock where
 
                 numberedLines = zipWith (++) lineNumberStrs markedLines
                 lineNumbers = [from + 1 .. to + 1]
-                lineNumberStrs = map (cyan . fillSpace . show) lineNumbers
+                lineNumberStrs = map (dull . fillSpace . show) lineNumbers
                     where   widest = length (show (to + 1))     -- the longest line number
                             fillSpace s = replicate (widest - length s) ' ' ++ s ++ " "
 
