@@ -24,7 +24,7 @@ testA = do
         >>= scan
         >>= parse
 
-    let scope = head (getScope ast)
+    let scope = getScope ast
 
     checkDeclarationDuplication scope
     -- draw ast
@@ -37,7 +37,7 @@ testAll = mapM_ run filenames
         run s = readSource (pathPrefix ++ s)
             >>= scan
             >>= parse
-            >>= return . head . getScope
+            >>= return . getScope
             >>= draw
         pathPrefix = "./test/parser/no-parsing-error/"
         filenames =

@@ -79,10 +79,10 @@ instance Serializable ScopeType where
     serialize (ProgramScope name) = "Program " ++ green name
     serialize (RegularScope symbol) = serialize symbol
 
-instance Serializable Scope where
-    serialize (Scope scopeType symbols scopes) = paragraph $
+instance Serializable (Scope a) where
+    serialize (Scope scopeType scopes symbols) = paragraph $
         [   Un $ "Scope: " ++ serialize scopeType]
-        ++  map (indents 1) (map serialize symbols)
+        -- ++  map (indents 1) (map serialize symbols)
         ++  map (indents 1) (map serialize scopes >>= lines)
 
 instance Serializable Symbol where

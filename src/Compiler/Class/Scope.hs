@@ -12,25 +12,25 @@ toSymbol t (i, p) = Symbol t i p
 -- Class & Instances of HasScope
 
 class HasScope a where
-    getScope :: a -> [Scope]
+    getScope :: a -> [b] -> Scope b
 
 instance HasScope ProgramNode where
-    getScope p@(ProgramNode sym _ _ subprogs stmts) = [Scope scopeType decs scopes]
+    getScope p@(ProgramNode sym _ _ subprogs stmts) x = Scope scopeType scopes x
         where
             scopeType = ProgramScope (fst sym)
-            decs = getDeclaration p
-            scopes = subprogs >>= getScope -- getScope stmts
+            -- decs = getDeclaration p
+            scopes = [] -- map getScope subprogs-- getScope stmts
 
 instance HasScope SubprogDecNode where
-    getScope p@(FuncDecNode sym _ _ _ stmts) = [Scope scopeType decs scopes]
+    getScope p@(FuncDecNode sym _ _ _ stmts) x = Scope scopeType scopes x
         where
             scopeType = RegularScope (toSymbol (getType p) sym)
-            decs = getDeclaration p
+            -- decs = getDeclaration p
             scopes = [] --getScope stmts
-    getScope p@(ProcDecNode sym _ _ stmts) = [Scope scopeType decs scopes]
+    getScope p@(ProcDecNode sym _ _ stmts) x = Scope scopeType scopes x
         where
             scopeType = RegularScope (toSymbol (getType p) sym)
-            decs = getDeclaration p
+            -- decs = getDeclaration p
             scopes = [] --getScope stmts
 
 
