@@ -28,11 +28,14 @@ instance Serializable Line where
 instance Serializable Paragraph where
     serialize (Paragraph ls) = intercalate' "\n" ls
 
+
 paragraph :: [Line] -> String
 paragraph = serialize . Paragraph
 
-intercalate' :: Serializable a => String -> [a] -> String
-intercalate' delimeter = intercalate delimeter . map serialize
+-- paragraph with top & bottom newline paddings 
+paragraphPadded :: [Line] -> String
+paragraphPadded = serialize . Paragraph . addPadding
+    where   addPadding xs = 0 >>>> [" "] ++ xs ++ 0 >>>> [" "]
 
 indents :: Int -> String -> Line
 indents 0 = Un
@@ -41,6 +44,9 @@ indents n = Indent . indents (n - 1)
 -- indent list of Chunks
 (>>>>) :: Serializable a => Int -> [a] -> [Line]
 n >>>> xs = map (indents n) (map serialize xs >>= lines)
+
+intercalate' :: Serializable a => String -> [a] -> String
+intercalate' delimeter = intercalate delimeter . map serialize
 
 
 --------------------------------------------------------------------------------
@@ -89,18 +95,20 @@ instance Serializable a => Serializable [a] where
     serialize xs = "[" ++ intercalate ", " (map serialize xs) ++ "]"
 
 instance Serializable PipelineError where
-    serialize InvalidArgument = "invalid argument"
-    serialize (NoSuchFile path) = "no such path: " ++ yellow path
-    serialize (NotEnoughInput path src) = paragraph $
+    serialize InvalidArgument =  paragraphPadded $
+            0 >>>> ["invalid argument"]
+    serialize (NoSuchFile path) = paragraphPadded $
+            0 >>>> ["no such path: " ++ yellow path]
+    serialize (NotEnoughInput path src) = paragraphPadded $
             0 >>>> [path ++ ":"]
         ++  1 >>>> ["Not enough input"]
-    serialize (LexError path src tok pos) = paragraph $
+    serialize (LexError path src tok pos) = paragraphPadded $
             0 >>>> [red "Unrecognizable token: " ++ yellow tok]
         ++  1 >>>> toCodeBlocks path src [pos]
-    serialize (ParseError path src tok pos) = paragraph $
+    serialize (ParseError path src tok pos) = paragraphPadded $
             0 >>>> [red "Unable to parse " ++ yellow (serialize tok)]
         ++  1 >>>> toCodeBlocks path src [pos]
-    serialize (DeclarationDuplicationError path src partition) = paragraph $
+    serialize (DeclarationDuplicationError path src partition) = paragraphPadded $
             0 >>>> [red "Declaration Duplicated: " ++ yellow (serialize i)]
         ++  1 >>>> codeBlocks
         where   partition' = sort partition         -- sort symbols base on their position
@@ -109,12 +117,10 @@ instance Serializable PipelineError where
                 codeBlocks = toCodeBlocks path src (map symPos partition')
 
 instance Serializable CodeBlock where
-    serialize (CodeBlock path src positions (from, to)) = paragraph $
-            0 >>>> [" "]
-        ++  0 >>>> (map markPosition positions)
+    serialize (CodeBlock path src positions (from, to)) = paragraphPadded $
+            0 >>>> (map markPosition positions)
         ++  0 >>>> ["----------------------------------------------------------------"]
         ++  0 >>>> numberedLines
-        ++  0 >>>> [" "]
         where   markPosition pos = path ++ ":" ++ serialize pos
                 colouredSource = colourSource 0 positions src
                 markedLines = drop from (take to (lines colouredSource))
