@@ -64,6 +64,10 @@ instance Eq Symbol where
 instance Show Symbol where
     show (Symbol t i p) = " " ++ i ++ " : " ++ show t ++ show p
 
+-- Order symbols base on their Position
+instance Ord Symbol where
+    a `compare` b = symPos a `compare` symPos b
+
 --------------------------------------------------------------------------------
 --  Scope
 

@@ -62,6 +62,13 @@ instance Monoid Position where
     mempty = Unknown
     Position o n l c `mappend` Position o' n' _ _ = Position o (o' - o + n') l n
 
+-- imagine Unknown as infinitely big Position
+instance Ord Position where
+    Unknown `compare` Unknown = EQ
+    Unknown `compare` _       = GT
+    _       `compare` Unknown = LT
+    Position o _ _ _ `compare` Position o' _ _ _ = o `compare` o'
+
 data TokenF a = Token a Position
     deriving (Eq, Show)
 
