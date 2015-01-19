@@ -136,33 +136,5 @@ diagnoseSemanticsError path src [] = error "Semantics Error Class raised yet no 
 diagnoseSemanticsError path src (DeclarationDuplication ps : xs) = map (DeclarationDuplicationError path src) ps
 
 
---------------------------------------------------------------------------------
---  Code Block
-
-printCodeBlock :: String -> Position -> IO ()
-printCodeBlock source (Position offset len l c) = do
-    putStrLn ""
-    putStrLn (unlines $ zipWith addLineNo lineNos reportLines)
-    where   lineNo = l - 1
-            columnNo = c - 1
-
-            sourceBeforeError = take offset source
-            sourceError = take len (drop offset source)
-            sourceAfterError = drop len (drop offset source)
-            source' = sourceBeforeError ++ paintError sourceError ++ sourceAfterError
-            sourceLines = lines source'
-            rangeFrom = (lineNo - 2) `max` 0
-            rangeTo = (lineNo + 2) `min` length sourceLines
-            reportLines = take (rangeTo - rangeFrom + 1) (drop rangeFrom sourceLines)
-            leftPadding s = let s' = show s
-                                w = length s'
-                            in  replicate (length (show (rangeTo + 1)) - w) ' ' ++ s'
-            lineNos = map (paintLineNo . leftPadding) [rangeFrom + 1 .. rangeTo + 1]
-            addLineNo n l = n ++ " " ++ l
-
-
-            paintError s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
-            paintLineNo s = setSGRCode [SetColor Foreground Vivid Green] ++ s ++ setSGRCode []
-
 draw :: Serializable a => a -> Pipeline ()
 draw = liftIO . putStrLn . serialize
