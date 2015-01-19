@@ -6,6 +6,8 @@ import Compiler.Type
 import System.Console.ANSI
 import Data.List (intercalate, sort)
 
+infixr 6 >>>>
+
 class Serializable a where
     serialize :: a -> String
 
@@ -24,38 +26,23 @@ instance Serializable Line where
     serialize (Un p) = p
 
 instance Serializable Paragraph where
-    serialize (Paragraph ls) = intercalate "\n" (map serialize ls)
+    serialize (Paragraph ls) = intercalate' "\n" ls
 
 paragraph :: [Line] -> String
 paragraph = serialize . Paragraph
+
+intercalate' :: Serializable a => String -> [a] -> String
+intercalate' delimeter = intercalate delimeter . map serialize
 
 indents :: Int -> String -> Line
 indents 0 = Un
 indents n = Indent . indents (n - 1)
 
-indent :: String -> Line
-indent = indents 1
+(>>>>) :: Serializable a => Int -> [a] -> [Line]
+n >>>> xs = map (indents n . serialize) xs
 
---------------------------------------------------------------------------------
--- helper functions
-
--- indentBlock :: String -> String
--- indentBlock str = map addNewLine (lines str) >>= (++) (replicate 4 ' ')
---
--- indentWith :: Serializable a => (String -> String) -> [a] -> String
--- indentWith f xs = indentBlock (xs >>= f . serialize)
---
--- indent :: Serializable a => [a] -> String
--- indent = indentWith addNewLine
-
--- suffix :: String -> String -> String
--- suffix s x = x ++ s
---
--- prefix :: String -> String -> String
--- prefix s x = s ++ x
---
--- addNewLine :: String -> String
--- addNewLine = suffix "\n"
+(>>>|) :: Serializable a => Int -> [a] -> [Line]
+n >>>| xs = map (indents n) (map serialize xs >>= lines)
 
 --------------------------------------------------------------------------------
 -- colours!
@@ -85,8 +72,8 @@ instance Serializable ScopeType where
 instance Serializable Scope where
     serialize (Scope scopeType symbols scopes) = paragraph $
         [   Un $ "Scope: " ++ serialize scopeType]
-        ++  map indent (map serialize symbols)
-        ++  map indent (map serialize scopes >>= lines)
+        ++  map (indents 1) (map serialize symbols)
+        ++  map (indents 1) (map serialize scopes >>= lines)
 
 instance Serializable Symbol where
     serialize (Symbol t i p) = green i ++ " : " ++ show t ++ " " ++ serialize p
@@ -101,25 +88,21 @@ instance Serializable PipelineError where
     serialize InvalidArgument = "invalid argument"
     serialize (NoSuchFile path) = "no such path: " ++ yellow path
     serialize (NotEnoughInput path src) = paragraph $
-        [   Un $ path ++ ":"
-        ,   indent $ "Not enough input"
-        ]
+            0 >>>> [path ++ ":"]
+        ++  1 >>>> ["Not enough input"]
     serialize (LexError path src tok pos) = paragraph $
-        [   Un $ path ++ ":" ++ serialize pos ++ ":"
-        ,   indent $ "Unrecognizable token " ++ yellow tok
-        ]
+            0 >>>> [path ++ ":" ++ serialize pos ++ ":"]
+        ++  1 >>>> ["Unrecognizable token " ++ yellow tok]
     serialize (ParseError path src tok pos) = paragraph $
-        [   Un $ path ++ ":" ++ serialize pos ++ ":"
-        ,   indent $ "Unable to parse " ++ yellow (serialize tok)
-        ]
+            0 >>>> [path ++ ":" ++ serialize pos ++ ":"]
+        ++  1 >>>> ["Unable to parse " ++ yellow (serialize tok)]
     serialize (DeclarationDuplicationError path src partition) = paragraph $
-        [   Un $ path ++ ":" ++ serialize pos ++ ":"
-        ,   indent $ "Declaration Duplicated  " ++ yellow (serialize i)
-        ]
-        ++ map markPosition partition'
+            0 >>>> [path ++ ":" ++ serialize pos ++ ":"]
+        ++  1 >>>> ["Declaration Duplicated " ++ yellow (serialize i)]
+        ++  2 >>>> map markPosition partition'
         where   partition' = sort partition         -- sort symbols base on their position
                 Symbol t i pos = head partition'    -- get the foremost symbol
-                markPosition symbol = indents 2 $ path ++ ":" ++ serialize (symPos symbol)
+                markPosition symbol = path ++ ":" ++ serialize (symPos symbol)
 --------------------------------------------------------------------------------
 -- Tok instances
 
@@ -167,73 +150,73 @@ instance Serializable Tok where
 
 --------------------------------------------------------------------------------
 -- AST instances
---
--- instance Serializable ProgramNode where
---     serialize (ProgramNode sym syms decs subprogs stmts) =
---         "\n" ++
---         header ++ "\n" ++
---         indent decs ++ "\n" ++
---         indent subprogs ++ "\n" ++
---         "    begin" ++ "\n" ++
---         indentWith (prefix "    " . suffix ";\n") stmts ++
---         "    end" ++
---         ".\n"
---         where
---             header = "program " ++ fst sym ++ "(" ++ serializeIDs syms ++ ") ;" ++ "\n"
---             serializeIDs [] = error "serialize empty ids"
---             serializeIDs [x] = fst x
---             serializeIDs (x:xs) = fst x ++ ", " ++ serializeIDs xs
---
--- instance Serializable VarDecNode where
---     serialize (VarDecNode [] _) = []
---     serialize (VarDecNode syms t) =
---         "var " ++ serializeIDs syms ++ " : " ++ serialize t ++ ";"
---         where
---             serializeIDs = intercalate ", " . map fst
---
--- instance Serializable TypeNode where
---     serialize (BaseTypeNode t) = serialize t
---     serialize (ArrayTypeNode (a, b) t) = "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
---
--- instance Serializable StandardTypeNode where
---     serialize IntTypeNode = "int"
---     serialize RealTypeNode = "real"
---     serialize StringTypeNode = "string"
---
--- instance Serializable SubprogDecNode where
---     serialize (FuncDecNode sym [] typ vars stmts) =
---         "function " ++ fst sym ++ " : " ++ serialize typ ++ ";" ++ "\n" ++
---         indent vars ++
---         "    begin" ++ "\n" ++
---         indentWith (prefix "    " . suffix ";\n") stmts ++
---         "    end"
---
---     serialize (FuncDecNode sym args typ vars stmts) =
---         "function " ++ fst sym ++ "(" ++ intercalate ", " (map serialize args) ++ "): " ++ serialize typ ++ ";" ++ "\n" ++
---         indent vars ++
---         "    begin" ++ "\n" ++
---         indentWith (prefix "    " . suffix ";\n") stmts ++
---         "    end"
---
---     serialize (ProcDecNode sym [] vars stmts) =
---         "procedure " ++ fst sym ++ ";" ++ "\n" ++
---         indent vars ++
---         "    begin" ++ "\n" ++
---         indentWith (prefix "    " . suffix ";\n") stmts ++
---         "    end"
---
---     serialize (ProcDecNode sym args vars stmts) =
---         "procedure " ++ fst sym ++ "(" ++ intercalate ", " (map serialize args) ++ ");" ++ "\n" ++
---         indent vars ++
---         "    begin" ++ "\n" ++
---         indentWith (prefix "    " . suffix ";\n") stmts ++
---         "    end"
---
---
--- instance Serializable ParameterNode where
---     serialize (ParameterNode syms t) = serializeIDs ++ ": " ++ serialize t
---         where   serializeIDs = intercalate ", " (map fst syms)
---
+
+instance Serializable ProgramNode where
+    serialize (ProgramNode sym params vars subprogs stmts) = paragraph $
+            0 >>>> [header]
+        ++  1 >>>> vars
+        ++  1 >>>| subprogs
+        where
+            header = "program " ++ fst sym ++ "(" ++ paramList ++ ") ;"
+            paramList = intercalate' ", " (map fst params)
+
+instance Serializable VarDecNode where
+    serialize (VarDecNode [] _) = ""
+    serialize (VarDecNode syms t) =
+        "var " ++ ids ++ " : " ++ serialize t ++ ";"
+        where
+            ids = intercalate' ", " (map fst syms)
+
+instance Serializable TypeNode where
+    serialize (BaseTypeNode t) = serialize t
+    serialize (ArrayTypeNode (a, b) t) =
+        "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
+
+instance Serializable StandardTypeNode where
+    serialize IntTypeNode = "int"
+    serialize RealTypeNode = "real"
+    serialize StringTypeNode = "string"
+
+instance Serializable SubprogDecNode where
+    -- function, no parameter
+    serialize (FuncDecNode sym [] typ vars stmts) = paragraph $
+            0 >>>> ["function " ++ fst sym ++ " : " ++ serialize typ ++ ";"]
+        ++  1 >>>> vars
+        ++  2 >>>> ["begin"]
+        -- ++  map Indent (map indent (map serialize stmts))
+        ++  2 >>>> ["end"]
+
+    -- function, with parameters
+    serialize (FuncDecNode sym params typ vars stmts) = paragraph $
+            0 >>>> ["function " ++ fst sym ++ "(" ++ paramList ++ "): " ++ serialize typ ++ ";"]
+        ++  1 >>>> vars
+        ++  2 >>>> ["begin"]
+        -- ++  map Indent (map indent (map serialize stmts))
+        ++  2 >>>> ["begin"]
+        where   paramList = intercalate' ", " params
+
+    -- procedure, no paramter
+    serialize (ProcDecNode sym [] vars stmts) = paragraph $
+            0 >>>> ["procedure " ++ fst sym ++ ";"]
+        ++  1 >>>> vars
+        ++  2 >>>> ["begin"]
+        -- ++  map Indent (map indent (map serialize stmts))
+        ++  2 >>>> ["begin"]
+
+    -- procedure, with parameters
+    serialize (ProcDecNode sym params vars stmts) = paragraph $
+            0 >>>> ["function " ++ fst sym ++ "(" ++ paramList ++ ");"]
+        ++  1 >>>> vars
+        ++  2 >>>> ["begin"]
+        -- ++  map Indent (map indent (map serialize stmts))
+        ++  2 >>>> ["begin"]
+        where   paramList = intercalate' ", " params
+
+
+instance Serializable ParameterNode where
+    serialize (ParameterNode syms t) = ids ++ ": " ++ serialize t
+        where   ids = intercalate' ", " (map fst syms)
+
 -- instance Serializable StmtNode where
 --     serialize (AssignStmtNode v e) = serialize v ++ " := " ++ serialize e
 --     serialize (SubprogInvokeStmtNode sym []) = fst sym
