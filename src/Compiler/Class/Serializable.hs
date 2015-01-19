@@ -4,7 +4,7 @@ module Compiler.Class.Serializable where
 import Compiler.Type
 
 import System.Console.ANSI
-import Data.List (intercalate)
+import Data.List (intercalate, sort)
 
 class Serializable a where
     serialize :: a -> String
@@ -83,9 +83,12 @@ instance Serializable PipelineError where
         path ++ ":" ++ serialize pos ++ ":\n"
         ++ "    Unable to parse " ++ yellow (serialize tok) ++ "\n"
     serialize (DeclarationDuplicationError path src partition) =
-        let Symbol _ i pos = head partition in
         path ++ ":" ++ serialize pos ++ ":\n"
         ++ "    Declaration Duplicated  " ++ yellow (serialize i) ++ "\n"
+        ++ (partition' >>= markPosition)
+        where   partition' = sort partition         -- sort symbols base on their position
+                Symbol t i pos = head partition'    -- get the foremost symbol
+                markPosition symbol = "        " ++ path ++ ":" ++ serialize (symPos symbol) ++ "\n"
 --------------------------------------------------------------------------------
 -- Tok instances
 
