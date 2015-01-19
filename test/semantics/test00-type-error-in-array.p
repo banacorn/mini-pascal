@@ -19,6 +19,13 @@ PROGRAM foo(input, output, error) ;
          addition := a + b   // this is the return value
       end;
 
+
+   function  sort(a, b: integer) : integer;
+      var c: integer;  // local declaration
+      begin
+         addition := a + b   // this is the return value
+      end;
+
    begin
       a := 1;
       while a < 10 do

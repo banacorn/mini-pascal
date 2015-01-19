@@ -139,34 +139,6 @@ diagnoseSemanticsError path src (DeclarationDuplication ps : xs) = map (Declarat
 --------------------------------------------------------------------------------
 --  Code Block
 
-data CodeBlock = CodeBlock
-    {   codeBlockPath :: FilePath
-    ,   codeBlockSource :: Source
-    ,   codeBlockRange :: (Int, Int)    -- Line n ~ Line m
-    }   deriving Show
-
-
--- converts positions to code blocks
-toCodeBlocks :: FilePath -> Source -> [Position] -> [CodeBlock]
-toCodeBlocks path src ps = mergeCodeBlocks $ map (toCodeBlock path src) ps
-    where
-        toCodeBlock :: FilePath -> Source -> Position -> CodeBlock
-        toCodeBlock path src Unknown = error "converting unknown position to Code Block"
-        toCodeBlock path src (Position o n l c) = CodeBlock path src (rangeFrom, rangeTo)
-            where   sourceLines = lines src
-                    sourceHeight = length sourceLines
-                    radius = 2                                      -- range [n - range, n + range]
-                    rangeFrom = (l - 1 - radius) `max` 0            -- don't go below 0
-                    rangeTo   = (l - 1 + radius) `min` sourceHeight -- don't go over the source
-
-        -- merge Code Blocks if they are close to each other
-        mergeCodeBlocks :: [CodeBlock] -> [CodeBlock]
-        mergeCodeBlocks [] = []
-        mergeCodeBlocks [CodeBlock p s (m, n)] = [CodeBlock p s (m, n)]
-        mergeCodeBlocks (CodeBlock p s (m, n) : CodeBlock _ _ (m', n') : xs)
-            | n >= m'   = CodeBlock p s (m, n') :                          mergeCodeBlocks xs -- overlap
-            | otherwise = CodeBlock p s (m, n ) : CodeBlock p s (m', n') : mergeCodeBlocks xs
-
 printCodeBlock :: String -> Position -> IO ()
 printCodeBlock source (Position offset len l c) = do
     putStrLn ""

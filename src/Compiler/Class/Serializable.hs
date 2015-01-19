@@ -98,10 +98,34 @@ instance Serializable PipelineError where
     serialize (DeclarationDuplicationError path src partition) = paragraph $
             0 >>>> [path ++ ":" ++ serialize pos ++ ":"]
         ++  1 >>>> ["Declaration Duplicated " ++ yellow (serialize i)]
-        ++  2 >>>> map markPosition partition'
+        ++  2 >>>> codeBlocks
         where   partition' = sort partition         -- sort symbols base on their position
                 Symbol t i pos = head partition'    -- get the foremost symbol
                 markPosition symbol = path ++ ":" ++ serialize (symPos symbol)
+                codeBlocks = toCodeBlocks path src (map symPos partition')
+
+instance Serializable CodeBlock where
+    serialize (CodeBlock path src positions (from, to)) = paragraph $
+            0 >>>> (map markPosition positions)
+        ++  0 >>>> numberedLines
+        where   markPosition pos = path ++ ":" ++ serialize pos
+                colouredSource = colourSource 0 positions src
+                markedLines = drop from (take to (lines colouredSource))
+
+
+                numberedLines = zipWith (++) lineNumberStrs markedLines
+                lineNumbers = [from + 1 .. to + 1]
+                lineNumberStrs = map (green . fillSpace . show) lineNumbers
+                    where   widest = length (show (to + 1))     -- the longest line number
+                            fillSpace s = replicate (widest - length s) ' ' ++ s ++ " "
+
+                colourSource _ [] source = source
+                colourSource i (Position o n _ _ : xs) source =
+                    (pre ++ yellow mid) ++ colourSource (i + o + n) xs post
+                    where   pre = take (o - i) source
+                            mid = take n (drop (o - i) source)
+                            post = drop n (drop (o - i) source)
+
 --------------------------------------------------------------------------------
 -- Tok instances
 
