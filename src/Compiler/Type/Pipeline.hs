@@ -9,8 +9,8 @@ import Control.Monad.State
 -- State of the compilation process
 type Source = String
 data Zustand = Zustand
-    {   zustandFileSource :: Maybe Source
-    ,   zustandFilePath :: Maybe FilePath
+    {   zustandFilePath :: Maybe FilePath
+    ,   zustandFileSource :: Maybe Source
     ,   zustandSemanticsError :: [SemanticsError]
     }
 type Pipeline = ExceptT ErrorClass (StateT Zustand IO)

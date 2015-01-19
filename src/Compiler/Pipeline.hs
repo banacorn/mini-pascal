@@ -46,8 +46,8 @@ testWithSource input = do
 
 updateFileState :: Maybe String -> Maybe String -> Pipeline ()
 updateFileState source path = modify $ \state -> state
-    { zustandFileSource = source
-    , zustandFilePath = path
+    { zustandFilePath = path
+    , zustandFileSource = source
     }
 
 -- stores the error in Zustand
@@ -123,13 +123,13 @@ pipeline f = do
 --------------------------------------------------------------------------------
 -- Diagnose and refine errors
 diagnoseError :: Zustand -> ErrorClass -> [PipelineError]
-diagnoseError (Zustand _ Nothing _) _ = [InvalidArgument]
-diagnoseError (Zustand Nothing (Just path) _) _ = [NoSuchFile path]
-diagnoseError (Zustand _ (Just path) _) FileErrorClass = [NoSuchFile path]
-diagnoseError (Zustand (Just src) (Just path) _) (SyntaxErrorClass (Just (Token (TokError tok) pos))) = [LexError path src tok pos]
-diagnoseError (Zustand (Just src) (Just path) _) (SyntaxErrorClass (Just (Token tok pos))) = [ParseError path src tok pos]
-diagnoseError (Zustand (Just src) (Just path) _) (SyntaxErrorClass Nothing) = [NotEnoughInput path src]
-diagnoseError (Zustand (Just src) (Just path) err) SemanticsErrorClass = diagnoseSemanticsError path src err
+diagnoseError (Zustand Nothing _ _) _ = [InvalidArgument]
+diagnoseError (Zustand (Just path) Nothing _) _ = [NoSuchFile path]
+diagnoseError (Zustand (Just path) _ _) FileErrorClass = [NoSuchFile path]
+diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass (Just (Token (TokError tok) pos))) = [LexError path src tok pos]
+diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass (Just (Token tok pos))) = [ParseError path src tok pos]
+diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass Nothing) = [NotEnoughInput path src]
+diagnoseError (Zustand (Just path) (Just src) err) SemanticsErrorClass = diagnoseSemanticsError path src err
 
 diagnoseSemanticsError :: FilePath -> Source -> [SemanticsError] -> [PipelineError]
 diagnoseSemanticsError path src [] = error "Semantics Error Class raised yet no semantics error found"
