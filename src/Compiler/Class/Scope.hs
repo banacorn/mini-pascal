@@ -18,14 +18,12 @@ instance HasScope ProgramNode where
     getScope p@(ProgramNode sym _ _ subprogs stmts) = AbstractScope scopeType scopes
         where
             scopeType = ProgramScope (fst sym)
-            -- decs = getDeclaration p
-            scopes = map getScope subprogs-- getScope stmts
+            scopes = map getScope subprogs -- ++ map getScope stmts
 
 instance HasScope SubprogDecNode where
     getScope p@(FuncDecNode sym _ _ _ stmts) = AbstractScope scopeType scopes
         where
             scopeType = RegularScope (toSymbol (getType p) sym)
-            -- decs = getDeclaration p
             scopes = [] --getScope stmts
     getScope p@(ProcDecNode sym _ _ stmts) = AbstractScope scopeType scopes
         where
