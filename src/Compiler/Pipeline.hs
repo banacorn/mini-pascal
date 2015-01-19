@@ -82,43 +82,8 @@ pipeline :: Pipeline () -> IO ()
 pipeline f = do
     (result, state) <- runStateT (runExceptT (checkSemantics f)) (Zustand Nothing Nothing [])
     case result of
-        Left err ->
-            mapM_ (putStrLn . (++) "\n" . serialize) (diagnoseError state err)
-            -- FileError path -> do
-            --     putStrLn $ paintError "[File Error]"
-            --     putStrLn $ "Input file " ++ paintWarn path ++ " does not exists"
-            -- ParseError Nothing -> do
-            --     putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos Unknown ++ "\n"
-            --         ++ "Unable to parse, not enough input"
-            -- ParseError (Just (Token (TokError tok) pos)) -> do
-            --     putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos pos ++ "\n"
-            --         ++ "Unrecognizable token "
-            --         ++ paintWarn (serialize tok)
-            --     printSyntaxError (fromJust source) pos
-            -- ParseError (Just (Token tok pos)) -> do
-            --     putStrLn $ paintError "[Syntax Error]" ++ " " ++ path ++ printPos pos ++ "\n"
-            --         ++ "Unable to parse "
-            --         ++ paintWarn (serialize tok)
-            --     printSyntaxError (fromJust source) pos
-            -- SemanticsErrorFlag -> do
-            --     putStrLn $ paintError "[Semantics Error]" ++ path ++ "\n"
-            --     print semErr
-            --     -- mapM_ (printDeclarationDuplicationError path) partitions
-
-
-        Right   () -> do
-            return ()
-
-    where
-        printPos (Position o n l c) = ":" ++ show l ++ ":" ++ show c ++ ":"
-        printPos Unknown = ""
-        paintError s = setSGRCode [SetColor Foreground Vivid Red] ++ s ++ setSGRCode []
-        paintWarn s = setSGRCode [SetColor Foreground Vivid Yellow] ++ s ++ setSGRCode []
-
-        printDeclarationDuplicationError :: String -> [Symbol] -> IO ()
-        printDeclarationDuplicationError path partition = do
-            putStrLn $ path ++ "\n"
-
+        Left err -> mapM_ (putStrLn . serialize) (diagnoseError state err)
+        Right () -> return ()
 
 --------------------------------------------------------------------------------
 -- Diagnose and refine errors
