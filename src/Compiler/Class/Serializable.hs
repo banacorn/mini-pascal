@@ -26,11 +26,15 @@ instance Serializable Line where
 instance Serializable Paragraph where
     serialize (Paragraph ls) = intercalate "\n" (map serialize ls)
 
-serializeParagraph :: [Line] -> String
-serializeParagraph = serialize . Paragraph
+paragraph :: [Line] -> String
+paragraph = serialize . Paragraph
 
-indent :: [String] -> [Line]
-indent = map (Indent . Un)
+indents :: Int -> String -> Line
+indents 0 = Un
+indents n = Indent . indents (n - 1)
+
+indent :: String -> Line
+indent = indents 1
 
 --------------------------------------------------------------------------------
 -- helper functions
@@ -79,10 +83,10 @@ instance Serializable ScopeType where
     serialize (RegularScope symbol) = serialize symbol
 
 instance Serializable Scope where
-    serialize (Scope scopeType symbols scopes) = serializeParagraph $
+    serialize (Scope scopeType symbols scopes) = paragraph $
         [   Un $ "Scope: " ++ serialize scopeType]
-        ++  indent (map serialize symbols)
-        ++  indent (map serialize scopes >>= lines)
+        ++  map indent (map serialize symbols)
+        ++  map indent (map serialize scopes >>= lines)
 
 instance Serializable Symbol where
     serialize (Symbol t i p) = green i ++ " : " ++ show t ++ " " ++ serialize p
@@ -96,22 +100,26 @@ instance Serializable a => Serializable [a] where
 instance Serializable PipelineError where
     serialize InvalidArgument = "invalid argument"
     serialize (NoSuchFile path) = "no such path: " ++ yellow path
-    serialize (NotEnoughInput path src) =
-        path ++ ":\n"
-        ++ "    Not enough input"
-    serialize (LexError path src tok pos) =
-        path ++ ":" ++ serialize pos ++ ":\n"
-        ++ "    Unrecognizable token " ++ yellow tok ++ "\n"
-    serialize (ParseError path src tok pos) =
-        path ++ ":" ++ serialize pos ++ ":\n"
-        ++ "    Unable to parse " ++ yellow (serialize tok) ++ "\n"
-    serialize (DeclarationDuplicationError path src partition) =
-        path ++ ":" ++ serialize pos ++ ":\n"
-        ++ "    Declaration Duplicated  " ++ yellow (serialize i) ++ "\n"
-        ++ (partition' >>= markPosition)
+    serialize (NotEnoughInput path src) = paragraph $
+        [   Un $ path ++ ":"
+        ,   indent $ "Not enough input"
+        ]
+    serialize (LexError path src tok pos) = paragraph $
+        [   Un $ path ++ ":" ++ serialize pos ++ ":"
+        ,   indent $ "Unrecognizable token " ++ yellow tok
+        ]
+    serialize (ParseError path src tok pos) = paragraph $
+        [   Un $ path ++ ":" ++ serialize pos ++ ":"
+        ,   indent $ "Unable to parse " ++ yellow (serialize tok)
+        ]
+    serialize (DeclarationDuplicationError path src partition) = paragraph $
+        [   Un $ path ++ ":" ++ serialize pos ++ ":"
+        ,   indent $ "Declaration Duplicated  " ++ yellow (serialize i)
+        ]
+        ++ map markPosition partition'
         where   partition' = sort partition         -- sort symbols base on their position
                 Symbol t i pos = head partition'    -- get the foremost symbol
-                markPosition symbol = "        " ++ path ++ ":" ++ serialize (symPos symbol) ++ "\n"
+                markPosition symbol = indents 2 $ path ++ ":" ++ serialize (symPos symbol)
 --------------------------------------------------------------------------------
 -- Tok instances
 
