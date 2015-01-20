@@ -191,9 +191,7 @@ instance Serializable ProgramNode where
             0 >>>> [header]
         ++  1 >>>> vars
         ++  1 >>>> subprogs
-        ++  1 >>>> ["begin"]
-        ++  2 >>>> stmts
-        ++  1 >>>> ["end"]
+        ++  1 >>>> [stmts]
         where
             header = "program " ++ fst sym ++ "(" ++ paramList ++ ") ;"
             paramList = intercalate' ", " (map fst params)
@@ -220,34 +218,23 @@ instance Serializable SubprogDecNode where
     serialize (FuncDecNode sym [] typ vars stmts) = paragraph $
             0 >>>> ["function " ++ fst sym ++ " : " ++ serialize typ ++ ";"]
         ++  1 >>>> vars
-        ++  1 >>>> ["begin"]
-        ++  2 >>>> stmts
-        ++  1 >>>> ["end"]
-
+        ++  1 >>>> [stmts]
     -- function, with parameters
     serialize (FuncDecNode sym params typ vars stmts) = paragraph $
             0 >>>> ["function " ++ fst sym ++ "(" ++ paramList ++ "): " ++ serialize typ ++ ";"]
         ++  1 >>>> vars
-        ++  1 >>>> ["begin"]
-        ++  2 >>>> stmts
-        ++  1 >>>> ["end"]
+        ++  1 >>>> [stmts]
         where   paramList = intercalate' ", " params
-
     -- procedure, no paramter
     serialize (ProcDecNode sym [] vars stmts) = paragraph $
             0 >>>> ["procedure " ++ fst sym ++ ";"]
         ++  1 >>>> vars
-        ++  1 >>>> ["begin"]
-        ++  2 >>>> stmts
-        ++  1 >>>> ["end"]
-
+        ++  1 >>>> [stmts]
     -- procedure, with parameters
     serialize (ProcDecNode sym params vars stmts) = paragraph $
             0 >>>> ["function " ++ fst sym ++ "(" ++ paramList ++ ");"]
         ++  1 >>>> vars
-        ++  1 >>>> ["begin"]
-        ++  2 >>>> stmts
-        ++  1 >>>> ["end"]
+        ++  1 >>>> [stmts]
         where   paramList = intercalate' ", " params
 
 
@@ -255,15 +242,17 @@ instance Serializable ParameterNode where
     serialize (ParameterNode syms t) = ids ++ ": " ++ serialize t
         where   ids = intercalate' ", " (map fst syms)
 
+instance Serializable CompoundStmtNode where
+    serialize (CompoundStmtNode stmts) = paragraph $
+            0 >>>> ["begin"]
+        ++  1 >>>> stmts
+        ++  0 >>>> ["end"]
 instance Serializable StmtNode where
     serialize (AssignStmtNode v e) = serialize v ++ " := " ++ serialize e
     serialize (SubprogInvokeStmtNode sym []) = fst sym
     serialize (SubprogInvokeStmtNode sym exprs) = fst sym ++ "(" ++ exprs' ++ ")"
         where   exprs' = intercalate' ", " exprs
-    serialize (CompStmtNode stmts) = paragraph $
-            0 >>>> ["begin"]
-        ++  1 >>>> stmts
-        ++  0 >>>> ["end"]
+    serialize (CompStmtNode stmts) = serialize stmts
     serialize (BranchStmtNode e s t) = paragraph $
             0 >>>> ["if " ++ serialize e]
         ++  1 >>>> ["then " ++ serialize s]

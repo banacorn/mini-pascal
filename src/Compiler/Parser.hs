@@ -596,7 +596,7 @@ happyReduction_1 (_ `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn4
-		 (ProgramNode (toSym happy_var_2) (reverse happy_var_4) (reverse happy_var_7) (reverse happy_var_8) happy_var_9
+		 (ProgramNode (toSym happy_var_2) (reverse happy_var_4) (reverse happy_var_7) (reverse happy_var_8) (CompoundStmtNode happy_var_9)
 	) `HappyStk` happyRest
 
 happyReduce_2 = happySpecReduce_1  5 happyReduction_2
@@ -695,7 +695,7 @@ happyReduction_13 ((HappyAbsSyn12  happy_var_7) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn10
-		 (FuncDecNode (toSym happy_var_2) [] happy_var_4 happy_var_6 happy_var_7
+		 (FuncDecNode (toSym happy_var_2) [] happy_var_4 happy_var_6 (CompoundStmtNode happy_var_7)
 	) `HappyStk` happyRest
 
 happyReduce_14 = happyReduce 10 10 happyReduction_14
@@ -711,7 +711,7 @@ happyReduction_14 ((HappyAbsSyn12  happy_var_10) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn10
-		 (FuncDecNode (toSym happy_var_2) happy_var_4 happy_var_7 happy_var_9 happy_var_10
+		 (FuncDecNode (toSym happy_var_2) happy_var_4 happy_var_7 happy_var_9 (CompoundStmtNode happy_var_10)
 	) `HappyStk` happyRest
 
 happyReduce_15 = happyReduce 5 10 happyReduction_15
@@ -722,7 +722,7 @@ happyReduction_15 ((HappyAbsSyn12  happy_var_5) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn10
-		 (ProcDecNode (toSym happy_var_2) [] happy_var_4 happy_var_5
+		 (ProcDecNode (toSym happy_var_2) [] happy_var_4 (CompoundStmtNode happy_var_5)
 	) `HappyStk` happyRest
 
 happyReduce_16 = happyReduce 8 10 happyReduction_16
@@ -736,7 +736,7 @@ happyReduction_16 ((HappyAbsSyn12  happy_var_8) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn10
-		 (ProcDecNode (toSym happy_var_2) happy_var_4 happy_var_7 happy_var_8
+		 (ProcDecNode (toSym happy_var_2) happy_var_4 happy_var_7 (CompoundStmtNode happy_var_8)
 	) `HappyStk` happyRest
 
 happyReduce_17 = happySpecReduce_3  11 happyReduction_17
@@ -818,7 +818,7 @@ happyReduction_25 (_ `HappyStk`
 happyReduce_26 = happySpecReduce_1  14 happyReduction_26
 happyReduction_26 (HappyAbsSyn12  happy_var_1)
 	 =  HappyAbsSyn14
-		 (CompStmtNode happy_var_1
+		 (CompStmtNode (CompoundStmtNode happy_var_1)
 	)
 happyReduction_26 _  = notHappyAtAll 
 

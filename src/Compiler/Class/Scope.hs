@@ -33,7 +33,6 @@ instance HasScope SubprogDecNode where
             vars = getDeclaration p
             scopes = [] --getScope stmts
 
-
 --------------------------------------------------------------------------------
 -- Class & Instances of HasType
 

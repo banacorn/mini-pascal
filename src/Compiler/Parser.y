@@ -56,7 +56,7 @@ import Control.Monad.Except
 
 program
     : progtok id '(' identifier_list ')' ';' variable_declarations subprogram_declarations compound_statement '.' {
-        ProgramNode (toSym $2) (reverse $4) (reverse $7) (reverse $8) $9
+        ProgramNode (toSym $2) (reverse $4) (reverse $7) (reverse $8) (CompoundStmtNode $9)
     }
 
 
@@ -88,13 +88,13 @@ subprogram_declarations
 
 subprogram_declaration
     : function id ':' standard_type ';' variable_declarations compound_statement
-        { FuncDecNode (toSym $2) [] $4 $6 $7 }
+        { FuncDecNode (toSym $2) [] $4 $6 (CompoundStmtNode $7) }
     | function id '(' parameter_list ')' ':' standard_type ';' variable_declarations compound_statement
-        { FuncDecNode (toSym $2) $4 $7 $9 $10 }
+        { FuncDecNode (toSym $2) $4 $7 $9 (CompoundStmtNode $10) }
     | procedure id ';' variable_declarations compound_statement
-        { ProcDecNode (toSym $2) [] $4 $5 }
+        { ProcDecNode (toSym $2) [] $4 (CompoundStmtNode $5) }
     | procedure id '(' parameter_list ')' ';' variable_declarations compound_statement
-        { ProcDecNode (toSym $2) $4 $7 $8 }
+        { ProcDecNode (toSym $2) $4 $7 (CompoundStmtNode $8) }
 
 parameter_list
     : identifier_list ':' type                      { ParameterNode $1 $3 : [] }
@@ -114,7 +114,7 @@ statement
     : variable ':=' expression                      { AssignStmtNode $1 $3 }
     | id                                            { SubprogInvokeStmtNode (toSym $1) [] }
     | id '(' expression_list ')'                    { SubprogInvokeStmtNode (toSym $1) $3 }
-    | compound_statement                            { CompStmtNode $1 }
+    | compound_statement                            { CompStmtNode (CompoundStmtNode $1) }
     | if expression then statement else statement   { BranchStmtNode $2 $4 $6 }
     | while expression do statement                 { LoopStmtNode $2 $4 }
 
