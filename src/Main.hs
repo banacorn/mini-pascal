@@ -24,7 +24,7 @@ testA = do
         >>= scan
         >>= parse
 
-    let scope = getScope ast []
+    let scope = getScope ast
 
     checkDeclarationDuplication scope
     -- draw ast

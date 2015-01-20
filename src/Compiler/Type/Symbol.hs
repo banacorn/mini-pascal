@@ -78,5 +78,4 @@ data ScopeType  = CompoundStatementScope
                 | RegularScope Symbol -- functions, procedures ... usually with an associated symbol
                 deriving (Eq, Show)
 
-data Scope a    = ConcreteScope ScopeType [Scope a] [a]
-                | AbstractScope ScopeType [[a] -> Scope a] [a]
+data Scope = Scope ScopeType [Scope] [Symbol]
