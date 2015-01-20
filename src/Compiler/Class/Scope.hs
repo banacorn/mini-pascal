@@ -69,7 +69,7 @@ instance HasType SubprogDecNode where
 --------------------------------------------------------------------------------
 -- Class & Instances of HasDeclaration
 
-class HasScope a => HasDeclaration a where
+class HasDeclaration a where
     getDeclaration :: a -> [Symbol]
 
 instance HasDeclaration ProgramNode where
