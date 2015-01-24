@@ -19,19 +19,24 @@ instance HasScope ProgramNode where
         where
             scopeType = ProgramScope (fst sym)
             vars = getDeclaration p
-            scopes = map getScope subprogs -- ++ map getScope stmts
+            scopes = map getScope subprogs ++ [getScope stmts]
 
 instance HasScope SubprogDecNode where
     getScope p@(FuncDecNode sym _ _ _ stmts) = Scope scopeType scopes vars
         where
             scopeType = RegularScope (toSymbol (getType p) sym)
             vars = getDeclaration p
-            scopes = [] --getScope stmts
+            scopes = [getScope stmts]
     getScope p@(ProcDecNode sym _ _ stmts) = Scope scopeType scopes vars
         where
             scopeType = RegularScope (toSymbol (getType p) sym)
             vars = getDeclaration p
-            scopes = [] --getScope stmts
+            scopes = [getScope stmts]
+
+instance HasScope CompoundStmtNode where
+    getScope p@(CompoundStmtNode stmts) = Scope CompoundStmtScope [] []
+
+
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasType

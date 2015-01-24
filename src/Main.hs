@@ -28,7 +28,7 @@ testA = do
 
     checkDeclarationDuplication scope
     draw ast
-    -- draw scope
+    draw scope
     -- >>= liftIO . draw
 
 testAll :: Pipeline ()

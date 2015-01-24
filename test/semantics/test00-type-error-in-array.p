@@ -3,7 +3,7 @@ PROGRAM foo(input, output, error) ;
    var a, b, c: integer;
    var d, e: array [ 1 .. 10 ] of integer;
    var g, h: real;
-   var k: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real;
+   var k, b: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real;
 
    // procedure and function declarations
    procedure sort(a: array [ 1 .. 10 ] of integer);

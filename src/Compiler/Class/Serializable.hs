@@ -75,7 +75,7 @@ instance Serializable Position where
     serialize (Position o n l c) = show l ++ ":" ++ show c
 
 instance Serializable ScopeType where
-    serialize CompoundStatementScope = ""
+    serialize CompoundStmtScope = ""
     serialize (ProgramScope name) = "Program " ++ green name
     serialize (RegularScope symbol) = serialize symbol
 

@@ -73,7 +73,7 @@ instance Ord Symbol where
 --------------------------------------------------------------------------------
 --  Scope
 
-data ScopeType  = CompoundStatementScope
+data ScopeType  = CompoundStmtScope
                 | ProgramScope String
                 | RegularScope Symbol -- functions, procedures ... usually with an associated symbol
                 deriving (Eq, Show)
