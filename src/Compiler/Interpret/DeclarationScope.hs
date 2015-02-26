@@ -1,4 +1,4 @@
-module Compiler.Interpret.Scope where
+module Compiler.Interpret.DeclarationScope where
 
 import Compiler.Type
 import Compiler.Interpret.Type
