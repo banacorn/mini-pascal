@@ -5,14 +5,6 @@ module Compiler.Type.Symbol where
 import Compiler.Type.Token
 import Compiler.Type.Type
 
-import Data.List (intercalate)
-
-type Depth = Int
-
---------------------------------------------------------------------------------
---  Status
--- data SymbolStatus = Declared | Used deriving (Eq, Show)
-
 --------------------------------------------------------------------------------
 --  Symbol
 data Symbol = Symbol
@@ -35,15 +27,3 @@ instance Show Symbol where
 -- Order symbols base on their Position
 instance Ord Symbol where
     a `compare` b = symPos a `compare` symPos b
-
-type Declaration = Symbol
-
---------------------------------------------------------------------------------
---  Scope
-
-data ScopeType a = CompoundStmtScope
-                 | ProgramScope String
-                 | RegularScope a -- functions, procedures ... usually with an associated symbol
-                 deriving (Eq, Show)
-
-data Scope a = Scope (ScopeType a) [Scope a] [a]
