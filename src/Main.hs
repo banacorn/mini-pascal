@@ -3,7 +3,7 @@ module Compiler where
 import Compiler.Lexer
 import Compiler.Parser
 import Compiler.Class.Serializable
-import Compiler.Class.Scope
+import Compiler.Interpret.Scope
 import Compiler.Type
 import Compiler.Pipeline
 import Compiler.Semantics

@@ -1,7 +1,7 @@
-module Compiler.Class.Scope where
+module Compiler.Interpret.Scope where
 
 import Compiler.Type
-import Compiler.Class.Type
+import Compiler.Interpret.Type
 
 --------------------------------------------------------------------------------
 -- helper functions
