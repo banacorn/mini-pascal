@@ -74,12 +74,12 @@ instance Serializable Position where
     serialize Unknown = "?"
     serialize (Position o n l c) = show l ++ ":" ++ show c
 
-instance Serializable ScopeType where
+instance Serializable a => Serializable (ScopeType a) where
     serialize CompoundStmtScope = ""
     serialize (ProgramScope name) = "Program " ++ green name
     serialize (RegularScope symbol) = serialize symbol
 
-instance Serializable Scope where
+instance Serializable a => Serializable (Scope a) where
     serialize (Scope scopeType scopes stuffs) = paragraph $
             0 >>>> ["Scope: " ++ serialize scopeType]
         ++  1 >>>> stuffs

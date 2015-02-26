@@ -24,11 +24,11 @@ testA = do
         >>= scan
         >>= parse
 
-    let scope = getScope ast
+    let decScope = getDeclarationScope ast
 
-    checkDeclarationDuplication scope
+    checkDeclarationDuplication decScope
     draw ast
-    draw scope
+    draw decScope
     -- >>= liftIO . draw
 
 testAll :: Pipeline ()
@@ -37,7 +37,7 @@ testAll = mapM_ run filenames
         run s = readSource (pathPrefix ++ s)
             >>= scan
             >>= parse
-            >>= return . getScope
+            >>= return . getDeclarationScope
             -- >>= draw
         pathPrefix = "./test/parser/no-parsing-error/"
         filenames =

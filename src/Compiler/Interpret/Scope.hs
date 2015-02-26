@@ -12,36 +12,36 @@ toSymbol t (i, p) = Symbol t i p
 --------------------------------------------------------------------------------
 -- Class & Instances of HasScope
 
-class HasScope a where
-    getScope :: a -> Scope
+class HasDeclarationScope a where
+    getDeclarationScope :: a -> Scope Declaration
 
-instance HasScope ProgramNode where
-    getScope p@(ProgramNode sym _ _ subprogs stmts) = Scope scopeType scopes vars
+instance HasDeclarationScope ProgramNode where
+    getDeclarationScope p@(ProgramNode sym _ _ subprogs stmts) = Scope scopeType scopes vars
         where
             scopeType = ProgramScope (fst sym)
             vars = getDeclaration p
-            scopes = map getScope subprogs ++ [getScope stmts]
+            scopes = map getDeclarationScope subprogs ++ [getDeclarationScope stmts]
 
-instance HasScope SubprogDecNode where
-    getScope p@(FuncDecNode sym _ _ _ stmts) = Scope scopeType scopes vars
+instance HasDeclarationScope SubprogDecNode where
+    getDeclarationScope p@(FuncDecNode sym _ _ _ stmts) = Scope scopeType scopes vars
         where
             scopeType = RegularScope (toSymbol (getType p) sym)
             vars = getDeclaration p
-            scopes = [getScope stmts]
-    getScope p@(ProcDecNode sym _ _ stmts) = Scope scopeType scopes vars
+            scopes = [getDeclarationScope stmts]
+    getDeclarationScope p@(ProcDecNode sym _ _ stmts) = Scope scopeType scopes vars
         where
             scopeType = RegularScope (toSymbol (getType p) sym)
             vars = getDeclaration p
-            scopes = [getScope stmts]
+            scopes = [getDeclarationScope stmts]
 
-instance HasScope CompoundStmtNode where
-    getScope p@(CompoundStmtNode stmts) = Scope CompoundStmtScope [] []
+instance HasDeclarationScope CompoundStmtNode where
+    getDeclarationScope p@(CompoundStmtNode stmts) = Scope CompoundStmtScope [] []
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasDeclaration
 
 class HasDeclaration a where
-    getDeclaration :: a -> [Symbol]
+    getDeclaration :: a -> [Declaration]
 
 instance HasDeclaration ProgramNode where
     getDeclaration (ProgramNode _ params vars subprogs _) =

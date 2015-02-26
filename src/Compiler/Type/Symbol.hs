@@ -70,12 +70,14 @@ instance Show Symbol where
 instance Ord Symbol where
     a `compare` b = symPos a `compare` symPos b
 
+type Declaration = Symbol
+
 --------------------------------------------------------------------------------
 --  Scope
 
-data ScopeType  = CompoundStmtScope
-                | ProgramScope String
-                | RegularScope Symbol -- functions, procedures ... usually with an associated symbol
-                deriving (Eq, Show)
+data ScopeType a = CompoundStmtScope
+                 | ProgramScope String
+                 | RegularScope a -- functions, procedures ... usually with an associated symbol
+                 deriving (Eq, Show)
 
-data Scope = Scope ScopeType [Scope] [Symbol]
+data Scope a = Scope (ScopeType a) [Scope a] [a]
