@@ -13,7 +13,7 @@ toSymbol t (i, p) = Symbol t i p
 -- Class & Instances of HasScope
 
 class HasDeclarationScope a where
-    getDeclarationScope :: a -> Scope Declaration
+    getDeclarationScope :: a -> Scope Symbol
 
 instance HasDeclarationScope ProgramNode where
     getDeclarationScope p@(ProgramNode sym _ _ subprogs stmts) = Scope scopeType scopes vars
@@ -41,7 +41,7 @@ instance HasDeclarationScope CompoundStmtNode where
 -- Class & Instances of HasDeclaration
 
 class HasDeclaration a where
-    getDeclaration :: a -> [Declaration]
+    getDeclaration :: a -> [Symbol]
 
 instance HasDeclaration ProgramNode where
     getDeclaration (ProgramNode _ params vars subprogs _) =

@@ -19,7 +19,7 @@ data Symbol = Symbol
 instance Eq Symbol where
     Symbol (FO _) i _ == Symbol (FO _) i' _ = i == i'
     Symbol (HO _) i _ == Symbol (HO _) i' _ = i == i'
-    Symbol _ _ _ == Symbol _ _ _ = False
+    Symbol _      _ _ == Symbol _      _  _ = False
 
 instance Show Symbol where
     show (Symbol t i p) = " " ++ i ++ " : " ++ show t ++ show p
@@ -27,3 +27,7 @@ instance Show Symbol where
 -- Order symbols base on their Position
 instance Ord Symbol where
     a `compare` b = symPos a `compare` symPos b
+
+
+type Declaration = Symbol
+data Occurrence = Occurrence String Position

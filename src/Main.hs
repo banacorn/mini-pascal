@@ -4,6 +4,8 @@ import Compiler.Lexer
 import Compiler.Parser
 import Compiler.Class.Serializable
 import Compiler.Interpret.DeclarationScope
+import Compiler.Interpret.OccurrenceScope
+-- import Compiler.Interpret.Binding
 import Compiler.Type
 import Compiler.Pipeline
 import Compiler.Semantics
@@ -25,10 +27,12 @@ testA = do
         >>= parse
 
     let decScope = getDeclarationScope ast
+    let occScope = getOccurrenceScope ast
 
-    checkDeclarationDuplication decScope
+    -- checkDeclarationDuplication decScope
     draw ast
     draw decScope
+    draw occScope
     -- >>= liftIO . draw
 
 testAll :: Pipeline ()
@@ -37,7 +41,7 @@ testAll = mapM_ run filenames
         run s = readSource (pathPrefix ++ s)
             >>= scan
             >>= parse
-            >>= return . getDeclarationScope
+            -- >>= return . getDeclarationScope
             -- >>= draw
         pathPrefix = "./test/parser/no-parsing-error/"
         filenames =

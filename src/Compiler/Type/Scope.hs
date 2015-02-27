@@ -6,14 +6,12 @@ import Compiler.Type.Token
 import Compiler.Type.Symbol
 import Compiler.Type.Type
 
-type Declaration = Symbol
-
 --------------------------------------------------------------------------------
 --  Scope
 
-data ScopeType a = CompoundStmtScope
+data ScopeType   = CompoundStmtScope
                  | ProgramScope String
-                 | RegularScope a -- functions, procedures ... usually with an associated symbol
+                 | RegularScope Symbol -- functions, procedures ... usually with an associated symbol
                  deriving (Eq, Show)
 
-data Scope a = Scope (ScopeType a) [Scope a] [a]
+data Scope a = Scope ScopeType [Scope a] [a]
