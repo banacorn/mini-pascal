@@ -28,7 +28,7 @@ testA = do
 
     let decScope = getDeclarationScope ast
     let occScope = getOccurrenceScope ast
-    let bindingTree = buildBindingTree [] decScope occScope
+    let bindingTree = buildBindingTree [] (Just decScope) occScope
 
     -- checkDeclarationDuplication decScope
     draw ast

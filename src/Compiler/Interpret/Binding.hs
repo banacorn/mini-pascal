@@ -12,8 +12,16 @@ findBinding :: [EqClass Declaration] -> Occurrence -> Binding
 findBinding decs (Occurrence name _) = find match decs
     where   match eqClass = let Symbol t i p = head eqClass in i == name
 
-buildBindingTree :: [EqClass Declaration] -> Scope (EqClass Declaration) -> Scope Occurrence -> Scope Binding
-buildBindingTree acc (Scope t s decs) (Scope _ s' occs) = Scope t subScopes bindings
-    where   subScopes = map buildSubTrees (zip s s')
+zipMaybe :: [a] -> [b] -> [(Maybe a, b)]
+zipMaybe (x:xs) (y:ys) = (Just x , y) : zipMaybe xs ys
+zipMaybe (x:xs) []     = []
+zipMaybe []     (y:ys) = (Nothing, y) : zipMaybe [] ys
+zipMaybe []     []     = []
+
+buildBindingTree :: [EqClass Declaration] -> Maybe (Scope (EqClass Declaration)) -> Scope Occurrence -> Scope Binding
+buildBindingTree acc (Just (Scope _ s decs)) (Scope t s' occs) = Scope t subScopes bindings
+    where   subScopes = map (uncurry (buildBindingTree (decs ++ acc))) (zipMaybe s s')
             bindings = map (findBinding acc) occs
-            buildSubTrees (decScope, occScope) = buildBindingTree (decs ++ acc) decScope occScope
+buildBindingTree acc Nothing                 (Scope t s' occs) = Scope t subScopes bindings
+    where   subScopes = map (uncurry (buildBindingTree acc)) (zipMaybe [] s')
+            bindings = map (findBinding acc) occs
