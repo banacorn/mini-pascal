@@ -1,37 +1,31 @@
-module Compiler.Interpret.DeclarationScope where
+module Compiler.Interpret.Declaration where
 
 import Compiler.Type
 import Compiler.Interpret.Type
 
 --------------------------------------------------------------------------------
--- helper functions
-
-toSymbol :: Type -> (String, Position) -> Symbol
-toSymbol t (i, p) = Symbol t i p
-
---------------------------------------------------------------------------------
 -- Class & Instances of HasScope
 
 class HasDeclarationScope a where
-    getDeclarationScope :: a -> Scope Symbol
+    getDeclarationScope :: a -> Scope (EqClass Declaration)
 
 instance HasDeclarationScope ProgramNode where
     getDeclarationScope p@(ProgramNode sym _ _ subprogs stmts) = Scope scopeType scopes vars
         where
             scopeType = ProgramScope (fst sym)
-            vars = getDeclaration p
+            vars = partite (getDeclaration p)
             scopes = map getDeclarationScope subprogs ++ [getDeclarationScope stmts]
 
 instance HasDeclarationScope SubprogDecNode where
     getDeclarationScope p@(FuncDecNode sym _ _ _ stmts) = Scope scopeType scopes vars
         where
             scopeType = RegularScope (toSymbol (getType p) sym)
-            vars = getDeclaration p
+            vars = partite (getDeclaration p)
             scopes = [getDeclarationScope stmts]
     getDeclarationScope p@(ProcDecNode sym _ _ stmts) = Scope scopeType scopes vars
         where
             scopeType = RegularScope (toSymbol (getType p) sym)
-            vars = getDeclaration p
+            vars = partite (getDeclaration p)
             scopes = [getDeclarationScope stmts]
 
 instance HasDeclarationScope CompoundStmtNode where

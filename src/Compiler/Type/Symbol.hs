@@ -28,6 +28,25 @@ instance Show Symbol where
 instance Ord Symbol where
     a `compare` b = symPos a `compare` symPos b
 
+--------------------------------------------------------------------------------
 
+type EqClass a = [a]
 type Declaration = Symbol
 data Occurrence = Occurrence String Position
+type Binding = Symbol
+
+--------------------------------------------------------------------------------
+-- helper functions
+
+toSymbol :: Type -> (String, Position) -> Symbol
+toSymbol t (i, p) = Symbol t i p
+
+toOccurrence :: (String, Position) -> Occurrence
+toOccurrence = uncurry Occurrence
+
+-- form a partition with the equiped equivalence relation
+partite :: Eq a => [a] -> [[a]]
+partite = foldl addToPartition []
+    where   addToPartition [] x     = [[x]]
+            addToPartition (c:cs) x | x == head c = (x:c):cs
+                                    | otherwise   = c : addToPartition cs x

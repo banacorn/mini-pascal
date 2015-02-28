@@ -1,16 +1,7 @@
-module Compiler.Interpret.OccurrenceScope where
+module Compiler.Interpret.Occurrence where
 
 import Compiler.Type
 import Compiler.Interpret.Type
-
---------------------------------------------------------------------------------
--- helper functions
-
-toOccurrence :: (String, Position) -> Occurrence
-toOccurrence = uncurry Occurrence
-
-toSymbol :: Type -> (String, Position) -> Symbol
-toSymbol typ (sym, pos) = Symbol typ sym pos
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasScope
