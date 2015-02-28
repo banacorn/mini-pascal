@@ -1,7 +1,7 @@
-module Compiler.Interpret.Declaration where
+module Compiler.Scope.Declaration where
 
 import Compiler.Type
-import Compiler.Interpret.Type
+import Compiler.Scope.Type
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasScope

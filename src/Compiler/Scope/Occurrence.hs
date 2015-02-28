@@ -1,7 +1,7 @@
-module Compiler.Interpret.Occurrence where
+module Compiler.Scope.Occurrence where
 
 import Compiler.Type
-import Compiler.Interpret.Type
+import Compiler.Scope.Type
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasScope

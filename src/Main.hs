@@ -3,9 +3,9 @@ module Compiler where
 import Compiler.Lexer
 import Compiler.Parser
 import Compiler.Class.Serializable
-import Compiler.Interpret.Declaration
-import Compiler.Interpret.Occurrence
-import Compiler.Interpret.Binding
+import Compiler.Scope.Declaration
+import Compiler.Scope.Occurrence
+import Compiler.Scope.Binding
 import Compiler.Type
 import Compiler.Pipeline
 import Compiler.Semantics

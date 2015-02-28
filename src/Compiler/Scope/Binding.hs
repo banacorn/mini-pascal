@@ -1,4 +1,4 @@
-module Compiler.Interpret.Binding where
+module Compiler.Scope.Binding where
 
 import Compiler.Type
 
