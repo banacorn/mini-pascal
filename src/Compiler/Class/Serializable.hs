@@ -85,15 +85,16 @@ instance Serializable a => Serializable (Scope a) where
         ++  1 >>>> stuffs
         ++  1 >>>> scopes
 
+
 instance Serializable Declaration where
     serialize (Declaration t i p) = green i ++ " : " ++ show t ++ " " ++ serialize p
 
 instance Serializable Occurrence where
     serialize (Occurrence i p) = green i ++ " : " ++ serialize p
 
-instance Serializable a => Serializable (Maybe a) where
-    serialize Nothing = ""
-    serialize (Just a) = serialize a
+instance Serializable Binding where
+    serialize (BoundVar o d) = serialize o ++ " ==> " ++ serialize d
+    serialize (FreeVar  o  ) = serialize o ++ red " ==> ?"
 
 instance Serializable String where
     serialize = id

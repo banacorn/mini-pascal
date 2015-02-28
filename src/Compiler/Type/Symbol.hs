@@ -7,6 +7,7 @@ import Compiler.Type.Type
 
 --------------------------------------------------------------------------------
 --  Declaration
+
 data Declaration = Declaration
     {   decType :: Type
     ,   decID :: String
@@ -28,11 +29,23 @@ instance Show Declaration where
 instance Ord Declaration where
     a `compare` b = decPos a `compare` decPos b
 
+
+
 --------------------------------------------------------------------------------
+-- Occurrence
+
+data Occurrence = Occurrence
+    {   occID  :: String
+    ,   occPos :: Position
+    }
+
+
+--------------------------------------------------------------------------------
+-- Binding
 
 type EqClass a = [a]
-data Occurrence = Occurrence String Position
-type Binding = Maybe (EqClass Declaration)
+data Binding = BoundVar Occurrence (EqClass Declaration)
+             | FreeVar Occurrence
 
 --------------------------------------------------------------------------------
 -- helper functions

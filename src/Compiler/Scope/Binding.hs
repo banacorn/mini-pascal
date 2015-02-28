@@ -9,8 +9,10 @@ import Data.List (find)
 -- Class & Instances of HasBinding
 
 findBinding :: [EqClass Declaration] -> Occurrence -> Binding
-findBinding decs (Occurrence name _) = find match decs
-    where   match eqClass = let Declaration t i p = head eqClass in i == name
+findBinding decs o@(Occurrence name _) = case find match decs of
+    Just dec -> BoundVar o dec
+    Nothing  -> FreeVar o
+    where   match eqClass = decID (head eqClass) == name
 
 zipMaybe :: [a] -> [b] -> [(Maybe a, b)]
 zipMaybe (x:xs) (y:ys) = (Just x , y) : zipMaybe xs ys
