@@ -1,4 +1,4 @@
-module Compiler.Scope.Type (HasType(..)) where
+module Compiler.AST.Type (HasType(..)) where
 
 import Compiler.Type
 

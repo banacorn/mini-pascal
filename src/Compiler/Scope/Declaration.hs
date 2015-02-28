@@ -1,7 +1,7 @@
 module Compiler.Scope.Declaration where
 
 import Compiler.Type
-import Compiler.Scope.Type
+import Compiler.AST.Type
 
 import              Data.Set (Set)
 import qualified    Data.Set as Set
