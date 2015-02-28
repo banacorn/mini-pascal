@@ -5,6 +5,9 @@ module Compiler.Type.Symbol where
 import Compiler.Type.Token
 import Compiler.Type.Type
 
+import           Data.Set (Set, findMin, insert, singleton)
+import qualified Data.Set as Set
+
 --------------------------------------------------------------------------------
 --  Declaration
 
@@ -43,8 +46,7 @@ data Occurrence = Occurrence
 --------------------------------------------------------------------------------
 -- Binding
 
-type EqClass a = [a]
-data Binding = BoundVar Occurrence (EqClass Declaration)
+data Binding = BoundVar Occurrence (Set Declaration)
              | FreeVar Occurrence
 
 --------------------------------------------------------------------------------
@@ -57,8 +59,8 @@ toOccurrence :: (String, Position) -> Occurrence
 toOccurrence = uncurry Occurrence
 
 -- form a partition with the equiped equivalence relation
-partite :: Eq a => [a] -> [[a]]
+partite :: (Ord a, Eq a) => [a] -> [Set a]
 partite = foldl addToPartition []
-    where   addToPartition [] x     = [[x]]
-            addToPartition (c:cs) x | x == head c = (x:c):cs
-                                    | otherwise   = c : addToPartition cs x
+    where   addToPartition [] x     = [singleton x]
+            addToPartition (c:cs) x | x == findMin c = (x `insert` c) : cs
+                                    | otherwise      = c              : addToPartition cs x

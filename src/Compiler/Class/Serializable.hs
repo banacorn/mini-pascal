@@ -3,8 +3,10 @@ module Compiler.Class.Serializable where
 
 import Compiler.Type
 
-import System.Console.ANSI
-import Data.List (intercalate, sort)
+import              Data.List (intercalate, sort)
+import              Data.Set (Set, size, findMin)
+import qualified    Data.Set as Set
+import              System.Console.ANSI
 
 infixr 6 >>>>
 
@@ -94,8 +96,12 @@ instance Serializable Occurrence where
 
 instance Serializable Binding where
     serialize (BoundVar o d) = serialize o ++ " ==> " ++ serialize d
-    serialize (FreeVar  o  ) = serialize o ++ red " ==> ?"
+    serialize (FreeVar  o  ) = serialize o ++ yellow " ==> ?"
 
+instance Serializable a => Serializable (Set a) where
+    serialize set | size set == 0 = "{ }"
+                  | size set == 1 = "{ " ++ serialize (findMin set) ++ " }"
+                  | otherwise     = "{ " ++ serialize (findMin set) ++ " " ++ yellow "..." ++ " }"
 instance Serializable String where
     serialize = id
 

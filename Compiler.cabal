@@ -20,6 +20,7 @@ executable Compiler
     -- other-modules:
     -- other-extensions:
     build-depends:    base                          >=4.7 && <4.8
+                    , containers                    >=0.5
                     , array                         >=0.5
                     , mtl                           >=2.2
                     , transformers                  >=0.4

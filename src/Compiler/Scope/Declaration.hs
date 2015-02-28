@@ -3,11 +3,14 @@ module Compiler.Scope.Declaration where
 import Compiler.Type
 import Compiler.Scope.Type
 
+import              Data.Set (Set)
+import qualified    Data.Set as Set
+
 --------------------------------------------------------------------------------
 -- Class & Instances of HasScope
 
 class HasDeclarationScope a where
-    getDeclarationScope :: a -> Scope (EqClass Declaration)
+    getDeclarationScope :: a -> Scope (Set Declaration)
 
 instance HasDeclarationScope ProgramNode where
     getDeclarationScope p@(ProgramNode sym _ _ subprogs stmts) = Scope scopeType scopes vars
