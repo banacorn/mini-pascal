@@ -91,6 +91,10 @@ instance Serializable Symbol where
 instance Serializable Occurrence where
     serialize (Occurrence i p) = green i ++ " : " ++ serialize p
 
+instance Serializable a => Serializable (Maybe a) where
+    serialize Nothing = ""
+    serialize (Just a) = serialize a
+
 instance Serializable String where
     serialize = id
 

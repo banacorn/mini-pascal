@@ -33,7 +33,7 @@ instance Ord Symbol where
 type EqClass a = [a]
 type Declaration = Symbol
 data Occurrence = Occurrence String Position
-type Binding = Symbol
+type Binding = Maybe (EqClass Declaration)
 
 --------------------------------------------------------------------------------
 -- helper functions

@@ -28,11 +28,13 @@ testA = do
 
     let decScope = getDeclarationScope ast
     let occScope = getOccurrenceScope ast
+    let bindingTree = buildBindingTree [] decScope occScope
 
     -- checkDeclarationDuplication decScope
     draw ast
     draw decScope
     draw occScope
+    draw bindingTree
     -- >>= liftIO . draw
 
 testAll :: Pipeline ()

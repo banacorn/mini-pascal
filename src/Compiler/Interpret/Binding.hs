@@ -1,29 +1,19 @@
 module Compiler.Interpret.Binding where
 
 import Compiler.Type
+
+import Data.List (find)
 -- import Compiler.Interpret.Type
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasBinding
 
--- buildBindingTree :: [EqClass Declaration] -> Scope Occurrence -> Scope Binding
--- buildBindingTree decs occurs =
+findBinding :: [EqClass Declaration] -> Occurrence -> Binding
+findBinding decs (Occurrence name _) = find match decs
+    where   match eqClass = let Symbol t i p = head eqClass in i == name
 
--- class HasBinding a where
---     getBinding :: [EqClass Declaration] -> a -> Scope Occurrence -> Scope Binding
---
--- instance HasBinding ProgramNode where
---     getBinding decs (ProgramNode sym _ _ subprogs stmts) = Scope scopeType subScopes []
---         where
---             scopeType = ProgramScope (fst sym)
---             subScopes = map getBinding getBinding ++ [getBinding stmts]
---
--- -- Program Declaration
--- data ProgramNode =
---     ProgramNode
---         SymbolNode          -- program name
---         [SymbolNode]        -- program arguments
---         [VarDecNode]        -- variable declarations
---         [SubprogDecNode]    -- subprogram declarations
---         CompoundStmtNode    -- compound statement
---     deriving (Eq, Show)
+buildBindingTree :: [EqClass Declaration] -> Scope (EqClass Declaration) -> Scope Occurrence -> Scope Binding
+buildBindingTree acc (Scope t s decs) (Scope _ s' occs) = Scope t subScopes bindings
+    where   subScopes = map buildSubTrees (zip s s')
+            bindings = map (findBinding acc) occs
+            buildSubTrees (decScope, occScope) = buildBindingTree (decs ++ acc) decScope occScope
