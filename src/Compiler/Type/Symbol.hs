@@ -6,40 +6,39 @@ import Compiler.Type.Token
 import Compiler.Type.Type
 
 --------------------------------------------------------------------------------
---  Symbol
-data Symbol = Symbol
-    {   symType :: Type
-    ,   symID :: String
-    ,   symPos :: Position
+--  Declaration
+data Declaration = Declaration
+    {   decType :: Type
+    ,   decID :: String
+    ,   decPos :: Position
     }
 
--- 2 Symbols are considered equal if
+-- 2 Declaration are considered equal if
 --      1. both are variables OR both are functions/procedures
 --      2. have the same name
-instance Eq Symbol where
-    Symbol (FO _) i _ == Symbol (FO _) i' _ = i == i'
-    Symbol (HO _) i _ == Symbol (HO _) i' _ = i == i'
-    Symbol _      _ _ == Symbol _      _  _ = False
+instance Eq Declaration where
+    Declaration (FO _) i _ == Declaration (FO _) i' _ = i == i'
+    Declaration (HO _) i _ == Declaration (HO _) i' _ = i == i'
+    Declaration _      _ _ == Declaration _      _  _ = False
 
-instance Show Symbol where
-    show (Symbol t i p) = " " ++ i ++ " : " ++ show t ++ show p
+instance Show Declaration where
+    show (Declaration t i p) = " " ++ i ++ " : " ++ show t ++ show p
 
--- Order symbols base on their Position
-instance Ord Symbol where
-    a `compare` b = symPos a `compare` symPos b
+-- Order Declaration base on their Position
+instance Ord Declaration where
+    a `compare` b = decPos a `compare` decPos b
 
 --------------------------------------------------------------------------------
 
 type EqClass a = [a]
-type Declaration = Symbol
 data Occurrence = Occurrence String Position
 type Binding = Maybe (EqClass Declaration)
 
 --------------------------------------------------------------------------------
 -- helper functions
 
-toSymbol :: Type -> (String, Position) -> Symbol
-toSymbol t (i, p) = Symbol t i p
+toDeclaration :: Type -> (String, Position) -> Declaration
+toDeclaration t (i, p) = Declaration t i p
 
 toOccurrence :: (String, Position) -> Occurrence
 toOccurrence = uncurry Occurrence

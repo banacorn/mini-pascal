@@ -33,10 +33,10 @@ data PipelineError  = InvalidArgument           -- EINVAL
                     | NotEnoughInput FilePath Source
                     | LexError FilePath Source String Position
                     | ParseError FilePath Source Tok Position
-                    | DeclarationDuplicationError FilePath Source [Symbol]
+                    | DeclarationDuplicationError FilePath Source [Declaration]
                     deriving Show
 
-data SemanticsError = DeclarationDuplication [[Symbol]]
+data SemanticsError = DeclarationDuplication [[Declaration]]
     deriving (Eq, Show)
 
 data CodeBlock = CodeBlock

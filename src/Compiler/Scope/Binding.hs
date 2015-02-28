@@ -10,7 +10,7 @@ import Data.List (find)
 
 findBinding :: [EqClass Declaration] -> Occurrence -> Binding
 findBinding decs (Occurrence name _) = find match decs
-    where   match eqClass = let Symbol t i p = head eqClass in i == name
+    where   match eqClass = let Declaration t i p = head eqClass in i == name
 
 zipMaybe :: [a] -> [b] -> [(Maybe a, b)]
 zipMaybe (x:xs) (y:ys) = (Just x , y) : zipMaybe xs ys

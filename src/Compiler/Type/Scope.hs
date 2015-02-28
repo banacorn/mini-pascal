@@ -11,7 +11,7 @@ import Compiler.Type.Type
 
 data ScopeType   = CompoundStmtScope
                  | ProgramScope String
-                 | RegularScope Symbol -- functions, procedures ... usually with an associated symbol
+                 | RegularScope Declaration -- functions, procedures ... usually with an associated symbol
                  deriving (Eq, Show)
 
 data Scope a = Scope ScopeType [Scope a] [a]

@@ -21,7 +21,7 @@ main = pipeline $ do
 testA :: Pipeline ()
 testA = do
 
-    ast <- readSource "./test/semantics/test00-type-error-in-array.p"
+    ast <- readSource "./test/semantics/test.p"
     -- ast <- readSource "./test/semantics/test-duplicate.p"
         >>= scan
         >>= parse

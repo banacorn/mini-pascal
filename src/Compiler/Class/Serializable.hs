@@ -85,8 +85,8 @@ instance Serializable a => Serializable (Scope a) where
         ++  1 >>>> stuffs
         ++  1 >>>> scopes
 
-instance Serializable Symbol where
-    serialize (Symbol t i p) = green i ++ " : " ++ show t ++ " " ++ serialize p
+instance Serializable Declaration where
+    serialize (Declaration t i p) = green i ++ " : " ++ show t ++ " " ++ serialize p
 
 instance Serializable Occurrence where
     serialize (Occurrence i p) = green i ++ " : " ++ serialize p
@@ -118,10 +118,10 @@ instance Serializable PipelineError where
     serialize (DeclarationDuplicationError path src partition) = paragraphPadded $
             0 >>>> [red "Declaration Duplicated: " ++ yellow (serialize i)]
         ++  1 >>>> codeBlocks
-        where   partition' = sort partition         -- sort symbols base on their position
-                Symbol t i pos = head partition'    -- get the foremost symbol
-                markPosition symbol = path ++ ":" ++ serialize (symPos symbol)
-                codeBlocks = toCodeBlocks path src (map symPos partition')
+        where   partition' = sort partition              -- sort declarations base on their position
+                Declaration t i pos = head partition'    -- get the foremost declaration
+                markPosition declaration = path ++ ":" ++ serialize (decPos declaration)
+                codeBlocks = toCodeBlocks path src (map decPos partition')
 
 instance Serializable CodeBlock where
     serialize (CodeBlock path src positions (from, to)) = paragraphPadded $

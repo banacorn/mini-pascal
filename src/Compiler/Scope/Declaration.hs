@@ -19,12 +19,12 @@ instance HasDeclarationScope ProgramNode where
 instance HasDeclarationScope SubprogDecNode where
     getDeclarationScope p@(FuncDecNode sym _ _ _ stmts) = Scope scopeType scopes vars
         where
-            scopeType = RegularScope (toSymbol (getType p) sym)
+            scopeType = RegularScope (toDeclaration (getType p) sym)
             vars = partite (getDeclaration p)
             scopes = [getDeclarationScope stmts]
     getDeclarationScope p@(ProcDecNode sym _ _ stmts) = Scope scopeType scopes vars
         where
-            scopeType = RegularScope (toSymbol (getType p) sym)
+            scopeType = RegularScope (toDeclaration (getType p) sym)
             vars = partite (getDeclaration p)
             scopes = [getDeclarationScope stmts]
 
@@ -35,7 +35,7 @@ instance HasDeclarationScope CompoundStmtNode where
 -- Class & Instances of HasDeclaration
 
 class HasDeclaration a where
-    getDeclaration :: a -> [Symbol]
+    getDeclaration :: a -> [Declaration]
 
 instance HasDeclaration ProgramNode where
     getDeclaration (ProgramNode _ params vars subprogs _) =
@@ -43,21 +43,21 @@ instance HasDeclaration ProgramNode where
         (vars     >>= fromVars) ++
         (subprogs >>= fromSubprogs)
         where
-            fromParams n = [toSymbol (FO ProgramParamType) n]
-            fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
-            fromSubprogs n@(FuncDecNode sym _ ret _ _) = [toSymbol (getType n) sym]
-            fromSubprogs n@(ProcDecNode sym _     _ _) = [toSymbol (getType n) sym]
+            fromParams n = [toDeclaration (FO ProgramParamType) n]
+            fromVars (VarDecNode ids t) = map (toDeclaration (getType t)) ids
+            fromSubprogs n@(FuncDecNode sym _ ret _ _) = [toDeclaration (getType n) sym]
+            fromSubprogs n@(ProcDecNode sym _     _ _) = [toDeclaration (getType n) sym]
 
 instance HasDeclaration SubprogDecNode where
     getDeclaration (FuncDecNode sym params ret vars stmt) =
         (params >>= fromParams) ++
         (vars >>= fromVars)
         where
-            fromParams (ParameterNode ids t) = map (toSymbol (getType t)) ids
-            fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
+            fromParams (ParameterNode ids t) = map (toDeclaration (getType t)) ids
+            fromVars (VarDecNode ids t) = map (toDeclaration (getType t)) ids
     getDeclaration (ProcDecNode sym params vars stmt) =
         (params >>= fromParams) ++
         (vars >>= fromVars)
         where
-            fromParams (ParameterNode ids t) = map (toSymbol (getType t)) ids
-            fromVars (VarDecNode ids t) = map (toSymbol (getType t)) ids
+            fromParams (ParameterNode ids t) = map (toDeclaration (getType t)) ids
+            fromVars (VarDecNode ids t) = map (toDeclaration (getType t)) ids

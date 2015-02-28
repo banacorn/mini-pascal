@@ -10,7 +10,7 @@ import Compiler.Type
 --      1. both are variables OR both are functions/procedures
 --      2. have the same name
 --      3. at the same level of scope
-declarationDuplications :: Scope Declaration -> [[Symbol]]
+declarationDuplications :: Scope Declaration -> [[Declaration]]
 declarationDuplications (Scope scopeType subScopes symbols) =
     pickDuplicated (equivalenceClassPartition symbols)
     ++ (subScopes >>= declarationDuplications)

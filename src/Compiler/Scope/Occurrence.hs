@@ -18,11 +18,11 @@ instance HasOccurrenceScope ProgramNode where
 instance HasOccurrenceScope SubprogDecNode where
     getOccurrenceScope p@(FuncDecNode sym _ _ _ stmts) = Scope scopeType scopes []
         where
-            scopeType = RegularScope (toSymbol (getType p) sym)
+            scopeType = RegularScope (toDeclaration (getType p) sym)
             scopes = [getOccurrenceScope stmts]
     getOccurrenceScope p@(ProcDecNode sym _ _ stmts) = Scope scopeType scopes []
         where
-            scopeType = RegularScope (toSymbol (getType p) sym)
+            scopeType = RegularScope (toDeclaration (getType p) sym)
             scopes = [getOccurrenceScope stmts]
 
 instance HasOccurrenceScope CompoundStmtNode where
