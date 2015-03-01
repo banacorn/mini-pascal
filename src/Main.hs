@@ -11,6 +11,7 @@ import Compiler.Pipeline
 -- import Compiler.Semantics
 import Compiler.AST.Scope.Declaration
 import Compiler.AST.Scope.Occurrence
+import Compiler.AST.Scope.Binding
 
 import Control.Monad.IO.Class
 
@@ -33,11 +34,12 @@ testA = do
     -- let bindingTree = buildBindingTree [] (Just decScope) occScope
     let decScope = collectDeclaration ast
     let occScope = collectOccurrence ast
+    let bindScope = collectBinding decScope occScope
     -- checkDeclarationDuplication decScope
     draw ast
     draw decScope
     draw occScope
-    -- draw bindingTree
+    draw bindScope
     -- >>= liftIO . draw
 
 testAll :: Pipeline ()

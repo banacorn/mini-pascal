@@ -1,10 +1,6 @@
 module Compiler.AST.Scope.Occurrence (collectOccurrence) where
 
 import Compiler.Type
-import Compiler.AST.Type
-import Compiler.Type.Symbol
-
-import Data.Set (Set)
 
 collectOccurrence :: ProgramNode -> Scope Occurrence
 collectOccurrence (ProgramNode _ _ _ subprogs stmts) = Scope [] subScopes

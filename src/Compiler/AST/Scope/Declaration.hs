@@ -12,7 +12,7 @@ collectDeclaration (ProgramNode _ params vars subprogs _) = Scope (partite decs)
             decs =  (params   >>= fromParams)
                  ++ (vars     >>= fromVars)
                  ++ (subprogs >>= fromSubprogs)
-            subScopes = map subprogamDeclaration subprogs
+            subScopes = map subprogamDeclaration subprogs ++ [SubScope [] []]
             fromParams n = [toDeclaration (FO ProgramParamType) n]
             fromVars (VarDecNode ids t) = map (toDeclaration (getType t)) ids
             fromSubprogs n@(FuncDecNode sym _ ret _ _) = [toDeclaration (getType n) sym]
