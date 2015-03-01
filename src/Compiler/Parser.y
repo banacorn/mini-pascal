@@ -21,10 +21,12 @@ import Control.Monad.Except
     '['             { Token TokLSB _ }
     ']'             { Token TokRSB _ }
     id              { Token (TokID _) _ }
-    num             { Token (TokNum $$) _ }
-    string          { Token TokTypeStr _ }
-    integer         { Token TokTypeInt _ }
-    real            { Token TokTypeReal _ }
+    str             { Token (TokStr $$) _ }
+    int             { Token (TokInt $$) _ }
+    real            { Token (TokReal $$) _ }
+    typeStr         { Token TokTypeStr _ }
+    typeInt         { Token TokTypeInt _ }
+    typeReal        { Token TokTypeReal _ }
     progtok         { Token TokProgram _ }
     function        { Token TokFunction _ }
     procedure       { Token TokProc _ }
@@ -73,13 +75,13 @@ variable_declarations
 
 type
     : standard_type                          { BaseTypeNode $1 }
-    | array '[' num '..' num ']' of type     { ArrayTypeNode ($3, $5) $8 }
+    | array '[' int '..' int ']' of type     { ArrayTypeNode ($3, $5) $8 }
 
 
 standard_type
-    : integer       { IntTypeNode }
-    | real          { RealTypeNode }
-    | string        { StringTypeNode }
+    : typeInt       { IntTypeNode }
+    | typeReal      { RealTypeNode }
+    | typeStr       { StringTypeNode }
 
 
 subprogram_declarations
@@ -150,7 +152,8 @@ term
 factor
     : id tail                       { ArrayAccessFactorNode (toSym $1) $2 }
     | id '(' expression_list ')'    { SubprogInvokeFactorNode (toSym $1) $3 }
-    | num                           { NumFactorNode $1 }
+    | int                           { IntFactorNode $1 }
+    | real                          { RealFactorNode $1 }
     | '(' expression ')'            { SubFactorNode $2 }
     | not factor                    { NotFactorNode $2 }
 

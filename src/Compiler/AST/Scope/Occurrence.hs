@@ -51,6 +51,7 @@ instance HasOccurrence TermNode where
 instance HasOccurrence FactorNode where
     getOccurrence (ArrayAccessFactorNode   sym exprs) = sym : (exprs >>= getOccurrence)
     getOccurrence (SubprogInvokeFactorNode sym exprs) = sym : (exprs >>= getOccurrence)
-    getOccurrence (NumFactorNode num) = []
+    getOccurrence (IntFactorNode num) = []
+    getOccurrence (RealFactorNode num) = []
     getOccurrence (SubFactorNode expr) = getOccurrence expr
     getOccurrence (NotFactorNode factor) = getOccurrence factor

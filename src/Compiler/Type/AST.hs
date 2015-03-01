@@ -15,7 +15,6 @@ toSym (Token (TokID i) p) = Symbol i p
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
--- synomyms for some values
 type NumberNode = String
 
 -- Program Declaration
@@ -74,7 +73,8 @@ data TermNode   = FactorTermNode FactorNode
 
 data FactorNode = ArrayAccessFactorNode     Symbol [ExprNode]   -- id[]
                 | SubprogInvokeFactorNode   Symbol [ExprNode]   -- id()
-                | NumFactorNode             NumberNode
+                | IntFactorNode             NumberNode
+                | RealFactorNode            NumberNode
                 | SubFactorNode             ExprNode            -- ( ... )
                 | NotFactorNode             FactorNode          -- -id
 

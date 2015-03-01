@@ -15,7 +15,9 @@ data Tok    = TokID String         -- identifiers
             | TokTypeInt           -- "integer"
             | TokTypeReal          -- "real"
             | TokTypeStr           -- "string"
-            | TokNum String        -- numbers
+            | TokStr String        -- string literal
+            | TokInt String        -- integer literal
+            | TokReal String       -- real literal
             | TokProgram           -- "program"
             | TokFunction          -- "function"
             | TokProc              -- "procedure"

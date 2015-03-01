@@ -14,18 +14,6 @@ data Domain = IntegerType
             | UnitType                          -- ()
             deriving (Eq)
 
--- instance Show FOType where
---     show IntegerType = "Int"
---     show RealType = "Real"
---     show StringType = "String"
---     show (ArrayType (from, to) t) = "Array [" ++ from ++ " .. " ++ to ++"] " ++ show t
---     show ProgramParamType = "ProgArg"
---     show UnitType = "()"
-
--- instance Show HOType where
---     show (FunctionType args ret) = intercalate " → " (map show args ++ [show ret])
---     show (ProcedureType args) = intercalate " → " (map show args ++ ["()"])
-
 data Type = Type [Domain] deriving (Eq)
 
 instance Monoid Type where

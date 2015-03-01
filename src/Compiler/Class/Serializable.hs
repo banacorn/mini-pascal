@@ -187,7 +187,9 @@ instance Serializable Tok where
     serialize TokTypeInt = "integer"          -- "integer"
     serialize TokTypeReal = "real"         -- "real"
     serialize TokTypeStr = "string"          -- "string"
-    serialize (TokNum s) = s        -- numbers
+    serialize (TokStr s) = s        -- string literal
+    serialize (TokInt s) = s        -- int numbers
+    serialize (TokReal s) = s        -- real numbers
     serialize TokProgram = "program"          -- "program"
     serialize TokFunction = "function"         -- "function"
     serialize TokProc = "procedure"             -- "procedure"
