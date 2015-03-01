@@ -76,16 +76,29 @@ instance Serializable Position where
     serialize Unknown = "?"
     serialize (Position o n l c) = show l ++ ":" ++ show c
 
-instance Serializable ScopeType where
-    serialize CompoundStmtScope = ""
-    serialize (ProgramScope name) = "Program " ++ green name
-    serialize (RegularScope symbol) = serialize symbol
-
 instance Serializable a => Serializable (Scope a) where
-    serialize (Scope scopeType scopes stuffs) = paragraph $
-            0 >>>> [serialize scopeType]
-        ++  1 >>>> stuffs
-        ++  1 >>>> scopes
+    serialize (Scope decs subScopes) = paragraph $
+            0 >>>> ["Program"]
+        ++  1 >>>> decs
+        ++  1 >>>> subScopes
+
+instance Serializable a => Serializable (SubScope a) where
+    serialize (SubScope decs stmts) = paragraph $
+            0 >>>> [" "]
+        ++  1 >>>> decs
+        ++  1 >>>> stmts
+
+
+-- instance Serializable ScopeType where
+--     serialize CompoundStmtScope = ""
+--     serialize (ProgramScope name) = "Program " ++ green name
+--     serialize (RegularScope symbol) = serialize symbol
+
+-- instance Serializable a => Serializable (Scope a) where
+--     serialize (Scope scopeType scopes stuffs) = paragraph $
+--             0 >>>> [serialize scopeType]
+--         ++  1 >>>> stuffs
+--         ++  1 >>>> scopes
 
 
 instance Serializable Declaration where

@@ -92,3 +92,15 @@ data FactorNode = ArrayAccessFactorNode     SymbolNode [ExprNode]   -- id[]
 data AddOpNode = Plus | Minus deriving (Eq, Show)
 data MulOpNode = Mul | Div deriving (Eq, Show)
 data RelOpNode = S | L | E | NE | SE | LE deriving (Eq, Show)
+
+
+--------------------------------------------------------------------------------
+-- Scope structure for indicating variable declarations and occurrences
+
+data Scope a = Scope
+    [a]             --  program parameters, variable and subprogram declarations
+    [SubScope a]    --  subprogram and compound statement
+
+data SubScope a = SubScope
+    [a]             --  variable and subprogram declarations
+    [a]             --  compound statement

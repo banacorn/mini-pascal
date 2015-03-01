@@ -9,9 +9,9 @@ import Compiler.Type.Type
 --------------------------------------------------------------------------------
 --  Scope
 
-data ScopeType   = CompoundStmtScope
-                 | ProgramScope String
-                 | RegularScope Declaration -- functions, procedures ... usually with an associated symbol
-                 deriving (Eq, Show)
-
-data Scope a = Scope ScopeType [Scope a] [a]
+-- data ScopeType   = CompoundStmtScope
+--                  | ProgramScope String
+--                  | RegularScope Declaration -- functions, procedures ... usually with an associated symbol
+--                  deriving (Eq, Show)
+--
+-- data Scope a = Scope ScopeType [Scope a] [a]

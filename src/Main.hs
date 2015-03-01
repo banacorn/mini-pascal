@@ -3,12 +3,13 @@ module Compiler where
 import Compiler.Lexer
 import Compiler.Parser
 import Compiler.Class.Serializable
-import Compiler.Scope.Declaration
-import Compiler.Scope.Occurrence
-import Compiler.Scope.Binding
+-- import Compiler.Scope.Declaration
+-- import Compiler.Scope.Occurrence
+-- import Compiler.Scope.Binding
 import Compiler.Type
 import Compiler.Pipeline
-import Compiler.Semantics
+-- import Compiler.Semantics
+import Compiler.AST.Scope.Declaration
 
 import Control.Monad.IO.Class
 
@@ -26,15 +27,15 @@ testA = do
         >>= scan
         >>= parse
 
-    let decScope = getDeclarationScope ast
-    let occScope = getOccurrenceScope ast
-    let bindingTree = buildBindingTree [] (Just decScope) occScope
-
+    -- let decScope = getDeclarationScope ast
+    -- let occScope = getOccurrenceScope ast
+    -- let bindingTree = buildBindingTree [] (Just decScope) occScope
+    let decScope = collectDeclaration ast
     -- checkDeclarationDuplication decScope
     draw ast
     draw decScope
-    draw occScope
-    draw bindingTree
+    -- draw occScope
+    -- draw bindingTree
     -- >>= liftIO . draw
 
 testAll :: Pipeline ()

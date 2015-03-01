@@ -62,10 +62,10 @@ throwSemanticsError err = do
 -- Semantics Checking: Declaration Duplication
 --  Exception: throws SemanticsError if any declaration duplicated (implicitly)
 --  State: saves SemanticsError if there's any
-checkDeclarationDuplication :: Scope Declaration -> Pipeline ()
-checkDeclarationDuplication scope = case declarationDuplications scope of
-    [] -> return ()
-    xs -> throwSemanticsError (DeclarationDuplication xs)
+-- checkDeclarationDuplication :: Scope Declaration -> Pipeline ()
+-- checkDeclarationDuplication scope = case declarationDuplications scope of
+--     [] -> return ()
+--     xs -> throwSemanticsError (DeclarationDuplication xs)
 
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?
