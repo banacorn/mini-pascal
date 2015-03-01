@@ -21,12 +21,10 @@ data Declaration = Declaration
 --      1. both are variables OR both are functions/procedures
 --      2. have the same name
 instance Eq Declaration where
-    Declaration (FO _) i _ == Declaration (FO _) i' _ = i == i'
-    Declaration (HO _) i _ == Declaration (HO _) i' _ = i == i'
-    Declaration _      _ _ == Declaration _      _  _ = False
-
-instance Show Declaration where
-    show (Declaration t i p) = " " ++ i ++ " : " ++ show t ++ show p
+    Declaration t i _ == Declaration t' i' _
+        | firstOrder  t && firstOrder  t' = i == i'
+        | higherOrder t && higherOrder t' = i == i'
+        | otherwise                       = False
 
 -- Order Declaration base on their Position
 instance Ord Declaration where

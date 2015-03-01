@@ -27,17 +27,15 @@ data ProgramNode =
         [VarDecNode]        -- variable declarations
         [SubprogDecNode]    -- subprogram declarations
         CompoundStmtNode    -- compound statement
-    deriving (Eq, Show)
 
 -- Type
 data TypeNode   = BaseTypeNode StandardTypeNode
                 | ArrayTypeNode (NumberNode, NumberNode) TypeNode
-                deriving (Eq, Show)
-data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode deriving (Eq, Show)
+
+data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode
 
 -- Variable Declaration
 data VarDecNode = VarDecNode [SymbolNode] TypeNode
-    deriving (Eq, Show)
 
 -- Subprogram Declaration
 data SubprogDecNode = FuncDecNode
@@ -51,12 +49,10 @@ data SubprogDecNode = FuncDecNode
                         [ParameterNode]     -- function parameters
                         [VarDecNode]        -- variable declarations
                         CompoundStmtNode    -- compound statement
-                    deriving (Eq, Show)
 
 data ParameterNode = ParameterNode [SymbolNode] TypeNode
-    deriving (Eq, Show)
 
-data CompoundStmtNode = CompoundStmtNode [StmtNode] deriving (Eq, Show)
+data CompoundStmtNode = CompoundStmtNode [StmtNode]
 
 -- Statement Declaration
 data StmtNode   = AssignStmtNode VariableNode ExprNode
@@ -64,34 +60,28 @@ data StmtNode   = AssignStmtNode VariableNode ExprNode
                 | CompStmtNode CompoundStmtNode
                 | BranchStmtNode ExprNode StmtNode StmtNode
                 | LoopStmtNode ExprNode StmtNode
-                deriving (Eq, Show)
 
 data VariableNode = VariableNode SymbolNode [ExprNode] -- e.g. a[1+2][3*4]
-    deriving (Eq, Show)
 
 data ExprNode   = UnaryExprNode SimpleExprNode
                 | BinaryExprNode SimpleExprNode RelOpNode SimpleExprNode
-                deriving (Eq, Show)
 
 data SimpleExprNode = SimpleExprTermNode TermNode
                     | SimpleExprOpNode SimpleExprNode AddOpNode TermNode
-                    deriving (Eq, Show)
 
 data TermNode   = FactorTermNode FactorNode
                 | OpTermNode TermNode MulOpNode FactorNode
                 | NegTermNode FactorNode
-                deriving (Eq, Show)
 
 data FactorNode = ArrayAccessFactorNode     SymbolNode [ExprNode]   -- id[]
                 | SubprogInvokeFactorNode   SymbolNode [ExprNode]   -- id()
                 | NumFactorNode             NumberNode
                 | SubFactorNode             ExprNode                -- ( ... )
                 | NotFactorNode             FactorNode              -- -id
-                deriving (Eq, Show)
 
-data AddOpNode = Plus | Minus deriving (Eq, Show)
-data MulOpNode = Mul | Div deriving (Eq, Show)
-data RelOpNode = S | L | E | NE | SE | LE deriving (Eq, Show)
+data AddOpNode = Plus | Minus
+data MulOpNode = Mul | Div
+data RelOpNode = S | L | E | NE | SE | LE
 
 
 --------------------------------------------------------------------------------

@@ -88,21 +88,19 @@ instance Serializable a => Serializable (SubScope a) where
         ++  1 >>>> decs
         ++  1 >>>> stmts
 
+instance Serializable Domain where
+    serialize IntegerType = "Int"
+    serialize RealType = "Real"
+    serialize StringType = "String"
+    serialize (ArrayType (from, to) t) = "Array [" ++ from ++ " .. " ++ to ++"] " ++ serialize t
+    serialize ProgramParamType = "ProgArg"
+    serialize UnitType = "()"
 
--- instance Serializable ScopeType where
---     serialize CompoundStmtScope = ""
---     serialize (ProgramScope name) = "Program " ++ green name
---     serialize (RegularScope symbol) = serialize symbol
-
--- instance Serializable a => Serializable (Scope a) where
---     serialize (Scope scopeType scopes stuffs) = paragraph $
---             0 >>>> [serialize scopeType]
---         ++  1 >>>> stuffs
---         ++  1 >>>> scopes
-
+instance Serializable Type where
+    serialize (Type domains) = intercalate " → " (map serialize domains)
 
 instance Serializable Declaration where
-    serialize (Declaration t i p) = green i ++ " : " ++ show t ++ " " ++ serialize p
+    serialize (Declaration t i p) = green i ++ " : " ++ serialize t ++ " " ++ serialize p
 
 instance Serializable Occurrence where
     serialize (Occurrence i p) = green i ++ " : " ++ serialize p

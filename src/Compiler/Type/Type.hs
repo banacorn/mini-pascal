@@ -3,33 +3,40 @@ module Compiler.Type.Type where
 import Compiler.Type.Token
 
 import Data.List (intercalate)
+import Data.Monoid
 
-data FOType = IntegerType
+-- first order
+data Domain = IntegerType
             | RealType
             | StringType
-            | ArrayType (String, String) FOType
+            | ArrayType (String, String) Domain
             | ProgramParamType
+            | UnitType                          -- ()
             deriving (Eq)
 
-instance Show FOType where
-    show IntegerType = "Int"
-    show RealType = "Real"
-    show StringType = "String"
-    show (ArrayType (from, to) t) = "Array [" ++ from ++ " .. " ++ to ++"] " ++ show t
-    show ProgramParamType = "ProgArg"
+-- instance Show FOType where
+--     show IntegerType = "Int"
+--     show RealType = "Real"
+--     show StringType = "String"
+--     show (ArrayType (from, to) t) = "Array [" ++ from ++ " .. " ++ to ++"] " ++ show t
+--     show ProgramParamType = "ProgArg"
+--     show UnitType = "()"
 
-data HOType = FunctionType [FOType] FOType
-            | ProcedureType [FOType]
-            deriving (Eq)
+-- instance Show HOType where
+--     show (FunctionType args ret) = intercalate " → " (map show args ++ [show ret])
+--     show (ProcedureType args) = intercalate " → " (map show args ++ ["()"])
 
-instance Show HOType where
-    show (FunctionType args ret) = intercalate " → " (map show args ++ [show ret])
-    show (ProcedureType args) = intercalate " → " (map show args ++ ["()"])
+data Type = Type [Domain] deriving (Eq)
 
-data Type   = FO FOType
-            | HO HOType
-            deriving (Eq)
+instance Monoid Type where
+    mempty = Type []
+    mappend (Type a) (Type b) = Type (a ++ b)
 
-instance Show Type where
-    show (FO t) = show t
-    show (HO t) = show t
+order :: Type -> Int
+order (Type domains) = length domains
+
+firstOrder :: Type -> Bool
+firstOrder = (== 1) . order
+
+higherOrder :: Type -> Bool
+higherOrder = (> 1) . order
