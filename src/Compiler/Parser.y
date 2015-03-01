@@ -1,6 +1,7 @@
 {
 module Compiler.Parser where
-import Compiler.Type
+import Compiler.Type.Token
+import Compiler.Type.Pipeline
 import Compiler.Type.AST
 import Compiler.Lexer
 import Control.Monad.Except
@@ -59,7 +60,7 @@ import Control.Monad.Except
 
 program
     : progtok id '(' identifier_list ')' ';' variable_declarations subprogram_declarations compound_statement '.' {
-        ProgramNode (toSym $2) (reverse $4) (reverse $7) (reverse $8) (CompoundStmtNode $9)
+        Program (toSym $2) (reverse $4) (reverse $7) (reverse $8) (CompoundStmt $9)
     }
 
 
@@ -70,18 +71,18 @@ identifier_list
 
 variable_declarations
     : {- empty -}                                               { [] }
-    | variable_declarations var identifier_list ':' type ';'    { VarDecNode (reverse $3) $5 : $1 }
+    | variable_declarations var identifier_list ':' type ';'    { VarDec (reverse $3) $5 : $1 }
 
 
 type
-    : standard_type                          { BaseTypeNode $1 }
-    | array '[' int '..' int ']' of type     { ArrayTypeNode ($3, $5) $8 }
+    : standard_type                          { BaseType $1 }
+    | array '[' int '..' int ']' of type     { ArrayType ($3, $5) $8 }
 
 
 standard_type
-    : typeInt       { IntTypeNode }
-    | typeReal      { RealTypeNode }
-    | typeStr       { StringTypeNode }
+    : typeInt       { IntType }
+    | typeReal      { RealType }
+    | typeStr       { StringType }
 
 
 subprogram_declarations
@@ -91,17 +92,17 @@ subprogram_declarations
 
 subprogram_declaration
     : function id ':' standard_type ';' variable_declarations compound_statement
-        { FuncDecNode (toSym $2) [] $4 $6 (CompoundStmtNode $7) }
+        { FuncDec (toSym $2) [] $4 $6 (CompoundStmt $7) }
     | function id '(' parameter_list ')' ':' standard_type ';' variable_declarations compound_statement
-        { FuncDecNode (toSym $2) $4 $7 $9 (CompoundStmtNode $10) }
+        { FuncDec (toSym $2) $4 $7 $9 (CompoundStmt $10) }
     | procedure id ';' variable_declarations compound_statement
-        { ProcDecNode (toSym $2) [] $4 (CompoundStmtNode $5) }
+        { ProcDec (toSym $2) [] $4 (CompoundStmt $5) }
     | procedure id '(' parameter_list ')' ';' variable_declarations compound_statement
-        { ProcDecNode (toSym $2) $4 $7 (CompoundStmtNode $8) }
+        { ProcDec (toSym $2) $4 $7 (CompoundStmt $8) }
 
 parameter_list
-    : identifier_list ':' type                      { ParameterNode $1 $3 : [] }
-    | parameter_list ';' identifier_list ':' type   { ParameterNode $3 $5 : $1  }
+    : identifier_list ':' type                      { Parameter $1 $3 : [] }
+    | parameter_list ';' identifier_list ':' type   { Parameter $3 $5 : $1  }
 
 
 compound_statement
@@ -114,16 +115,16 @@ statement_list
 
 
 statement
-    : variable ':=' expression                      { AssignStmtNode $1 $3 }
-    | id                                            { SubprogInvokeStmtNode (toSym $1) [] }
-    | id '(' expression_list ')'                    { SubprogInvokeStmtNode (toSym $1) $3 }
-    | compound_statement                            { CompStmtNode (CompoundStmtNode $1) }
-    | if expression then statement else statement   { BranchStmtNode $2 $4 $6 }
-    | while expression do statement                 { LoopStmtNode $2 $4 }
+    : variable ':=' expression                      { Assignment $1 $3 }
+    | id                                            { Invocation (toSym $1) [] }
+    | id '(' expression_list ')'                    { Invocation (toSym $1) $3 }
+    | compound_statement                            { Compound (CompoundStmt $1) }
+    | if expression then statement else statement   { Branch $2 $4 $6 }
+    | while expression do statement                 { Loop $2 $4 }
 
 
 variable
-    : id tail  { VariableNode (toSym $1) $2 }
+    : id tail  { Assignee (toSym $1) $2 }
 
 tail
     : {- empty -}                   { [] }
@@ -134,28 +135,28 @@ expression_list : expression                        { $1 : [] }
 
 
 expression
-    : simple_expression                         { UnaryExprNode $1 }
-    | simple_expression relop simple_expression { BinaryExprNode $1 $2 $3 }
+    : simple_expression                         { UnaryExpression $1 }
+    | simple_expression relop simple_expression { BinaryExpression $1 $2 $3 }
 
 
 simple_expression
-    : term                              { SimpleExprTermNode $1 }
-    | simple_expression addop term      { SimpleExprOpNode $1 $2 $3 }
+    : term                              { TermSimpleExpression $1 }
+    | simple_expression addop term      { OpSimpleExpression $1 $2 $3 }
 
 
 term
-    : factor            { FactorTermNode $1 }
-    | '-' factor        { NegTermNode $2  }
-    | term mulop factor { OpTermNode $1 $2 $3 }
+    : factor            { FactorTerm $1 }
+    | '-' factor        { NegTerm $2  }
+    | term mulop factor { OpTerm $1 $2 $3 }
 
 
 factor
-    : id tail                       { ArrayAccessFactorNode (toSym $1) $2 }
-    | id '(' expression_list ')'    { SubprogInvokeFactorNode (toSym $1) $3 }
-    | int                           { IntFactorNode $1 }
-    | real                          { RealFactorNode $1 }
-    | '(' expression ')'            { SubFactorNode $2 }
-    | not factor                    { NotFactorNode $2 }
+    : id tail                       { ArrayAccessFactor (toSym $1) $2 }
+    | id '(' expression_list ')'    { InvocationFactor (toSym $1) $3 }
+    | int                           { IntFactor $1 }
+    | real                          { RealFactor $1 }
+    | '(' expression ')'            { SubFactor $2 }
+    | not factor                    { NotFactor $2 }
 
 
 addop

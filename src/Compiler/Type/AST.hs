@@ -15,72 +15,72 @@ toSym (Token (TokID i) p) = Symbol i p
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
-type NumberNode = String
+type Number = String
 
 -- Program Declaration
-data ProgramNode =
-    ProgramNode
-        Symbol              -- program name
-        [Symbol]            -- program arguments
-        [VarDecNode]        -- variable declarations
-        [SubprogDecNode]    -- subprogram declarations
-        CompoundStmtNode    -- compound statement
+data Program =
+    Program
+        Symbol          -- program name
+        [Symbol]        -- program arguments
+        [VarDec]        -- variable declarations
+        [SubprogDec]    -- subprogram declarations
+        CompoundStmt    -- compound statement
 
 -- Type
-data TypeNode   = BaseTypeNode StandardTypeNode
-                | ArrayTypeNode (NumberNode, NumberNode) TypeNode
+data Type   = BaseType StandardType
+            | ArrayType (Number, Number) Type
 
-data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode
+data StandardType = IntType | RealType | StringType
 
 -- Variable Declaration
-data VarDecNode = VarDecNode [Symbol] TypeNode
+data VarDec = VarDec [Symbol] Type
 
 -- Subprogram Declaration
-data SubprogDecNode = FuncDecNode
-                        Symbol              -- function name
-                        [ParameterNode]     -- function parameters
-                        StandardTypeNode    -- function return type
-                        [VarDecNode]        -- variable declarations
-                        CompoundStmtNode    -- compound statement
-                    | ProcDecNode
-                        Symbol              -- procedure name
-                        [ParameterNode]     -- function parameters
-                        [VarDecNode]        -- variable declarations
-                        CompoundStmtNode    -- compound statement
+data SubprogDec = FuncDec
+                    Symbol          -- function name
+                    [Parameter]     -- function parameters
+                    StandardType    -- function return type
+                    [VarDec]        -- variable declarations
+                    CompoundStmt    -- compound statement
+                | ProcDec
+                    Symbol          -- procedure name
+                    [Parameter]     -- function parameters
+                    [VarDec]        -- variable declarations
+                    CompoundStmt    -- compound statement
 
-data ParameterNode = ParameterNode [Symbol] TypeNode
+data Parameter = Parameter [Symbol] Type
 
-data CompoundStmtNode = CompoundStmtNode [StmtNode]
+data CompoundStmt = CompoundStmt [Statement]
 
--- Statement Declaration
-data StmtNode   = AssignStmtNode VariableNode ExprNode
-                | SubprogInvokeStmtNode Symbol [ExprNode]
-                | CompStmtNode CompoundStmtNode
-                | BranchStmtNode ExprNode StmtNode StmtNode
-                | LoopStmtNode ExprNode StmtNode
+data Statement  = Assignment Assignee Expression
+                | Invocation Symbol [Expression]
+                | Compound CompoundStmt
+                | Branch Expression Statement Statement
+                | Loop Expression Statement
 
-data VariableNode = VariableNode Symbol [ExprNode] -- e.g. a[1+2][3*4]
+data Assignee = Assignee Symbol [Expression] -- e.g. a[1+2][3*4]
 
-data ExprNode   = UnaryExprNode SimpleExprNode
-                | BinaryExprNode SimpleExprNode RelOpNode SimpleExprNode
+data Expression = UnaryExpression SimpleExpression
+                | BinaryExpression SimpleExpression RelOp SimpleExpression
 
-data SimpleExprNode = SimpleExprTermNode TermNode
-                    | SimpleExprOpNode SimpleExprNode AddOpNode TermNode
+data SimpleExpression = TermSimpleExpression Term
+                      | OpSimpleExpression SimpleExpression AddOp Term
 
-data TermNode   = FactorTermNode FactorNode
-                | OpTermNode TermNode MulOpNode FactorNode
-                | NegTermNode FactorNode
+data Term = FactorTerm Factor
+          | OpTerm Term MulOp Factor
+          | NegTerm Factor
 
-data FactorNode = ArrayAccessFactorNode     Symbol [ExprNode]   -- id[]
-                | SubprogInvokeFactorNode   Symbol [ExprNode]   -- id()
-                | IntFactorNode             NumberNode
-                | RealFactorNode            NumberNode
-                | SubFactorNode             ExprNode            -- ( ... )
-                | NotFactorNode             FactorNode          -- -id
 
-data AddOpNode = Plus | Minus
-data MulOpNode = Mul | Div
-data RelOpNode = S | L | E | NE | SE | LE
+data Factor = ArrayAccessFactor Symbol [Expression]     -- id[]
+            | InvocationFactor  Symbol [Expression]     -- id()
+            | IntFactor         Number
+            | RealFactor        Number
+            | SubFactor         Expression              -- (...)
+            | NotFactor         Factor                  -- -id
+
+data AddOp = Plus | Minus
+data MulOp = Mul | Div
+data RelOp = S | L | E | NE | SE | LE
 
 
 --------------------------------------------------------------------------------
