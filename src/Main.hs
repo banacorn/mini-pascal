@@ -9,6 +9,7 @@ import Compiler.Pipeline
 import Compiler.AST.Scope.Declaration
 import Compiler.AST.Scope.Occurrence
 import Compiler.AST.Scope.Binding
+import Compiler.Type.ABT
 
 import Control.Monad.IO.Class
 
