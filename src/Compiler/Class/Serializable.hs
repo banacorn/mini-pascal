@@ -99,11 +99,11 @@ instance Serializable Domain where
 instance Serializable Type where
     serialize (Type domains) = intercalate " → " (map serialize domains)
 
-instance Serializable Declaration where
-    serialize (Declaration t i p) = green i ++ " : " ++ serialize t ++ " " ++ serialize p
+instance Serializable Symbol where
+    serialize (Symbol name pos) = green name ++ " " ++ serialize pos
 
-instance Serializable Occurrence where
-    serialize (Occurrence i p) = green i ++ " : " ++ serialize p
+instance Serializable Declaration where
+    serialize (Declaration (Symbol name pos) typ) = green name ++ " : " ++ serialize typ ++ " " ++ serialize pos
 
 instance Serializable Binding where
     serialize (BoundVar o d) = serialize o ++ " ==> " ++ serialize d
@@ -134,13 +134,13 @@ instance Serializable PipelineError where
             0 >>>> [red "Unable to parse " ++ yellow (serialize tok)]
         ++  1 >>>> toCodeBlocks path src [pos]
     serialize (DeclarationDuplicatedError path src partition) = paragraphPadded $
-            0 >>>> [red "Declaration Duplicated: " ++ yellow (serialize i)]
+            0 >>>> [red "Declaration Duplicated: " ++ yellow (serialize name)]
         ++  1 >>>> codeBlocks
         where   partition' = sort (toList partition)              -- sort declarations base on their position
-                Declaration t i pos = head partition'    -- get the foremost declaration
-                markPosition declaration = path ++ ":" ++ serialize (decPos declaration)
-                codeBlocks = toCodeBlocks path src (map decPos partition')
-    serialize (VariableUndeclaredError path src (Occurrence name pos)) = paragraphPadded $
+                Declaration (Symbol name pos) typ = head partition'    -- get the foremost declaration
+                markPosition declaration = path ++ ":" ++ serialize (symPos (decSymbol declaration))
+                codeBlocks = toCodeBlocks path src (map (symPos . decSymbol) partition')
+    serialize (VariableUndeclaredError path src (Symbol name pos)) = paragraphPadded $
             0 >>>> [red "Variable Undeclared: " ++ yellow (serialize name)]
         ++  1 >>>> codeBlocks
         where   codeBlocks = toCodeBlocks path src [pos]

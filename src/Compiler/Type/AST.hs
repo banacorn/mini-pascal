@@ -9,21 +9,20 @@ import Control.Applicative
 --------------------------------------------------------------------------------
 -- Helper functions
 
-toSym :: Token -> SymbolNode
-toSym (Token (TokID i) p) = (i, p)
+toSym :: Token -> Symbol
+toSym (Token (TokID i) p) = Symbol i p
 
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
 -- synomyms for some values
 type NumberNode = String
-type SymbolNode = (String, Position)
 
 -- Program Declaration
 data ProgramNode =
     ProgramNode
-        SymbolNode          -- program name
-        [SymbolNode]        -- program arguments
+        Symbol              -- program name
+        [Symbol]            -- program arguments
         [VarDecNode]        -- variable declarations
         [SubprogDecNode]    -- subprogram declarations
         CompoundStmtNode    -- compound statement
@@ -35,33 +34,33 @@ data TypeNode   = BaseTypeNode StandardTypeNode
 data StandardTypeNode = IntTypeNode | RealTypeNode | StringTypeNode
 
 -- Variable Declaration
-data VarDecNode = VarDecNode [SymbolNode] TypeNode
+data VarDecNode = VarDecNode [Symbol] TypeNode
 
 -- Subprogram Declaration
 data SubprogDecNode = FuncDecNode
-                        SymbolNode          -- function name
+                        Symbol              -- function name
                         [ParameterNode]     -- function parameters
                         StandardTypeNode    -- function return type
                         [VarDecNode]        -- variable declarations
                         CompoundStmtNode    -- compound statement
                     | ProcDecNode
-                        SymbolNode          -- procedure name
+                        Symbol              -- procedure name
                         [ParameterNode]     -- function parameters
                         [VarDecNode]        -- variable declarations
                         CompoundStmtNode    -- compound statement
 
-data ParameterNode = ParameterNode [SymbolNode] TypeNode
+data ParameterNode = ParameterNode [Symbol] TypeNode
 
 data CompoundStmtNode = CompoundStmtNode [StmtNode]
 
 -- Statement Declaration
 data StmtNode   = AssignStmtNode VariableNode ExprNode
-                | SubprogInvokeStmtNode SymbolNode [ExprNode]
+                | SubprogInvokeStmtNode Symbol [ExprNode]
                 | CompStmtNode CompoundStmtNode
                 | BranchStmtNode ExprNode StmtNode StmtNode
                 | LoopStmtNode ExprNode StmtNode
 
-data VariableNode = VariableNode SymbolNode [ExprNode] -- e.g. a[1+2][3*4]
+data VariableNode = VariableNode Symbol [ExprNode] -- e.g. a[1+2][3*4]
 
 data ExprNode   = UnaryExprNode SimpleExprNode
                 | BinaryExprNode SimpleExprNode RelOpNode SimpleExprNode
@@ -73,11 +72,11 @@ data TermNode   = FactorTermNode FactorNode
                 | OpTermNode TermNode MulOpNode FactorNode
                 | NegTermNode FactorNode
 
-data FactorNode = ArrayAccessFactorNode     SymbolNode [ExprNode]   -- id[]
-                | SubprogInvokeFactorNode   SymbolNode [ExprNode]   -- id()
+data FactorNode = ArrayAccessFactorNode     Symbol [ExprNode]   -- id[]
+                | SubprogInvokeFactorNode   Symbol [ExprNode]   -- id()
                 | NumFactorNode             NumberNode
-                | SubFactorNode             ExprNode                -- ( ... )
-                | NotFactorNode             FactorNode              -- -id
+                | SubFactorNode             ExprNode            -- ( ... )
+                | NotFactorNode             FactorNode          -- -id
 
 data AddOpNode = Plus | Minus
 data MulOpNode = Mul | Div

@@ -24,7 +24,7 @@ instance HasOccurrence CompoundStmtNode where
 
 instance HasOccurrence StmtNode where
     getOccurrence (AssignStmtNode var expr) = getOccurrence var ++ getOccurrence expr
-    getOccurrence (SubprogInvokeStmtNode sym exprs) = toOccurrence sym : (exprs >>= getOccurrence)
+    getOccurrence (SubprogInvokeStmtNode sym exprs) = sym : (exprs >>= getOccurrence)
     getOccurrence (CompStmtNode stmts) = getOccurrence stmts
     getOccurrence (BranchStmtNode predExpr thenStmt elseStmt) =
             getOccurrence predExpr
@@ -33,7 +33,7 @@ instance HasOccurrence StmtNode where
     getOccurrence (LoopStmtNode expr stmt) = getOccurrence expr ++ getOccurrence stmt
 
 instance HasOccurrence VariableNode where
-    getOccurrence (VariableNode sym exprs) = toOccurrence sym : (exprs >>= getOccurrence)
+    getOccurrence (VariableNode sym exprs) = sym : (exprs >>= getOccurrence)
 
 instance HasOccurrence ExprNode where
     getOccurrence (UnaryExprNode expr) = getOccurrence expr
@@ -49,8 +49,8 @@ instance HasOccurrence TermNode where
     getOccurrence (NegTermNode factor) = getOccurrence factor
 
 instance HasOccurrence FactorNode where
-    getOccurrence (ArrayAccessFactorNode   sym exprs) = toOccurrence sym : (exprs >>= getOccurrence)
-    getOccurrence (SubprogInvokeFactorNode sym exprs) = toOccurrence sym : (exprs >>= getOccurrence)
+    getOccurrence (ArrayAccessFactorNode   sym exprs) = sym : (exprs >>= getOccurrence)
+    getOccurrence (SubprogInvokeFactorNode sym exprs) = sym : (exprs >>= getOccurrence)
     getOccurrence (NumFactorNode num) = []
     getOccurrence (SubFactorNode expr) = getOccurrence expr
     getOccurrence (NotFactorNode factor) = getOccurrence factor

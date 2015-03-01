@@ -16,10 +16,10 @@ collectBinding' (Scope globalDecs subDecs) (Scope _ subOccs) = Scope [] subScope
     where   subScopes = map (uncurry (bindSubScope globalDecs)) (zip subDecs subOccs)
 
 findBinding :: [Set Declaration] -> Occurrence -> Binding
-findBinding decs o@(Occurrence name _) = case find match decs of
+findBinding decs o@(Symbol name _) = case find match decs of
     Just dec -> BoundVar o dec
     Nothing  -> FreeVar o
-    where   match set = decID (Set.findMin set) == name
+    where   match set = symID (decSymbol (Set.findMin set)) == name
 
 bindSubScope :: [Set Declaration] -> SubScope (Set Declaration) -> SubScope Occurrence -> SubScope Binding
 bindSubScope globalDecs (SubScope localDecs _) (SubScope _ occurs) =
