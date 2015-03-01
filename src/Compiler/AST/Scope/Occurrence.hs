@@ -51,7 +51,6 @@ instance HasOccurrence Term where
 instance HasOccurrence Factor where
     getOccurrence (ArrayAccessFactor sym exprs) = sym : (exprs >>= getOccurrence)
     getOccurrence (InvocationFactor  sym exprs) = sym : (exprs >>= getOccurrence)
-    getOccurrence (IntFactor  num) = []
-    getOccurrence (RealFactor num) = []
+    getOccurrence (NumberFactor num) = []
     getOccurrence (SubFactor expr) = getOccurrence expr
     getOccurrence (NotFactor factor) = getOccurrence factor

@@ -73,8 +73,7 @@ data Term = FactorTerm Factor
 
 data Factor = ArrayAccessFactor Symbol [Expression]     -- id[]
             | InvocationFactor  Symbol [Expression]     -- id()
-            | IntFactor         Number
-            | RealFactor        Number
+            | NumberFactor      Literal
             | SubFactor         Expression              -- (...)
             | NotFactor         Factor                  -- -id
 

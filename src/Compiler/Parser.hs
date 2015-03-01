@@ -3,6 +3,7 @@ module Compiler.Parser where
 import Compiler.Type.Token
 import Compiler.Type.Pipeline
 import Compiler.Type.AST
+import Compiler.Type.Symbol
 import Compiler.Lexer
 import Control.Monad.Except
 import Control.Applicative(Applicative(..))
@@ -977,14 +978,14 @@ happyReduction_42 (_ `HappyStk`
 happyReduce_43 = happySpecReduce_1  21 happyReduction_43
 happyReduction_43 (HappyTerminal (Token (TokInt happy_var_1) _))
 	 =  HappyAbsSyn21
-		 (IntFactor happy_var_1
+		 (NumberFactor (IntLiteral (read happy_var_1))
 	)
 happyReduction_43 _  = notHappyAtAll 
 
 happyReduce_44 = happySpecReduce_1  21 happyReduction_44
 happyReduction_44 (HappyTerminal (Token (TokReal happy_var_1) _))
 	 =  HappyAbsSyn21
-		 (RealFactor happy_var_1
+		 (NumberFactor (RealLiteral (read happy_var_1))
 	)
 happyReduction_44 _  = notHappyAtAll 
 

@@ -3,6 +3,7 @@ module Compiler.Parser where
 import Compiler.Type.Token
 import Compiler.Type.Pipeline
 import Compiler.Type.AST
+import Compiler.Type.Symbol
 import Compiler.Lexer
 import Control.Monad.Except
 }
@@ -153,8 +154,8 @@ term
 factor
     : id tail                       { ArrayAccessFactor (toSym $1) $2 }
     | id '(' expression_list ')'    { InvocationFactor (toSym $1) $3 }
-    | int                           { IntFactor $1 }
-    | real                          { RealFactor $1 }
+    | int                           { NumberFactor (IntLiteral (read $1)) }
+    | real                          { NumberFactor (RealLiteral (read $1)) }
     | '(' expression ')'            { SubFactor $2 }
     | not factor                    { NotFactor $2 }
 

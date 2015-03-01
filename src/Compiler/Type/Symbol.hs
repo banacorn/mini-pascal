@@ -60,7 +60,7 @@ data Binding = BoundVar Occurrence (Set Declaration)
 -- Value, for ABT
 
 data Variable = Variable Symbol Declaration
-data Literal = Literal String
+data Literal = IntLiteral Int | RealLiteral Double
 
 
 --------------------------------------------------------------------------------
