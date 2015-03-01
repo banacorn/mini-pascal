@@ -53,7 +53,15 @@ type Occurrence = Symbol
 -- Binding
 
 data Binding = BoundVar Occurrence (Set Declaration)
-             | FreeVar Occurrence
+             | FreeVar  Occurrence
+
+
+--------------------------------------------------------------------------------
+-- Value, for ABT
+
+data Variable = Variable Symbol Declaration
+data Literal = Literal String
+
 
 --------------------------------------------------------------------------------
 -- helper functions

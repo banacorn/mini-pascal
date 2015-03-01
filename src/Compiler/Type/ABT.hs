@@ -11,13 +11,13 @@ data Subprogram = Subprogram
     [Declaration]
     [Statement]
 
-data Statement  = Assignment Variable Expression
-                | Invocation Occurrence [Expression]
+data Statement  = Assignment Assignee Expression
+                | Invocation Variable [Expression]
                 | Compound [Statement]
                 | Branch Expression Statement Statement
                 | Loop Expression Statement
 
-data Variable = Variable Occurrence [Expression]
+data Assignee = Assignee Variable [Expression]
 
 data Expression = UnaryExpression SimpleExpression
                 | BinaryExpression SimpleExpression RelOp SimpleExpression
@@ -29,14 +29,11 @@ data Term = FactorTerm Factor
           | OpTerm Term MulOp Factor
           | NegTerm Factor
 
-data Factor = ArrayAccessFactor Occurrence [Expression]
-            | InvocationFactor  Occurrence [Expression]
-            | NumberFactor      Number
+data Factor = ArrayAccessFactor Variable [Expression]
+            | InvocationFactor  Variable [Expression]
+            | NumberFactor      Literal
             | SubFactor         Expression
             | NotFactor         Factor
-
-data Number = IntNum Int
-            | RealNum Double
 
 data AddOp = Plus | Minus
 data MulOp = Mul | Div
