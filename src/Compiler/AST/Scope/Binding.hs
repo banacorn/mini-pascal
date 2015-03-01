@@ -1,9 +1,9 @@
 module Compiler.AST.Scope.Binding (collectBinding) where
 
 import Compiler.Type
+import Compiler.Type.AST
 import Compiler.AST.Scope.Declaration
 import Compiler.AST.Scope.Occurrence
-
 import              Data.List (find)
 import              Data.Set (Set)
 import qualified    Data.Set as Set

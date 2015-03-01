@@ -2,7 +2,7 @@
 module Compiler.Class.Serializable where
 
 import Compiler.Type
-
+import Compiler.Type.AST (Scope(..), SubScope(..))
 import              Data.List (intercalate, sort)
 import              Data.Set (Set, size, findMin, toList)
 import qualified    Data.Set as Set
@@ -221,119 +221,119 @@ instance Serializable Tok where
 --------------------------------------------------------------------------------
 -- AST instances
 
-instance Serializable ProgramNode where
-    serialize (ProgramNode sym params vars subprogs stmts) = paragraph $
-            0 >>>> [header]
-        ++  1 >>>> vars
-        ++  1 >>>> subprogs
-        ++  1 >>>> [stmts]
-        where
-            header = "program " ++ fst sym ++ "(" ++ paramList ++ ") ;"
-            paramList = intercalate' ", " (map fst params)
-
-instance Serializable VarDecNode where
-    serialize (VarDecNode [] _) = ""
-    serialize (VarDecNode syms t) =
-        "var " ++ ids ++ " : " ++ serialize t ++ ";"
-        where
-            ids = intercalate' ", " (map fst syms)
-
-instance Serializable TypeNode where
-    serialize (BaseTypeNode t) = serialize t
-    serialize (ArrayTypeNode (a, b) t) =
-        "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
-
-instance Serializable StandardTypeNode where
-    serialize IntTypeNode = "int"
-    serialize RealTypeNode = "real"
-    serialize StringTypeNode = "string"
-
-instance Serializable SubprogDecNode where
-    -- function, no parameter
-    serialize (FuncDecNode sym [] typ vars stmts) = paragraph $
-            0 >>>> ["function " ++ fst sym ++ " : " ++ serialize typ ++ ";"]
-        ++  1 >>>> vars
-        ++  1 >>>> [stmts]
-    -- function, with parameters
-    serialize (FuncDecNode sym params typ vars stmts) = paragraph $
-            0 >>>> ["function " ++ fst sym ++ "(" ++ paramList ++ "): " ++ serialize typ ++ ";"]
-        ++  1 >>>> vars
-        ++  1 >>>> [stmts]
-        where   paramList = intercalate' ", " params
-    -- procedure, no paramter
-    serialize (ProcDecNode sym [] vars stmts) = paragraph $
-            0 >>>> ["procedure " ++ fst sym ++ ";"]
-        ++  1 >>>> vars
-        ++  1 >>>> [stmts]
-    -- procedure, with parameters
-    serialize (ProcDecNode sym params vars stmts) = paragraph $
-            0 >>>> ["function " ++ fst sym ++ "(" ++ paramList ++ ");"]
-        ++  1 >>>> vars
-        ++  1 >>>> [stmts]
-        where   paramList = intercalate' ", " params
-
-
-instance Serializable ParameterNode where
-    serialize (ParameterNode syms t) = ids ++ ": " ++ serialize t
-        where   ids = intercalate' ", " (map fst syms)
-
-instance Serializable CompoundStmtNode where
-    serialize (CompoundStmtNode stmts) = paragraph $
-            0 >>>> ["begin"]
-        ++  1 >>>> stmts
-        ++  0 >>>> ["end"]
-instance Serializable StmtNode where
-    serialize (AssignStmtNode v e) = serialize v ++ " := " ++ serialize e
-    serialize (SubprogInvokeStmtNode sym []) = fst sym
-    serialize (SubprogInvokeStmtNode sym exprs) = fst sym ++ "(" ++ exprs' ++ ")"
-        where   exprs' = intercalate' ", " exprs
-    serialize (CompStmtNode stmts) = serialize stmts
-    serialize (BranchStmtNode e s t) = paragraph $
-            0 >>>> ["if " ++ serialize e]
-        ++  1 >>>> ["then " ++ serialize s]
-        ++  1 >>>> ["else " ++ serialize s]
-    serialize (LoopStmtNode e s) = paragraph $
-            0 >>>> ["while " ++ serialize e ++ " do"]
-        ++  1 >>>> [s]
-
-instance Serializable VariableNode where
-    serialize (VariableNode sym es) = fst sym ++ (es >>= showArrayAccess)
-        where   showArrayAccess e = "[" ++ serialize e ++ "]"
-
-instance Serializable ExprNode where
-    serialize (UnaryExprNode e) = serialize e
-    serialize (BinaryExprNode a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
-
-instance Serializable SimpleExprNode where
-    serialize (SimpleExprTermNode t) = serialize t
-    serialize (SimpleExprOpNode a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
-
-instance Serializable TermNode where
-    serialize (FactorTermNode f) = serialize f
-    serialize (OpTermNode a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
-    serialize (NegTermNode f) = "-" ++ serialize f
-
-instance Serializable FactorNode where
-    serialize (ArrayAccessFactorNode sym exprs) = fst sym ++ (exprs >>= showArrayAccess)
-        where   showArrayAccess a = "[" ++ serialize a ++ "]"
-    serialize (SubprogInvokeFactorNode sym exprs)  = fst sym ++ "(" ++ exprs' ++ ")"
-        where   exprs' = intercalate' ", " exprs
-    serialize (NumFactorNode s) = s
-    serialize (SubFactorNode e) = serialize e
-    serialize (NotFactorNode f) = "not " ++ serialize f
-
-instance Serializable AddOpNode where
-    serialize Plus = "+"
-    serialize Minus = "-"
-
-instance Serializable MulOpNode where
-    serialize Mul = "*"
-    serialize Div = "/"
-
-instance Serializable RelOpNode where
-    serialize S = "<"
-    serialize L = ">"
-    serialize E = "="
-    serialize NE = "!="
-    serialize SE = "<="
-    serialize LE = ">="
+-- instance Serializable ProgramNode where
+--     serialize (ProgramNode sym params vars subprogs stmts) = paragraph $
+--             0 >>>> [header]
+--         ++  1 >>>> vars
+--         ++  1 >>>> subprogs
+--         ++  1 >>>> [stmts]
+--         where
+--             header = "program " ++ fst sym ++ "(" ++ paramList ++ ") ;"
+--             paramList = intercalate' ", " (map fst params)
+--
+-- instance Serializable VarDecNode where
+--     serialize (VarDecNode [] _) = ""
+--     serialize (VarDecNode syms t) =
+--         "var " ++ ids ++ " : " ++ serialize t ++ ";"
+--         where
+--             ids = intercalate' ", " (map fst syms)
+--
+-- instance Serializable TypeNode where
+--     serialize (BaseTypeNode t) = serialize t
+--     serialize (ArrayTypeNode (a, b) t) =
+--         "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
+--
+-- instance Serializable StandardTypeNode where
+--     serialize IntTypeNode = "int"
+--     serialize RealTypeNode = "real"
+--     serialize StringTypeNode = "string"
+--
+-- instance Serializable SubprogDecNode where
+--     -- function, no parameter
+--     serialize (FuncDecNode sym [] typ vars stmts) = paragraph $
+--             0 >>>> ["function " ++ fst sym ++ " : " ++ serialize typ ++ ";"]
+--         ++  1 >>>> vars
+--         ++  1 >>>> [stmts]
+--     -- function, with parameters
+--     serialize (FuncDecNode sym params typ vars stmts) = paragraph $
+--             0 >>>> ["function " ++ fst sym ++ "(" ++ paramList ++ "): " ++ serialize typ ++ ";"]
+--         ++  1 >>>> vars
+--         ++  1 >>>> [stmts]
+--         where   paramList = intercalate' ", " params
+--     -- procedure, no paramter
+--     serialize (ProcDecNode sym [] vars stmts) = paragraph $
+--             0 >>>> ["procedure " ++ fst sym ++ ";"]
+--         ++  1 >>>> vars
+--         ++  1 >>>> [stmts]
+--     -- procedure, with parameters
+--     serialize (ProcDecNode sym params vars stmts) = paragraph $
+--             0 >>>> ["function " ++ fst sym ++ "(" ++ paramList ++ ");"]
+--         ++  1 >>>> vars
+--         ++  1 >>>> [stmts]
+--         where   paramList = intercalate' ", " params
+--
+--
+-- instance Serializable ParameterNode where
+--     serialize (ParameterNode syms t) = ids ++ ": " ++ serialize t
+--         where   ids = intercalate' ", " (map fst syms)
+--
+-- instance Serializable CompoundStmtNode where
+--     serialize (CompoundStmtNode stmts) = paragraph $
+--             0 >>>> ["begin"]
+--         ++  1 >>>> stmts
+--         ++  0 >>>> ["end"]
+-- instance Serializable StmtNode where
+--     serialize (AssignStmtNode v e) = serialize v ++ " := " ++ serialize e
+--     serialize (SubprogInvokeStmtNode sym []) = fst sym
+--     serialize (SubprogInvokeStmtNode sym exprs) = fst sym ++ "(" ++ exprs' ++ ")"
+--         where   exprs' = intercalate' ", " exprs
+--     serialize (CompStmtNode stmts) = serialize stmts
+--     serialize (BranchStmtNode e s t) = paragraph $
+--             0 >>>> ["if " ++ serialize e]
+--         ++  1 >>>> ["then " ++ serialize s]
+--         ++  1 >>>> ["else " ++ serialize s]
+--     serialize (LoopStmtNode e s) = paragraph $
+--             0 >>>> ["while " ++ serialize e ++ " do"]
+--         ++  1 >>>> [s]
+--
+-- instance Serializable VariableNode where
+--     serialize (VariableNode sym es) = fst sym ++ (es >>= showArrayAccess)
+--         where   showArrayAccess e = "[" ++ serialize e ++ "]"
+--
+-- instance Serializable ExprNode where
+--     serialize (UnaryExprNode e) = serialize e
+--     serialize (BinaryExprNode a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+--
+-- instance Serializable SimpleExprNode where
+--     serialize (SimpleExprTermNode t) = serialize t
+--     serialize (SimpleExprOpNode a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+--
+-- instance Serializable TermNode where
+--     serialize (FactorTermNode f) = serialize f
+--     serialize (OpTermNode a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+--     serialize (NegTermNode f) = "-" ++ serialize f
+--
+-- instance Serializable FactorNode where
+--     serialize (ArrayAccessFactorNode sym exprs) = fst sym ++ (exprs >>= showArrayAccess)
+--         where   showArrayAccess a = "[" ++ serialize a ++ "]"
+--     serialize (SubprogInvokeFactorNode sym exprs)  = fst sym ++ "(" ++ exprs' ++ ")"
+--         where   exprs' = intercalate' ", " exprs
+--     serialize (NumFactorNode s) = s
+--     serialize (SubFactorNode e) = serialize e
+--     serialize (NotFactorNode f) = "not " ++ serialize f
+--
+-- instance Serializable AddOpNode where
+--     serialize Plus = "+"
+--     serialize Minus = "-"
+--
+-- instance Serializable MulOpNode where
+--     serialize Mul = "*"
+--     serialize Div = "/"
+--
+-- instance Serializable RelOpNode where
+--     serialize S = "<"
+--     serialize L = ">"
+--     serialize E = "="
+--     serialize NE = "!="
+--     serialize SE = "<="
+--     serialize LE = ">="

@@ -1,6 +1,7 @@
 {
 module Compiler.Parser where
 import Compiler.Type
+import Compiler.Type.AST
 import Compiler.Lexer
 import Control.Monad.Except
 }

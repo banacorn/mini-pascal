@@ -1,6 +1,7 @@
 module Compiler.AST.Type (HasType(..)) where
 
 import Compiler.Type
+import Compiler.Type.AST
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasType

@@ -4,7 +4,7 @@ module Compiler.Semantics
     ) where
 
 import Compiler.Type
-
+import Compiler.Type.AST (Scope(..), SubScope(..))
 import              Data.Set (Set, size)
 import              Data.Maybe (mapMaybe)
 

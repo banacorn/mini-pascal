@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -w #-}
 module Compiler.Parser where
 import Compiler.Type
+import Compiler.Type.AST
 import Compiler.Lexer
 import Control.Monad.Except
 import Control.Applicative(Applicative(..))

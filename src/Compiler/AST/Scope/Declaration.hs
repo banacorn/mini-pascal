@@ -2,6 +2,7 @@ module Compiler.AST.Scope.Declaration (collectDeclaration) where
 
 import Compiler.Type
 import Compiler.AST.Type
+import Compiler.Type.AST
 import Compiler.Type.Symbol
 
 import Data.Set (Set)

@@ -3,7 +3,7 @@ module Compiler.Pipeline where
 import Compiler.Type
 import Compiler.Semantics
 import Compiler.Class.Serializable
-
+import Compiler.Type.AST (Scope(..))
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except
 import              Control.Monad.State

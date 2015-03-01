@@ -34,7 +34,7 @@ testA = do
     checkDeclarationDuplicated decScope
     checkVariableUndeclared bindScope
 
-    draw ast
+    -- draw ast
     draw decScope
     draw occScope
     draw bindScope
