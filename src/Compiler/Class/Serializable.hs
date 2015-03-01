@@ -4,7 +4,7 @@ module Compiler.Class.Serializable where
 import Compiler.Type
 
 import              Data.List (intercalate, sort)
-import              Data.Set (Set, size, findMin)
+import              Data.Set (Set, size, findMin, toList)
 import qualified    Data.Set as Set
 import              System.Console.ANSI
 
@@ -135,13 +135,20 @@ instance Serializable PipelineError where
     serialize (ParseError path src tok pos) = paragraphPadded $
             0 >>>> [red "Unable to parse " ++ yellow (serialize tok)]
         ++  1 >>>> toCodeBlocks path src [pos]
-    serialize (DeclarationDuplicationError path src partition) = paragraphPadded $
+    serialize (DeclarationDuplicatedError path src partition) = paragraphPadded $
             0 >>>> [red "Declaration Duplicated: " ++ yellow (serialize i)]
         ++  1 >>>> codeBlocks
-        where   partition' = sort partition              -- sort declarations base on their position
+        where   partition' = sort (toList partition)              -- sort declarations base on their position
                 Declaration t i pos = head partition'    -- get the foremost declaration
                 markPosition declaration = path ++ ":" ++ serialize (decPos declaration)
                 codeBlocks = toCodeBlocks path src (map decPos partition')
+    serialize (VariableUndeclaredError path src (Occurrence name pos)) = paragraphPadded $
+            0 >>>> [red "Variable Undeclared: " ++ yellow (serialize name)]
+        ++  1 >>>> codeBlocks
+        where   codeBlocks = toCodeBlocks path src [pos]
+        -- where   partition' = sort (toList partition)    -- sort declarations base on their position
+        --         Declaration t i pos = head partition'    -- get the foremost declaration
+        --         markPosition declaration = path ++ ":" ++ serialize (decPos declaration)
 
 instance Serializable CodeBlock where
     serialize (CodeBlock path src positions (from, to)) = paragraphPadded $

@@ -4,13 +4,14 @@ import Compiler.Type
 import Compiler.Semantics
 import Compiler.Class.Serializable
 
-import Control.Exception (try, IOException)
-import Control.Monad.Except
-import Control.Monad.State
-import Data.Maybe (fromJust)
-import Data.List (intercalate)
-import System.Environment (getArgs)
-import System.Console.ANSI
+import              Control.Exception (try, IOException)
+import              Control.Monad.Except
+import              Control.Monad.State
+import              Data.Maybe (fromJust)
+import              Data.List (intercalate, sort)
+import              Data.Set (Set, toList)
+import              System.Environment (getArgs)
+import              System.Console.ANSI
 
 --------------------------------------------------------------------------------
 -- get path from command argument
@@ -59,17 +60,26 @@ throwSemanticsError err = do
 
 
 --------------------------------------------------------------------------------
--- Semantics Checking: Declaration Duplication
---  Exception: throws SemanticsError if any declaration duplicated (implicitly)
---  State: saves SemanticsError if there's any
--- checkDeclarationDuplication :: Scope Declaration -> Pipeline ()
--- checkDeclarationDuplication scope = case declarationDuplications scope of
---     [] -> return ()
---     xs -> throwSemanticsError (DeclarationDuplication xs)
+-- Semantics Checking: Declaration Duplicated
+--      Exception: throws SemanticsError if any declaration duplicated (implicitly)
+--      State: saves SemanticsError if there's any
+checkDeclarationDuplicated :: Scope (Set Declaration) -> Pipeline ()
+checkDeclarationDuplicated scope = case declarationDuplicated scope of
+    [] -> return ()
+    xs -> throwSemanticsError (DeclarationDuplicated xs)
+
+-- Semantics Checking: Variable Undeclared
+--      Exception: throws SemanticsError if any declaration undeclared (implicitly)
+--      State: saves SemanticsError if there's any
+checkVariableUndeclared :: Scope Binding -> Pipeline ()
+checkVariableUndeclared scope = case variableUndeclared scope of
+    [] -> return ()
+    xs -> throwSemanticsError (VariableUndeclared xs)
+
 
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?
---  Exception: throws SemanticsError if any semantics error stored in der Zustand
+--      Exception: throws SemanticsError if any semantics error stored in der Zustand
 checkSemantics :: Pipeline () -> Pipeline ()
 checkSemantics f = do
     f
@@ -94,11 +104,12 @@ diagnoseError (Zustand (Just path) _ _) FileErrorClass = [NoSuchFile path]
 diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass (Just (Token (TokError tok) pos))) = [LexError path src tok pos]
 diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass (Just (Token tok pos))) = [ParseError path src tok pos]
 diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass Nothing) = [NotEnoughInput path src]
-diagnoseError (Zustand (Just path) (Just src) err) SemanticsErrorClass = diagnoseSemanticsError path src err
+diagnoseError (Zustand (Just path) (Just src) err) SemanticsErrorClass = diagnoseSemanticsError path src (sort err)
 
 diagnoseSemanticsError :: FilePath -> Source -> [SemanticsError] -> [PipelineError]
-diagnoseSemanticsError path src [] = error "Semantics Error Class raised yet no semantics error found"
-diagnoseSemanticsError path src (DeclarationDuplication ps : xs) = map (DeclarationDuplicationError path src) ps
+diagnoseSemanticsError path src [] = []
+diagnoseSemanticsError path src (DeclarationDuplicated ps : xs) = map (DeclarationDuplicatedError path src) ps ++ diagnoseSemanticsError path src xs
+diagnoseSemanticsError path src (VariableUndeclared ps : xs) = map (VariableUndeclaredError path src) ps ++ diagnoseSemanticsError path src xs
 
 
 draw :: Serializable a => a -> Pipeline ()

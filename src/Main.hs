@@ -29,7 +29,10 @@ testA = do
     let decScope = collectDeclaration ast
     let occScope = collectOccurrence ast
     let bindScope = collectBinding ast
-    -- checkDeclarationDuplication decScope
+
+    checkDeclarationDuplicated decScope
+    checkVariableUndeclared bindScope
+
     draw ast
     draw decScope
     draw occScope

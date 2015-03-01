@@ -5,7 +5,8 @@ import Compiler.Type.Symbol
 import Control.Monad.Except
 import Control.Monad.State
 
-import Data.List (sort)
+import              Data.List (sort)
+import              Data.Set (Set)
 
 --------------------------------------------------------------------------------
 -- State of the compilation process
@@ -33,11 +34,12 @@ data PipelineError  = InvalidArgument           -- EINVAL
                     | NotEnoughInput FilePath Source
                     | LexError FilePath Source String Position
                     | ParseError FilePath Source Tok Position
-                    | DeclarationDuplicationError FilePath Source [Declaration]
-                    deriving Show
+                    | DeclarationDuplicatedError FilePath Source (Set Declaration)
+                    | VariableUndeclaredError FilePath Source Occurrence
 
-data SemanticsError = DeclarationDuplication [[Declaration]]
-    deriving (Eq, Show)
+data SemanticsError = DeclarationDuplicated [Set Declaration]
+                    | VariableUndeclared [Occurrence]
+                    deriving (Eq, Ord)
 
 data CodeBlock = CodeBlock
     {   codeBlockPath :: FilePath

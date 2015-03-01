@@ -40,7 +40,12 @@ instance Ord Declaration where
 data Occurrence = Occurrence
     {   occID  :: String
     ,   occPos :: Position
-    }
+    }   deriving Eq
+
+-- Order Occurrence base on their Position
+instance Ord Occurrence where
+    a `compare` b = occPos a `compare` occPos b
+
 
 
 --------------------------------------------------------------------------------
