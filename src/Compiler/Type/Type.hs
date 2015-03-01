@@ -28,10 +28,8 @@ instance Show HOType where
 
 data Type   = FO FOType
             | HO HOType
-            | Uninferred
             deriving (Eq)
 
 instance Show Type where
     show (FO t) = show t
     show (HO t) = show t
-    show Uninferred = "?"
