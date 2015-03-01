@@ -3,9 +3,6 @@ module Compiler where
 import Compiler.Lexer
 import Compiler.Parser
 import Compiler.Class.Serializable
--- import Compiler.Scope.Declaration
--- import Compiler.Scope.Occurrence
--- import Compiler.Scope.Binding
 import Compiler.Type
 import Compiler.Pipeline
 -- import Compiler.Semantics
@@ -29,12 +26,9 @@ testA = do
         >>= scan
         >>= parse
 
-    -- let decScope = getDeclarationScope ast
-    -- let occScope = getOccurrenceScope ast
-    -- let bindingTree = buildBindingTree [] (Just decScope) occScope
     let decScope = collectDeclaration ast
     let occScope = collectOccurrence ast
-    let bindScope = collectBinding decScope occScope
+    let bindScope = collectBinding ast
     -- checkDeclarationDuplication decScope
     draw ast
     draw decScope

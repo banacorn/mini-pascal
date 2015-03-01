@@ -1,14 +1,18 @@
 module Compiler.AST.Scope.Binding (collectBinding) where
 
 import Compiler.Type
+import Compiler.AST.Scope.Declaration
+import Compiler.AST.Scope.Occurrence
 
 import              Data.List (find)
 import              Data.Set (Set)
 import qualified    Data.Set as Set
 
+collectBinding :: ProgramNode -> Scope (Binding)
+collectBinding p = collectBinding' (collectDeclaration p) (collectOccurrence p)
 
-collectBinding :: Scope (Set Declaration) -> Scope Occurrence -> Scope (Binding)
-collectBinding (Scope globalDecs subDecs) (Scope _ subOccs) = Scope [] subScopes
+collectBinding' :: Scope (Set Declaration) -> Scope Occurrence -> Scope (Binding)
+collectBinding' (Scope globalDecs subDecs) (Scope _ subOccs) = Scope [] subScopes
     where   subScopes = map (uncurry (bindSubScope globalDecs)) (zip subDecs subOccs)
 
 findBinding :: [Set Declaration] -> Occurrence -> Binding
