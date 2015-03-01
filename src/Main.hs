@@ -10,6 +10,7 @@ import Compiler.Type
 import Compiler.Pipeline
 -- import Compiler.Semantics
 import Compiler.AST.Scope.Declaration
+import Compiler.AST.Scope.Occurrence
 
 import Control.Monad.IO.Class
 
@@ -31,10 +32,11 @@ testA = do
     -- let occScope = getOccurrenceScope ast
     -- let bindingTree = buildBindingTree [] (Just decScope) occScope
     let decScope = collectDeclaration ast
+    let occScope = collectOccurrence ast
     -- checkDeclarationDuplication decScope
     draw ast
     draw decScope
-    -- draw occScope
+    draw occScope
     -- draw bindingTree
     -- >>= liftIO . draw
 
