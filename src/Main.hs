@@ -9,7 +9,7 @@ import Compiler.Pipeline
 import Compiler.AST.Scope.Declaration
 import Compiler.AST.Scope.Occurrence
 import Compiler.AST.Scope.Binding
-import Compiler.Type.ABT
+-- import Compiler.Type.ABT
 
 import Control.Monad.IO.Class
 
@@ -30,10 +30,10 @@ testA = do
     let decScope = collectDeclaration ast
     let occScope = collectOccurrence ast
     let bindScope = collectBinding ast
-
-    checkBinding ast $ \ abt ->
-        draw abt
-    -- draw ast
+    --
+    -- checkBinding ast $ \ abt ->
+    --     draw abt
+    draw ast
     -- draw decScope
     -- draw occScope
     -- draw bindScope

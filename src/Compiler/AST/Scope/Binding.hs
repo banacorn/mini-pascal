@@ -8,11 +8,11 @@ import              Data.List (find)
 import              Data.Set (Set)
 import qualified    Data.Set as Set
 
-collectBinding :: RawProgram -> Scope () Binding
+collectBinding :: RawProgram -> Program () Binding
 collectBinding p = collectBinding' (collectDeclaration p) (collectOccurrence p)
 
-collectBinding' :: Scope (Set Declaration) () -> Scope () Occurrence -> Scope () Binding
-collectBinding' (Scope globalDecs subDecs stmts0) (Scope _ subOccs stmts1) = Scope [] subScopes stmts'
+collectBinding' :: Program (Set Declaration) () -> Program () Occurrence -> Program () Binding
+collectBinding' (Program globalDecs subDecs stmts0) (Program _ subOccs stmts1) = Program [] subScopes stmts'
     where   subScopes = map (uncurry (bindSubScope globalDecs)) (zip subDecs subOccs)
             stmts' = bindSubScope globalDecs stmts0 stmts1
 

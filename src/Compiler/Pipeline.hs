@@ -6,8 +6,7 @@ import Compiler.Class.Serializable
 import           Compiler.AST.Scope.Declaration
 import           Compiler.AST.Scope.Binding
 import qualified    Compiler.Type.AST as AST
-import              Compiler.Type.AST (Scope(..), SubScope(..))
-import qualified    Compiler.Type.ABT as ABT
+import              Compiler.Type.AST (Program(..), SubScope(..))
 
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except
@@ -71,7 +70,7 @@ throwSemanticsError err = do
 -- Semantics Checking: Declaration Duplicated
 --      Exception: throws SemanticsError if any declaration duplicated (implicitly)
 --      State: saves SemanticsError if there's any
-checkDeclarationDuplicated :: Scope (Set Declaration) () -> Pipeline ()
+checkDeclarationDuplicated :: Program (Set Declaration) () -> Pipeline ()
 checkDeclarationDuplicated scope = case declarationDuplicated scope of
     [] -> return ()
     xs -> throwSemanticsError (DeclarationDuplicated xs)
@@ -79,13 +78,13 @@ checkDeclarationDuplicated scope = case declarationDuplicated scope of
 -- Semantics Checking: Variable Undeclared
 --      Exception: throws SemanticsError if any declaration undeclared (implicitly)
 --      State: saves SemanticsError if there's any
-checkVariableUndeclared :: Scope () Binding -> Pipeline ()
+checkVariableUndeclared :: Program () Binding -> Pipeline ()
 checkVariableUndeclared scope = case variableUndeclared scope of
     [] -> return ()
     xs -> throwSemanticsError (VariableUndeclared xs)
 
-checkBinding :: AST.RawProgram -> (ABT.Program -> Pipeline ()) -> Pipeline ()
-checkBinding ast f = do
+checkBinding :: AST.RawProgram -> Pipeline ()
+checkBinding ast = do
 
     let decScope = collectDeclaration ast
     let bindScope = collectBinding ast
@@ -96,7 +95,8 @@ checkBinding ast f = do
     errors <- getSemanticsError
 
     if null errors then do
-        f (ABT.fromAST ast)
+        return ()
+        -- f (AST.fromAST ast)
     else do
         return ()
 --------------------------------------------------------------------------------

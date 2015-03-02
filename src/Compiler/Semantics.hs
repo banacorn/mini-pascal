@@ -4,7 +4,7 @@ module Compiler.Semantics
     ) where
 
 import Compiler.Type
-import Compiler.Type.AST (Scope(..), SubScope(..))
+import Compiler.Type.AST (Program(..), SubScope(..))
 import              Data.Set (Set, size)
 import              Data.Maybe (mapMaybe, isNothing)
 
@@ -15,8 +15,8 @@ import              Data.Maybe (mapMaybe, isNothing)
 --      1. both are variables OR both are functions/procedures
 --      2. have the same name
 --      3. at the same level of scope
-declarationDuplicated :: Scope (Set Declaration) () -> [Set Declaration]
-declarationDuplicated (Scope decs subScopes stmts) =
+declarationDuplicated :: Program (Set Declaration) () -> [Set Declaration]
+declarationDuplicated (Program decs subScopes stmts) =
     pickDuplicated decs ++ (subScopes >>= subScopeDeclarationDuplicated)
     where   pickDuplicated = filter ((> 1) . size)
 
@@ -26,8 +26,8 @@ subScopeDeclarationDuplicated (SubScope decs _) = filter ((> 1) . size) decs
 --------------------------------------------------------------------------------
 -- Symbols Undeclared
 
-variableUndeclared :: Scope () Binding -> [Occurrence]
-variableUndeclared (Scope _ subScopes stmts) = (subScopes ++ [stmts]) >>= subScopeVariableUndeclared
+variableUndeclared :: Program () Binding -> [Occurrence]
+variableUndeclared (Program _ subScopes stmts) = (subScopes ++ [stmts]) >>= subScopeVariableUndeclared
 
 subScopeVariableUndeclared :: SubScope () Binding -> [Occurrence]
 subScopeVariableUndeclared (SubScope _ occs) = mapMaybe free occs
