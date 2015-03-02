@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveFunctor #-}
+
 module Compiler.Type.AST where
 
 import Compiler.Type.Token
@@ -120,16 +122,10 @@ data Statement a = Assignment (Assignee a) (Expression a)
                  | Compound [Statement a]
                  | Branch (Expression a) (Statement a) (Statement a)
                  | Loop (Expression a) (Statement a)
-
+                 deriving Functor
 data Assignee a = Assignee a [Expression a] -- e.g. a[1+2][3*4]
+                deriving Functor
 
-
-
--- instance Serializable CompoundStmtNode where
---     serialize (CompoundStmtNode stmts) = paragraph $
---             0 >>>> ["begin"]
---         ++  1 >>>> stmts
---         ++  0 >>>> ["end"]
 instance (Serializable a, Sym a) => Serializable (Statement a) where
     serialize (Assignment v e) = serialize v ++ " := " ++ serialize e
     serialize (Invocation sym []) = getID sym
@@ -152,19 +148,23 @@ instance (Serializable a, Sym a) => Serializable (Assignee a) where
 -- Expression
 data Expression a = UnaryExpression (SimpleExpression a)
                   | BinaryExpression (SimpleExpression a) RelOp (SimpleExpression a)
+                  deriving Functor
 
 data SimpleExpression a = TermSimpleExpression (Term a)
                         | OpSimpleExpression (SimpleExpression a) AddOp (Term a)
+                        deriving Functor
 
 data Term a = FactorTerm (Factor a)
             | OpTerm (Term a) MulOp (Factor a)
             | NegTerm (Factor a)
+            deriving Functor
 
 data Factor a = ArrayAccessFactor a [Expression a]     -- id[]
               | InvocationFactor  a [Expression a]     -- id()
               | NumberFactor      Literal
               | SubFactor         (Expression a)       -- (...)
               | NotFactor         (Factor a)           -- -id
+              deriving Functor
 
 data AddOp = Plus | Minus
 data MulOp = Mul | Div
