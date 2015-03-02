@@ -119,7 +119,7 @@ statement
     : variable ':=' expression                      { Assignment $1 $3 }
     | id                                            { Invocation (toSym $1) [] }
     | id '(' expression_list ')'                    { Invocation (toSym $1) $3 }
-    | compound_statement                            { Compound (CompoundStmt $1) }
+    | compound_statement                            { Compound $1 }
     | if expression then statement else statement   { Branch $2 $4 $6 }
     | while expression do statement                 { Loop $2 $4 }
 

@@ -1,31 +1,30 @@
+ {-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies #-}
+
 module Compiler.AST.Scope.Occurrence (collectOccurrence) where
 
 import Compiler.Type
 import Compiler.Type.AST
 
 collectOccurrence :: Program -> Scope Occurrence
-collectOccurrence (Program _ _ _ subprogs stmts) = Scope [] subScopes
+collectOccurrence (Program _ _ _ subprogs (CompoundStmt stmts)) = Scope [] subScopes
         where
-            subScopes = map subprogamOccurrence subprogs ++ [SubScope [] (getOccurrence stmts)]
+            subScopes = map subprogamOccurrence subprogs ++ [SubScope [] (stmts >>= getOccurrence)]
 
 subprogamOccurrence :: SubprogDec -> SubScope Occurrence
-subprogamOccurrence (FuncDec _ _ _ _ stmts) = SubScope [] (getOccurrence stmts)
-subprogamOccurrence (ProcDec _ _ _ stmts) = SubScope [] (getOccurrence stmts)
+subprogamOccurrence (FuncDec _ _ _ _ (CompoundStmt stmts)) = SubScope [] (stmts >>= getOccurrence)
+subprogamOccurrence (ProcDec _ _ _ (CompoundStmt stmts)) = SubScope [] (stmts >>= getOccurrence)
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasDeclaration
 
-class HasOccurrence a where
-    getOccurrence :: a -> [Occurrence]
+class HasOccurrence n where
+    getOccurrence :: n a -> [a]
     getOccurrence _ = []
-
-instance HasOccurrence CompoundStmt where
-    getOccurrence (CompoundStmt stmts) = stmts >>= getOccurrence
 
 instance HasOccurrence Statement where
     getOccurrence (Assignment var expr) = getOccurrence var ++ getOccurrence expr
     getOccurrence (Invocation sym exprs) = sym : (exprs >>= getOccurrence)
-    getOccurrence (Compound stmts) = getOccurrence stmts
+    getOccurrence (Compound stmts) = stmts >>= getOccurrence
     getOccurrence (Branch predExpr thenStmt elseStmt) =
             getOccurrence predExpr
         ++  getOccurrence thenStmt

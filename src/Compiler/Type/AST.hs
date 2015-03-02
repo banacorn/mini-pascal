@@ -50,32 +50,34 @@ data SubprogDec = FuncDec
 
 data Parameter = Parameter [Symbol] Type
 
-data CompoundStmt = CompoundStmt [Statement]
+data CompoundStmt = CompoundStmt [Statement Symbol]
 
-data Statement  = Assignment Assignee Expression
-                | Invocation Symbol [Expression]
-                | Compound CompoundStmt
-                | Branch Expression Statement Statement
-                | Loop Expression Statement
+-- Statement
+data Statement a = Assignment (Assignee a) (Expression a)
+                 | Invocation a [Expression a]
+                 | Compound [Statement a]
+                 | Branch (Expression a) (Statement a) (Statement a)
+                 | Loop (Expression a) (Statement a)
 
-data Assignee = Assignee Symbol [Expression] -- e.g. a[1+2][3*4]
-
-data Expression = UnaryExpression SimpleExpression
-                | BinaryExpression SimpleExpression RelOp SimpleExpression
-
-data SimpleExpression = TermSimpleExpression Term
-                      | OpSimpleExpression SimpleExpression AddOp Term
-
-data Term = FactorTerm Factor
-          | OpTerm Term MulOp Factor
-          | NegTerm Factor
+data Assignee a = Assignee a [Expression a] -- e.g. a[1+2][3*4]
 
 
-data Factor = ArrayAccessFactor Symbol [Expression]     -- id[]
-            | InvocationFactor  Symbol [Expression]     -- id()
-            | NumberFactor      Literal
-            | SubFactor         Expression              -- (...)
-            | NotFactor         Factor                  -- -id
+-- Expression
+data Expression a = UnaryExpression (SimpleExpression a)
+                  | BinaryExpression (SimpleExpression a) RelOp (SimpleExpression a)
+
+data SimpleExpression a = TermSimpleExpression (Term a)
+                        | OpSimpleExpression (SimpleExpression a) AddOp (Term a)
+
+data Term a = FactorTerm (Factor a)
+            | OpTerm (Term a) MulOp (Factor a)
+            | NegTerm (Factor a)
+
+data Factor a = ArrayAccessFactor a [Expression a]     -- id[]
+              | InvocationFactor  a [Expression a]     -- id()
+              | NumberFactor      Literal
+              | SubFactor         (Expression a)       -- (...)
+              | NotFactor         (Factor a)           -- -id
 
 data AddOp = Plus | Minus
 data MulOp = Mul | Div

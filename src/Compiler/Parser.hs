@@ -836,7 +836,7 @@ happyReduction_25 (_ `HappyStk`
 happyReduce_26 = happySpecReduce_1  14 happyReduction_26
 happyReduction_26 (HappyAbsSyn12  happy_var_1)
 	 =  HappyAbsSyn14
-		 (Compound (CompoundStmt happy_var_1)
+		 (Compound happy_var_1
 	)
 happyReduction_26 _  = notHappyAtAll 
 
