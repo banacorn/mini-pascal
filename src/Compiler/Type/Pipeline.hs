@@ -2,11 +2,15 @@ module Compiler.Type.Pipeline where
 
 import Compiler.Type.Token
 import Compiler.Type.Symbol
+import Compiler.Class.Serializable
+
 import Control.Monad.Except
 import Control.Monad.State
 
+
 import              Data.List (sort)
 import              Data.Set (Set)
+import qualified    Data.Set as Set
 
 --------------------------------------------------------------------------------
 -- State of the compilation process
@@ -36,6 +40,35 @@ data PipelineError  = InvalidArgument           -- EINVAL
                     | ParseError FilePath Source Tok Position
                     | DeclarationDuplicatedError FilePath Source (Set Declaration)
                     | VariableUndeclaredError FilePath Source Occurrence
+
+instance Serializable PipelineError where
+    serialize InvalidArgument =  paragraphPadded $
+            0 >>>> ["invalid argument"]
+    serialize (NoSuchFile path) = paragraphPadded $
+            0 >>>> ["no such path: " ++ yellow path]
+    serialize (NotEnoughInput path src) = paragraphPadded $
+            0 >>>> [path ++ ":"]
+        ++  1 >>>> ["Not enough input"]
+    serialize (LexError path src tok pos) = paragraphPadded $
+            0 >>>> [red "Unrecognizable token: " ++ yellow tok]
+        ++  1 >>>> toCodeBlocks path src [pos]
+    serialize (ParseError path src tok pos) = paragraphPadded $
+            0 >>>> [red "Unable to parse " ++ yellow (serialize tok)]
+        ++  1 >>>> toCodeBlocks path src [pos]
+    serialize (DeclarationDuplicatedError path src partition) = paragraphPadded $
+            0 >>>> [red "Declaration Duplicated: " ++ yellow (serialize name)]
+        ++  1 >>>> codeBlocks
+        where   partition' = sort (Set.toList partition)              -- sort declarations base on their position
+                Declaration (Symbol name pos) typ = head partition'    -- get the foremost declaration
+                markPosition declaration = path ++ ":" ++ serialize (symPos (decSymbol declaration))
+                codeBlocks = toCodeBlocks path src (map (symPos . decSymbol) partition')
+    serialize (VariableUndeclaredError path src (Symbol name pos)) = paragraphPadded $
+            0 >>>> [red "Variable Undeclared: " ++ yellow (serialize name)]
+        ++  1 >>>> codeBlocks
+        where   codeBlocks = toCodeBlocks path src [pos]
+        -- where   partition' = sort (toList partition)    -- sort declarations base on their position
+        --         Declaration t i pos = head partition'    -- get the foremost declaration
+        --         markPosition declaration = path ++ ":" ++ serialize (decPos declaration)
 
 data SemanticsError = DeclarationDuplicated [Set Declaration]
                     | VariableUndeclared [Occurrence]
@@ -68,3 +101,26 @@ toCodeBlocks path src ps = mergeCodeBlocks $ map (toCodeBlock path src) (sort ps
         mergeCodeBlocks (CodeBlock p s pos (m, n) : CodeBlock p' s' pos' (m', n') : xs)
             | n >= m' && p == p' && s == s' = CodeBlock p s (pos ++ pos') (m, n') : mergeCodeBlocks xs -- overlap
             | otherwise = CodeBlock p s pos (m, n ) : CodeBlock p' s' pos' (m', n') : mergeCodeBlocks xs
+
+instance Serializable CodeBlock where
+    serialize (CodeBlock path src positions (from, to)) = paragraphPadded $
+            0 >>>> (map markPosition positions)
+        ++  0 >>>> ["----------------------------------------------------------------"]
+        ++  0 >>>> numberedLines
+        where   markPosition pos = path ++ ":" ++ serialize pos
+                colouredSource = colourSource 0 positions src
+                markedLines = drop from (take to (lines colouredSource))
+
+
+                numberedLines = zipWith (++) lineNumberStrs markedLines
+                lineNumbers = [from + 1 .. to + 1]
+                lineNumberStrs = map (dull . fillSpace . show) lineNumbers
+                    where   widest = length (show (to + 1))     -- the longest line number
+                            fillSpace s = replicate (widest - length s) ' ' ++ s ++ " "
+
+                colourSource _ [] source = source
+                colourSource i (Position o n _ _ : xs) source =
+                    (pre ++ yellow mid) ++ colourSource (i + o + n) xs post
+                    where   pre = take (o - i) source
+                            mid = take n (drop (o - i) source)
+                            post = drop n (drop (o - i) source)
