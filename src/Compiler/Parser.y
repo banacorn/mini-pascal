@@ -61,7 +61,7 @@ import Control.Monad.Except
 
 program
     : progtok id '(' identifier_list ')' ';' variable_declarations subprogram_declarations compound_statement '.' {
-        Program (toSym $2) (reverse $4) (reverse $7) (reverse $8) (CompoundStmt $9)
+        Program (toSym $2) (reverse $4) (reverse $7) (reverse $8) $9
     }
 
 
@@ -93,13 +93,13 @@ subprogram_declarations
 
 subprogram_declaration
     : function id ':' standard_type ';' variable_declarations compound_statement
-        { FuncDec (toSym $2) [] $4 $6 (CompoundStmt $7) }
+        { FuncDec (toSym $2) [] $4 $6 $7 }
     | function id '(' parameter_list ')' ':' standard_type ';' variable_declarations compound_statement
-        { FuncDec (toSym $2) $4 $7 $9 (CompoundStmt $10) }
+        { FuncDec (toSym $2) $4 $7 $9 $10 }
     | procedure id ';' variable_declarations compound_statement
-        { ProcDec (toSym $2) [] $4 (CompoundStmt $5) }
+        { ProcDec (toSym $2) [] $4 $5 }
     | procedure id '(' parameter_list ')' ';' variable_declarations compound_statement
-        { ProcDec (toSym $2) $4 $7 (CompoundStmt $8) }
+        { ProcDec (toSym $2) $4 $7 $8 }
 
 parameter_list
     : identifier_list ':' type                      { Parameter $1 $3 : [] }

@@ -614,7 +614,7 @@ happyReduction_1 (_ `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn4
-		 (Program (toSym happy_var_2) (reverse happy_var_4) (reverse happy_var_7) (reverse happy_var_8) (CompoundStmt happy_var_9)
+		 (Program (toSym happy_var_2) (reverse happy_var_4) (reverse happy_var_7) (reverse happy_var_8) happy_var_9
 	) `HappyStk` happyRest
 
 happyReduce_2 = happySpecReduce_1  5 happyReduction_2
@@ -713,7 +713,7 @@ happyReduction_13 ((HappyAbsSyn12  happy_var_7) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn10
-		 (FuncDec (toSym happy_var_2) [] happy_var_4 happy_var_6 (CompoundStmt happy_var_7)
+		 (FuncDec (toSym happy_var_2) [] happy_var_4 happy_var_6 happy_var_7
 	) `HappyStk` happyRest
 
 happyReduce_14 = happyReduce 10 10 happyReduction_14
@@ -729,7 +729,7 @@ happyReduction_14 ((HappyAbsSyn12  happy_var_10) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn10
-		 (FuncDec (toSym happy_var_2) happy_var_4 happy_var_7 happy_var_9 (CompoundStmt happy_var_10)
+		 (FuncDec (toSym happy_var_2) happy_var_4 happy_var_7 happy_var_9 happy_var_10
 	) `HappyStk` happyRest
 
 happyReduce_15 = happyReduce 5 10 happyReduction_15
@@ -740,7 +740,7 @@ happyReduction_15 ((HappyAbsSyn12  happy_var_5) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn10
-		 (ProcDec (toSym happy_var_2) [] happy_var_4 (CompoundStmt happy_var_5)
+		 (ProcDec (toSym happy_var_2) [] happy_var_4 happy_var_5
 	) `HappyStk` happyRest
 
 happyReduce_16 = happyReduce 8 10 happyReduction_16
@@ -754,7 +754,7 @@ happyReduction_16 ((HappyAbsSyn12  happy_var_8) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn10
-		 (ProcDec (toSym happy_var_2) happy_var_4 happy_var_7 (CompoundStmt happy_var_8)
+		 (ProcDec (toSym happy_var_2) happy_var_4 happy_var_7 happy_var_8
 	) `HappyStk` happyRest
 
 happyReduce_17 = happySpecReduce_3  11 happyReduction_17

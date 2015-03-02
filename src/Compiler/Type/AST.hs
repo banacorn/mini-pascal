@@ -24,7 +24,7 @@ data Program =
         [Symbol]        -- program arguments
         [VarDec]        -- variable declarations
         [SubprogDec]    -- subprogram declarations
-        CompoundStmt    -- compound statement
+        [Statement Symbol] -- compound statement
 
 -- Type
 data Type   = BaseType StandardType
@@ -41,16 +41,14 @@ data SubprogDec = FuncDec
                     [Parameter]     -- function parameters
                     StandardType    -- function return type
                     [VarDec]        -- variable declarations
-                    CompoundStmt    -- compound statement
+                    [Statement Symbol]    -- compound statement
                 | ProcDec
                     Symbol          -- procedure name
                     [Parameter]     -- function parameters
                     [VarDec]        -- variable declarations
-                    CompoundStmt    -- compound statement
+                    [Statement Symbol]    -- compound statement
 
 data Parameter = Parameter [Symbol] Type
-
-data CompoundStmt = CompoundStmt [Statement Symbol]
 
 -- Statement
 data Statement a = Assignment (Assignee a) (Expression a)
