@@ -8,12 +8,12 @@ import Compiler.Type.Symbol
 import Data.Set (Set)
 
 collectDeclaration :: Program -> Scope (Set Declaration) ()
-collectDeclaration (Program _ params vars subprogs _) = Scope (partite decs) subScopes
+collectDeclaration (Program _ params vars subprogs _) = Scope (partite decs) subScopes (SubScope [] [])
         where
             decs =  (map (flip Declaration (Type [ProgramParamType])) params)
                  ++ (vars     >>= fromVars)
                  ++ (subprogs >>= fromSubprogs)
-            subScopes = map subprogamDeclaration subprogs ++ [SubScope [] []]
+            subScopes = map subprogamDeclaration subprogs
             fromVars (VarDec ids t) = map (flip Declaration (getType t)) ids
             fromSubprogs n@(FuncDec sym _ ret _ _) = [Declaration sym (getType n)]
             fromSubprogs n@(ProcDec sym _     _ _) = [Declaration sym (getType n)]

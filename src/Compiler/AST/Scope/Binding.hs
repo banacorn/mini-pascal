@@ -12,8 +12,9 @@ collectBinding :: Program -> Scope () Binding
 collectBinding p = collectBinding' (collectDeclaration p) (collectOccurrence p)
 
 collectBinding' :: Scope (Set Declaration) () -> Scope () Occurrence -> Scope () Binding
-collectBinding' (Scope globalDecs subDecs) (Scope _ subOccs) = Scope [] subScopes
+collectBinding' (Scope globalDecs subDecs stmts0) (Scope _ subOccs stmts1) = Scope [] subScopes stmts'
     where   subScopes = map (uncurry (bindSubScope globalDecs)) (zip subDecs subOccs)
+            stmts' = bindSubScope globalDecs stmts0 stmts1
 
 findBinding :: [Set Declaration] -> Occurrence -> Binding
 findBinding decs o@(Symbol name _) = case find match decs of

@@ -214,18 +214,20 @@ instance Serializable RelOp where
 -- Scope structure for indicating variable declarations and occurrences
 
 data Scope dec stmt = Scope
-    [dec]             --  program parameters, variable and subprogram declarations
-    [SubScope dec stmt]    --  subprogram and compound statement
+    [dec]               --  program parameters, variable and subprogram declarations
+    [SubScope dec stmt] --  subprogram
+    (SubScope dec stmt) --  compound statement
 
 data SubScope dec stmt = SubScope
     [dec]             --  variable and subprogram declarations
     [stmt]             --  compound statement
 
 instance (Serializable a, Serializable b) => Serializable (Scope a b) where
-    serialize (Scope decs subScopes) = paragraph $
+    serialize (Scope decs subScopes stmts) = paragraph $
             0 >>>> ["Program"]
         ++  1 >>>> decs
         ++  1 >>>> subScopes
+        ++  1 >>>> [stmts]
 
 instance (Serializable a, Serializable b) => Serializable (SubScope a b) where
     serialize (SubScope decs stmts) = paragraph $
@@ -234,7 +236,7 @@ instance (Serializable a, Serializable b) => Serializable (SubScope a b) where
         ++  1 >>>> stmts
 
 instance Bifunctor Scope where
-    bimap f g (Scope as subs) = Scope (map f as) (map (bimap f g) subs)
+    bimap f g (Scope as subprogs stmts) = Scope (map f as) (map (bimap f g) subprogs) (bimap f g stmts)
 
 instance Bifunctor SubScope where
     bimap f g (SubScope as bs) = SubScope (map f as) (map g bs)

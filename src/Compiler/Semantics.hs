@@ -16,7 +16,7 @@ import              Data.Maybe (mapMaybe, isNothing)
 --      2. have the same name
 --      3. at the same level of scope
 declarationDuplicated :: Scope (Set Declaration) () -> [Set Declaration]
-declarationDuplicated (Scope decs subScopes) =
+declarationDuplicated (Scope decs subScopes stmts) =
     pickDuplicated decs ++ (subScopes >>= subScopeDeclarationDuplicated)
     where   pickDuplicated = filter ((> 1) . size)
 
@@ -27,7 +27,7 @@ subScopeDeclarationDuplicated (SubScope decs _) = filter ((> 1) . size) decs
 -- Symbols Undeclared
 
 variableUndeclared :: Scope () Binding -> [Occurrence]
-variableUndeclared (Scope _ subScopes) = subScopes >>= subScopeVariableUndeclared
+variableUndeclared (Scope _ subScopes stmts) = (subScopes ++ [stmts]) >>= subScopeVariableUndeclared
 
 subScopeVariableUndeclared :: SubScope () Binding -> [Occurrence]
 subScopeVariableUndeclared (SubScope _ occs) = mapMaybe free occs

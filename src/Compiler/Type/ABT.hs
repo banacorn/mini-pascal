@@ -35,10 +35,10 @@ instance Serializable Subprogram where
 fromAST :: AST.Program -> Program
 fromAST p@(AST.Program _ _ _ subprogs _) = Program
     decs
-    (map toSubprogram (init subScopes))
+    (map toSubprogram subScopes)
     []
     where
-        AST.Scope decs subScopes = first Set.findMin (collectDeclaration p)
+        AST.Scope decs subScopes stmts = first Set.findMin (collectDeclaration p)
         -- AST.Scope decs subScopes = fmap Set.findMin (collectDeclaration p)
         toSubprogram :: AST.SubScope Declaration () -> Subprogram
         toSubprogram (AST.SubScope decs _) = Subprogram decs []

@@ -6,9 +6,9 @@ import Compiler.Type
 import Compiler.Type.AST
 
 collectOccurrence :: Program -> Scope () Occurrence
-collectOccurrence (Program _ _ _ subprogs stmts) = Scope [] subScopes
+collectOccurrence (Program _ _ _ subprogs stmts) = Scope [] subScopes (SubScope [] (stmts >>= getOccurrence))
         where
-            subScopes = map subprogamOccurrence subprogs ++ [SubScope [] (stmts >>= getOccurrence)]
+            subScopes = map subprogamOccurrence subprogs
 
 subprogamOccurrence :: SubprogDec -> SubScope () Occurrence
 subprogamOccurrence (FuncDec _ _ _ _ stmts) = SubScope [] (stmts >>= getOccurrence)
