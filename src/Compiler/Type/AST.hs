@@ -15,8 +15,6 @@ toSym (Token (TokID i) p) = Symbol i p
 --------------------------------------------------------------------------------
 -- Abstract Syntax Tree
 
-type Number = String
-
 -- Program Declaration
 data Program =
     Program
@@ -27,19 +25,22 @@ data Program =
         [Statement Symbol] -- compound statement
 
 -- Type
-data Type   = BaseType StandardType
-            | ArrayType (Number, Number) Type
+type Number = String
+data Type   = Basic BasicType
+            | Array (Number, Number) Type
+data BasicType = IntType | RealType | StringType
 
-data StandardType = IntType | RealType | StringType
 
--- Variable Declaration
+-- Variable & Parameter Declaration
 data VarDec = VarDec [Symbol] Type
+data Parameter = Parameter [Symbol] Type
+
 
 -- Subprogram Declaration
 data SubprogDec = FuncDec
                     Symbol          -- function name
                     [Parameter]     -- function parameters
-                    StandardType    -- function return type
+                    BasicType    -- function return type
                     [VarDec]        -- variable declarations
                     [Statement Symbol]    -- compound statement
                 | ProcDec
@@ -48,7 +49,7 @@ data SubprogDec = FuncDec
                     [VarDec]        -- variable declarations
                     [Statement Symbol]    -- compound statement
 
-data Parameter = Parameter [Symbol] Type
+--------------------------------------------------------------------------------
 
 -- Statement
 data Statement a = Assignment (Assignee a) (Expression a)

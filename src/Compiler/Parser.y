@@ -76,8 +76,8 @@ variable_declarations
 
 
 type
-    : standard_type                          { BaseType $1 }
-    | array '[' int '..' int ']' of type     { ArrayType ($3, $5) $8 }
+    : standard_type                          { Basic $1 }
+    | array '[' int '..' int ']' of type     { Array ($3, $5) $8 }
 
 
 standard_type

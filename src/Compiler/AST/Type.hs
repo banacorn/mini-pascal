@@ -11,14 +11,14 @@ import Data.Monoid
 class HasType a where
     getType :: a -> Type
 
-instance HasType AST.StandardType where
+instance HasType AST.BasicType where
     getType AST.IntType    = Type [IntegerType]
     getType AST.RealType   = Type [RealType]
     getType AST.StringType = Type [StringType]
 
 instance HasType AST.Type where
-    getType (AST.BaseType t) = getType t
-    getType (AST.ArrayType range t) = let Type [t'] = getType t in Type [ArrayType range t']
+    getType (AST.Basic t) = getType t
+    getType (AST.Array range t) = let Type [t'] = getType t in Type [ArrayType range t']
 
 instance HasType AST.SubprogDec where
     getType (AST.FuncDec _ params ret _ _) = mconcat (map getType params) <> getType ret
