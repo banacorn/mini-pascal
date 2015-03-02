@@ -4,7 +4,7 @@ module Compiler.Semantics
     ) where
 
 import Compiler.Type
-import Compiler.Type.AST (Program(..), SubScope(..))
+import Compiler.Type.AST (Program(..), Subprogram(..))
 import              Data.Set (Set, size)
 import              Data.Maybe (mapMaybe, isNothing)
 
@@ -20,8 +20,8 @@ declarationDuplicated (Program decs subScopes stmts) =
     pickDuplicated decs ++ (subScopes >>= subScopeDeclarationDuplicated)
     where   pickDuplicated = filter ((> 1) . size)
 
-subScopeDeclarationDuplicated :: SubScope (Set Declaration) () -> [Set Declaration]
-subScopeDeclarationDuplicated (SubScope decs _) = filter ((> 1) . size) decs
+subScopeDeclarationDuplicated :: Subprogram (Set Declaration) () -> [Set Declaration]
+subScopeDeclarationDuplicated (Subprogram decs _) = filter ((> 1) . size) decs
 
 --------------------------------------------------------------------------------
 -- Symbols Undeclared
@@ -29,7 +29,7 @@ subScopeDeclarationDuplicated (SubScope decs _) = filter ((> 1) . size) decs
 variableUndeclared :: Program () Binding -> [Occurrence]
 variableUndeclared (Program _ subScopes stmts) = (subScopes ++ [stmts]) >>= subScopeVariableUndeclared
 
-subScopeVariableUndeclared :: SubScope () Binding -> [Occurrence]
-subScopeVariableUndeclared (SubScope _ occs) = mapMaybe free occs
+subScopeVariableUndeclared :: Subprogram () Binding -> [Occurrence]
+subScopeVariableUndeclared (Subprogram _ occs) = mapMaybe free occs
     where   free (FreeVar occ) = Just occ
             free _             = Nothing

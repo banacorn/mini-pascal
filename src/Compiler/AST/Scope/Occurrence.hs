@@ -6,13 +6,13 @@ import Compiler.Type
 import Compiler.Type.AST
 
 collectOccurrence :: RawProgram -> Program () Occurrence
-collectOccurrence (RawProgram _ _ _ subprogs stmts) = Program [] subScopes (SubScope [] (stmts >>= getOccurrence))
+collectOccurrence (RawProgram _ _ _ subprogs stmts) = Program [] subprogs' (Subprogram [] (stmts >>= getOccurrence))
         where
-            subScopes = map subprogamOccurrence subprogs
+            subprogs' = map subprogramOccurrence subprogs
 
-subprogamOccurrence :: SubprogDec -> SubScope () Occurrence
-subprogamOccurrence (FuncDec _ _ _ _ stmts) = SubScope [] (stmts >>= getOccurrence)
-subprogamOccurrence (ProcDec _ _ _ stmts) = SubScope [] (stmts >>= getOccurrence)
+subprogramOccurrence :: SubprogDec -> Subprogram () Occurrence
+subprogramOccurrence (FuncDec _ _ _ _ stmts) = Subprogram [] (stmts >>= getOccurrence)
+subprogramOccurrence (ProcDec _ _ _ stmts) = Subprogram [] (stmts >>= getOccurrence)
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasDeclaration

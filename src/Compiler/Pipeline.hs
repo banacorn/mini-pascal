@@ -6,7 +6,7 @@ import Compiler.Class.Serializable
 import           Compiler.AST.Scope.Declaration
 import           Compiler.AST.Scope.Binding
 import qualified    Compiler.Type.AST as AST
-import              Compiler.Type.AST (Program(..), SubScope(..))
+import              Compiler.Type.AST (Program(..), Subprogram(..))
 
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except

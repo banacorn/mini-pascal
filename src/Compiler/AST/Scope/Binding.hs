@@ -22,6 +22,6 @@ findBinding decs o@(Symbol name _) = case find match decs of
     Nothing  -> FreeVar o
     where   match set = symID (decSymbol (Set.findMin set)) == name
 
-bindSubScope :: [Set Declaration] -> SubScope (Set Declaration) () -> SubScope () Occurrence -> SubScope () Binding
-bindSubScope globalDecs (SubScope localDecs _) (SubScope _ occurs) =
-    SubScope [] (map (findBinding (localDecs ++ globalDecs)) occurs)
+bindSubScope :: [Set Declaration] -> Subprogram (Set Declaration) () -> Subprogram () Occurrence -> Subprogram () Binding
+bindSubScope globalDecs (Subprogram localDecs _) (Subprogram _ occurs) =
+    Subprogram [] (map (findBinding (localDecs ++ globalDecs)) occurs)

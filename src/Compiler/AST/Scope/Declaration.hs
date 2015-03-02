@@ -8,24 +8,24 @@ import Compiler.Type.Symbol
 import Data.Set (Set)
 
 collectDeclaration :: RawProgram -> Program (Set Declaration) ()
-collectDeclaration (RawProgram _ params vars subprogs _) = Program (partite decs) subScopes (SubScope [] [])
+collectDeclaration (RawProgram _ params vars subprogs _) = Program (partite decs) subprogs' (Subprogram [] [])
         where
             decs =  (map (flip Declaration (Type [ProgramParamType])) params)
                  ++ (vars     >>= fromVars)
                  ++ (subprogs >>= fromSubprogs)
-            subScopes = map subprogamDeclaration subprogs
+            subprogs' = map subprogramDeclaration subprogs
             fromVars (VarDec ids t) = map (flip Declaration (getType t)) ids
             fromSubprogs n@(FuncDec sym _ ret _ _) = [Declaration sym (getType n)]
             fromSubprogs n@(ProcDec sym _     _ _) = [Declaration sym (getType n)]
 
-subprogamDeclaration :: SubprogDec -> SubScope (Set Declaration) ()
-subprogamDeclaration (FuncDec sym params ret vars stmt) = SubScope (partite decs) []
+subprogramDeclaration :: SubprogDec -> Subprogram (Set Declaration) ()
+subprogramDeclaration (FuncDec sym params ret vars stmt) = Subprogram (partite decs) []
     where
         decs = (params >>= fromParams) ++ (vars >>= fromVars)
         fromParams (Parameter ids t) = map (flip Declaration (getType t)) ids
         fromVars   (VarDec    ids t) = map (flip Declaration (getType t)) ids
 
-subprogamDeclaration (ProcDec sym params vars stmt) = SubScope (partite decs) []
+subprogramDeclaration (ProcDec sym params vars stmt) = Subprogram (partite decs) []
     where
         decs = (params >>= fromParams) ++ (vars >>= fromVars)
         fromParams (Parameter ids t) = map (flip Declaration (getType t)) ids
