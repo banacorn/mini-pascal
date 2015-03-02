@@ -3,13 +3,13 @@ PROGRAM foo(input, output, error) ;
    var a, b, c: integer;
    var d, e: array [ 1 .. 10 ] of integer;
    var g, h: real;
-   var k, b: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real;
+   var k: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real;
 
    // procedure and function declarations
    procedure sort(a: array [ 1 .. 10 ] of integer);
-      var a, b, c: integer; // duplicated declaration
+      var b, c: integer; // duplicated declaration
       begin
-        e := z   // array assignment, global variable
+        e := a  // array assignment, global variable
       end;
 
 
@@ -23,7 +23,7 @@ PROGRAM foo(input, output, error) ;
       a := 1;
       while a < 10 do
       begin
-         sum := sum + a;
+         // sum := sum + a;
          a   := a + 1
       end;
       begin  // nested compound statement

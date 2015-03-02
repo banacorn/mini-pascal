@@ -3,7 +3,12 @@ module Compiler.Pipeline where
 import Compiler.Type
 import Compiler.Semantics
 import Compiler.Class.Serializable
-import Compiler.Type.AST (Scope(..))
+import           Compiler.AST.Scope.Declaration
+import           Compiler.AST.Scope.Binding
+import qualified    Compiler.Type.AST as AST
+import              Compiler.Type.AST (Scope(..), SubScope(..))
+import qualified    Compiler.Type.ABT as ABT
+
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except
 import              Control.Monad.State
@@ -79,13 +84,19 @@ checkVariableUndeclared scope = case variableUndeclared scope of
     [] -> return ()
     xs -> throwSemanticsError (VariableUndeclared xs)
 
-checkBinding :: Scope (Set Declaration) -> Scope Binding -> Pipeline ()
-checkBinding decScope bindScope = do
+checkBinding :: AST.Program -> (ABT.Program -> Pipeline ()) -> Pipeline ()
+checkBinding ast f = do
+
+    let decScope = collectDeclaration ast
+    let bindScope = collectBinding ast
+
     checkDeclarationDuplicated decScope
     checkVariableUndeclared bindScope
+
     errors <- getSemanticsError
+
     if null errors then do
-        return ()
+        f (ABT.fromAST ast)
     else do
         return ()
 --------------------------------------------------------------------------------

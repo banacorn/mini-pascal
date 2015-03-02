@@ -88,6 +88,9 @@ instance Sym Variable where
     getID (Variable s _) = getID s
     getPos (Variable _ p) = getPos p
 
+instance Serializable Variable where
+    serialize (Variable sym dec) = serialize sym ++ " ==> " ++ serialize dec
+
 data Literal = IntLiteral Int | RealLiteral Double
 
 instance Serializable Literal where

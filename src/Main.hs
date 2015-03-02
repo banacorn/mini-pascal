@@ -31,7 +31,8 @@ testA = do
     let occScope = collectOccurrence ast
     let bindScope = collectBinding ast
 
-    checkBinding decScope bindScope
+    checkBinding ast $ \ abt ->
+        draw abt
     -- draw ast
     -- draw decScope
     -- draw occScope

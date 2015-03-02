@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveFunctor #-}
+
 module Compiler.Type.AST where
 
 import Compiler.Type.Token
@@ -215,10 +217,12 @@ instance Serializable RelOp where
 data Scope a = Scope
     [a]             --  program parameters, variable and subprogram declarations
     [SubScope a]    --  subprogram and compound statement
+    deriving Functor
 
 data SubScope a = SubScope
     [a]             --  variable and subprogram declarations
     [a]             --  compound statement
+    deriving Functor
 
 instance Serializable a => Serializable (Scope a) where
     serialize (Scope decs subScopes) = paragraph $
