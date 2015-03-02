@@ -51,6 +51,9 @@ updateFileState source path = modify $ \state -> state
     , zustandFileSource = source
     }
 
+getSemanticsError :: Pipeline [SemanticsError]
+getSemanticsError = gets zustandSemanticsError
+
 -- stores the error in Zustand
 throwSemanticsError :: SemanticsError -> Pipeline ()
 throwSemanticsError err = do
@@ -76,7 +79,15 @@ checkVariableUndeclared scope = case variableUndeclared scope of
     [] -> return ()
     xs -> throwSemanticsError (VariableUndeclared xs)
 
-
+checkBinding :: Scope (Set Declaration) -> Scope Binding -> Pipeline ()
+checkBinding decScope bindScope = do
+    checkDeclarationDuplicated decScope
+    checkVariableUndeclared bindScope
+    errors <- getSemanticsError
+    if null errors then do
+        return ()
+    else do
+        return ()
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?
 --      Exception: throws SemanticsError if any semantics error stored in der Zustand

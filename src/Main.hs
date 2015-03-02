@@ -31,14 +31,11 @@ testA = do
     let occScope = collectOccurrence ast
     let bindScope = collectBinding ast
 
-    -- checkDeclarationDuplicated decScope
-    -- checkVariableUndeclared bindScope
-
-    draw ast
+    checkBinding decScope bindScope
+    -- draw ast
     -- draw decScope
     -- draw occScope
     -- draw bindScope
-    -- >>= liftIO . draw
 
 testAll :: Pipeline ()
 testAll = mapM_ run filenames

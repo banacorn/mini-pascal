@@ -74,6 +74,10 @@ data SemanticsError = DeclarationDuplicated [Set Declaration]
                     | VariableUndeclared [Occurrence]
                     deriving (Eq, Ord)
 
+instance Serializable SemanticsError where
+    serialize (DeclarationDuplicated decs) = "DeclarationDuplicated: " ++ serialize decs
+    serialize (VariableUndeclared occs) = "VariableUndeclared: " ++ serialize occs
+
 data CodeBlock = CodeBlock
     {   codeBlockPath :: FilePath
     ,   codeBlockSource :: Source

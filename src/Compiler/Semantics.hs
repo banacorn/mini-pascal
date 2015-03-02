@@ -6,7 +6,7 @@ module Compiler.Semantics
 import Compiler.Type
 import Compiler.Type.AST (Scope(..), SubScope(..))
 import              Data.Set (Set, size)
-import              Data.Maybe (mapMaybe)
+import              Data.Maybe (mapMaybe, isNothing)
 
 --------------------------------------------------------------------------------
 -- Declarations Duplicated
@@ -32,4 +32,4 @@ variableUndeclared (Scope _ subScopes) = subScopes >>= subScopeVariableUndeclare
 subScopeVariableUndeclared :: SubScope Binding -> [Occurrence]
 subScopeVariableUndeclared (SubScope _ occs) = mapMaybe free occs
     where   free (FreeVar occ) = Just occ
-            free _ = Nothing
+            free _             = Nothing
