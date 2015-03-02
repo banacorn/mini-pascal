@@ -2,7 +2,6 @@
 module Compiler.Class.Serializable where
 
 -- import Compiler.Type hiding (Compiler.Type.Symbol)
--- import Compiler.Type.AST (Scope(..), SubScope(..))
 import              Data.List (intercalate, sort)
 import              Data.Set (Set, size, findMin, toList)
 import qualified    Data.Set as Set
@@ -50,6 +49,11 @@ n >>>> xs = map (indents n) (map serialize xs >>= lines)
 intercalate' :: Serializable a => String -> [a] -> String
 intercalate' delimeter = intercalate delimeter . map serialize
 
+
+compound :: Serializable a => [a] -> [Line]
+compound stmts  =   0 >>>> ["begin"]
+                ++  1 >>>> map serialize stmts
+                ++  0 >>>> ["end"]
 
 --------------------------------------------------------------------------------
 -- colours!
