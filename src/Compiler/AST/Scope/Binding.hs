@@ -8,7 +8,7 @@ import              Data.List (find)
 import              Data.Set (Set)
 import qualified    Data.Set as Set
 
-collectBinding :: Program -> Scope () Binding
+collectBinding :: RawProgram -> Scope () Binding
 collectBinding p = collectBinding' (collectDeclaration p) (collectOccurrence p)
 
 collectBinding' :: Scope (Set Declaration) () -> Scope () Occurrence -> Scope () Binding

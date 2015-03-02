@@ -61,7 +61,7 @@ import Control.Monad.Except
 
 program
     : progtok id '(' identifier_list ')' ';' variable_declarations subprogram_declarations compound_statement '.' {
-        Program (toSym $2) (reverse $4) (reverse $7) (reverse $8) $9
+        RawProgram (toSym $2) (reverse $4) (reverse $7) (reverse $8) $9
     }
 
 

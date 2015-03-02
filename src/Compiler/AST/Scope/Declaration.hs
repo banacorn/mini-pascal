@@ -7,8 +7,8 @@ import Compiler.Type.Symbol
 
 import Data.Set (Set)
 
-collectDeclaration :: Program -> Scope (Set Declaration) ()
-collectDeclaration (Program _ params vars subprogs _) = Scope (partite decs) subScopes (SubScope [] [])
+collectDeclaration :: RawProgram -> Scope (Set Declaration) ()
+collectDeclaration (RawProgram _ params vars subprogs _) = Scope (partite decs) subScopes (SubScope [] [])
         where
             decs =  (map (flip Declaration (Type [ProgramParamType])) params)
                  ++ (vars     >>= fromVars)

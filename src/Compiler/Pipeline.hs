@@ -84,7 +84,7 @@ checkVariableUndeclared scope = case variableUndeclared scope of
     [] -> return ()
     xs -> throwSemanticsError (VariableUndeclared xs)
 
-checkBinding :: AST.Program -> (ABT.Program -> Pipeline ()) -> Pipeline ()
+checkBinding :: AST.RawProgram -> (ABT.Program -> Pipeline ()) -> Pipeline ()
 checkBinding ast f = do
 
     let decScope = collectDeclaration ast

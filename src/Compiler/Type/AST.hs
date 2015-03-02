@@ -25,16 +25,15 @@ compound stmts  =   0 >>>> ["begin"]
 -- Abstract Syntax Tree
 
 -- Program Declaration
-data Program =
-    Program
-        Symbol          -- program name
-        [Symbol]        -- program arguments
-        [VarDec]        -- variable declarations
-        [SubprogDec]    -- subprogram declarations
-        [Statement Symbol] -- compound statement
+data RawProgram = RawProgram
+    Symbol          -- program name
+    [Symbol]        -- program arguments
+    [VarDec]        -- variable declarations
+    [SubprogDec]    -- subprogram declarations
+    [Statement Symbol] -- compound statement
 
-instance Serializable Program where
-    serialize (Program sym params vars subprogs stmts) = paragraph $
+instance Serializable RawProgram where
+    serialize (RawProgram sym params vars subprogs stmts) = paragraph $
             0 >>>> [header]
         ++  1 >>>> vars
         ++  1 >>>> subprogs

@@ -32,8 +32,8 @@ instance Serializable Subprogram where
         ++  2 >>>> stmts
 
 
-fromAST :: AST.Program -> Program
-fromAST p@(AST.Program _ _ _ subprogs _) = Program
+fromAST :: AST.RawProgram -> Program
+fromAST p@(AST.RawProgram _ _ _ subprogs _) = Program
     decs
     (map toSubprogram subScopes)
     []
