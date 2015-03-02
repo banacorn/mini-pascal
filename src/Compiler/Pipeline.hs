@@ -71,7 +71,7 @@ throwSemanticsError err = do
 -- Semantics Checking: Declaration Duplicated
 --      Exception: throws SemanticsError if any declaration duplicated (implicitly)
 --      State: saves SemanticsError if there's any
-checkDeclarationDuplicated :: Scope (Set Declaration) -> Pipeline ()
+checkDeclarationDuplicated :: Scope (Set Declaration) () -> Pipeline ()
 checkDeclarationDuplicated scope = case declarationDuplicated scope of
     [] -> return ()
     xs -> throwSemanticsError (DeclarationDuplicated xs)
@@ -79,7 +79,7 @@ checkDeclarationDuplicated scope = case declarationDuplicated scope of
 -- Semantics Checking: Variable Undeclared
 --      Exception: throws SemanticsError if any declaration undeclared (implicitly)
 --      State: saves SemanticsError if there's any
-checkVariableUndeclared :: Scope Binding -> Pipeline ()
+checkVariableUndeclared :: Scope () Binding -> Pipeline ()
 checkVariableUndeclared scope = case variableUndeclared scope of
     [] -> return ()
     xs -> throwSemanticsError (VariableUndeclared xs)

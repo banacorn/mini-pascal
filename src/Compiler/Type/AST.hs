@@ -1,11 +1,10 @@
-{-# LANGUAGE DeriveFunctor #-}
-
 module Compiler.Type.AST where
 
 import Compiler.Type.Token
 import Compiler.Type.Symbol
 
 import Data.Monoid ((<>))
+import Data.Bifunctor
 import Control.Applicative
 import Compiler.Class.Serializable
 
@@ -214,24 +213,28 @@ instance Serializable RelOp where
 --------------------------------------------------------------------------------
 -- Scope structure for indicating variable declarations and occurrences
 
-data Scope a = Scope
-    [a]             --  program parameters, variable and subprogram declarations
-    [SubScope a]    --  subprogram and compound statement
-    deriving Functor
+data Scope dec stmt = Scope
+    [dec]             --  program parameters, variable and subprogram declarations
+    [SubScope dec stmt]    --  subprogram and compound statement
 
-data SubScope a = SubScope
-    [a]             --  variable and subprogram declarations
-    [a]             --  compound statement
-    deriving Functor
+data SubScope dec stmt = SubScope
+    [dec]             --  variable and subprogram declarations
+    [stmt]             --  compound statement
 
-instance Serializable a => Serializable (Scope a) where
+instance (Serializable a, Serializable b) => Serializable (Scope a b) where
     serialize (Scope decs subScopes) = paragraph $
             0 >>>> ["Program"]
         ++  1 >>>> decs
         ++  1 >>>> subScopes
 
-instance Serializable a => Serializable (SubScope a) where
+instance (Serializable a, Serializable b) => Serializable (SubScope a b) where
     serialize (SubScope decs stmts) = paragraph $
             0 >>>> [" "]
         ++  1 >>>> decs
         ++  1 >>>> stmts
+
+instance Bifunctor Scope where
+    bimap f g (Scope as subs) = Scope (map f as) (map (bimap f g) subs)
+
+instance Bifunctor SubScope where
+    bimap f g (SubScope as bs) = SubScope (map f as) (map g bs)

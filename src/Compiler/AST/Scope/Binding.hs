@@ -8,10 +8,10 @@ import              Data.List (find)
 import              Data.Set (Set)
 import qualified    Data.Set as Set
 
-collectBinding :: Program -> Scope Binding
+collectBinding :: Program -> Scope () Binding
 collectBinding p = collectBinding' (collectDeclaration p) (collectOccurrence p)
 
-collectBinding' :: Scope (Set Declaration) -> Scope Occurrence -> Scope Binding
+collectBinding' :: Scope (Set Declaration) () -> Scope () Occurrence -> Scope () Binding
 collectBinding' (Scope globalDecs subDecs) (Scope _ subOccs) = Scope [] subScopes
     where   subScopes = map (uncurry (bindSubScope globalDecs)) (zip subDecs subOccs)
 
@@ -21,6 +21,6 @@ findBinding decs o@(Symbol name _) = case find match decs of
     Nothing  -> FreeVar o
     where   match set = symID (decSymbol (Set.findMin set)) == name
 
-bindSubScope :: [Set Declaration] -> SubScope (Set Declaration) -> SubScope Occurrence -> SubScope Binding
+bindSubScope :: [Set Declaration] -> SubScope (Set Declaration) () -> SubScope () Occurrence -> SubScope () Binding
 bindSubScope globalDecs (SubScope localDecs _) (SubScope _ occurs) =
     SubScope [] (map (findBinding (localDecs ++ globalDecs)) occurs)

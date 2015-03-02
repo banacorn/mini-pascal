@@ -25,6 +25,7 @@ executable Compiler
                     , mtl                           >=2.2
                     , transformers                  >=0.4
                     , ansi-terminal                 >=0.6
+                    , bifunctors                    >=4.2
                     -- , llvm-general                  >=3.4
     hs-source-dirs: src/
     default-language:    Haskell2010

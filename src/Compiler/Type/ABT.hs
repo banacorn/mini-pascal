@@ -6,9 +6,9 @@ import           Compiler.AST.Scope.Declaration
 -- import           Compiler.AST.Scope.Binding
 import Compiler.Class.Serializable
 
+import           Data.Bifunctor
 import           Data.Set (Set)
 import qualified Data.Set as Set
-
 data Program = Program
     [Declaration]
     [Subprogram]
@@ -38,9 +38,9 @@ fromAST p@(AST.Program _ _ _ subprogs _) = Program
     (map toSubprogram (init subScopes))
     []
     where
-        AST.Scope decs subScopes = fmap Set.findMin (collectDeclaration p)
+        AST.Scope decs subScopes = first Set.findMin (collectDeclaration p)
         -- AST.Scope decs subScopes = fmap Set.findMin (collectDeclaration p)
-        toSubprogram :: AST.SubScope Declaration -> Subprogram
+        toSubprogram :: AST.SubScope Declaration () -> Subprogram
         toSubprogram (AST.SubScope decs _) = Subprogram decs []
 --
 -- fromASTSubprog :: AST.SubprogDec -> Subprogram
