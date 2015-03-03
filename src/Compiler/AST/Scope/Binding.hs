@@ -3,13 +3,13 @@ module Compiler.AST.Scope.Binding (collectBinding) where
 import Compiler.Type
 import Compiler.Type.AST
 import Compiler.AST.Scope.Declaration
-import Compiler.AST.Scope.Occurrence
+import Compiler.AST.Symbol
 import              Data.List (find)
 import              Data.Set (Set)
 import qualified    Data.Set as Set
 
 collectBinding :: RawProgram -> Program () Binding
-collectBinding p = collectBinding' (collectDeclaration p) (collectOccurrence p)
+collectBinding p = collectBinding' (collectDeclaration p) (collectSymbol p)
 
 collectBinding' :: Program (Set Declaration) () -> Program () Occurrence -> Program () Binding
 collectBinding' (Program globalDecs subDecs stmts0) (Program _ subOccs stmts1) = Program [] subScopes stmts'

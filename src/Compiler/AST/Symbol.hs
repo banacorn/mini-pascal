@@ -9,7 +9,7 @@ collectSymbol (RawProgram _ _ _ subprogs stmts) = Program
     (map collectSubprogramSymbol subprogs)
     (Subprogram [] (stmts >>= getSymbol))
 
-collectSubprogramSymbol :: SubprogDec -> Subprogram () Symbol
+collectSubprogramSymbol :: RawSubprogram -> Subprogram () Symbol
 collectSubprogramSymbol (FuncDec _ _ _ _ stmts) = Subprogram [] (stmts >>= getSymbol)
 collectSubprogramSymbol (ProcDec _ _ _   stmts) = Subprogram [] (stmts >>= getSymbol)
 

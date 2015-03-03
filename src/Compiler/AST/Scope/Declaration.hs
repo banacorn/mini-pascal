@@ -18,7 +18,7 @@ collectDeclaration (RawProgram _ params vars subprogs _) = Program (partite decs
             fromSubprogs n@(FuncDec sym _ ret _ _) = [Declaration sym (getType n)]
             fromSubprogs n@(ProcDec sym _     _ _) = [Declaration sym (getType n)]
 
-subprogramDeclaration :: SubprogDec -> Subprogram (Set Declaration) ()
+subprogramDeclaration :: RawSubprogram -> Subprogram (Set Declaration) ()
 subprogramDeclaration (FuncDec sym params ret vars stmt) = Subprogram (partite decs) []
     where
         decs = (params >>= fromParams) ++ (vars >>= fromVars)

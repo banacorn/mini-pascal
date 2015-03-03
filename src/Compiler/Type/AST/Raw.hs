@@ -15,7 +15,7 @@ data RawProgram = RawProgram
     Symbol          -- program name
     [Symbol]        -- program arguments
     [VarDec]        -- variable declarations
-    [SubprogDec]    -- subprogram declarations
+    [RawSubprogram]    -- subprogram declarations
     [Statement Symbol] -- compound statement
 
 instance Serializable RawProgram where
@@ -62,7 +62,7 @@ instance Serializable Parameter where
 
 
 -- Subprogram Declaration
-data SubprogDec = FuncDec
+data RawSubprogram = FuncDec
                     Symbol          -- function name
                     [Parameter]     -- function parameters
                     BasicType    -- function return type
@@ -74,7 +74,7 @@ data SubprogDec = FuncDec
                     [VarDec]        -- variable declarations
                     [Statement Symbol]    -- compound statement
 
-instance Serializable SubprogDec where
+instance Serializable RawSubprogram where
     -- function, no parameter
     serialize (FuncDec sym [] typ vars stmts) = paragraph $
             0 >>>> ["function " ++ getID sym ++ " : " ++ serialize typ ++ ";"]
