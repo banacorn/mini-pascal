@@ -1,4 +1,4 @@
-module Compiler.AST.Type (HasType(..)) where
+module Compiler.AST.Raw.Type (HasType(..)) where
 
 import Compiler.Type
 import qualified Compiler.Type.AST as AST

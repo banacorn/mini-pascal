@@ -1,7 +1,7 @@
 module Compiler.AST.Raw.Declaration (collectDeclaration) where
 
 import Compiler.Type
-import Compiler.AST.Type
+import Compiler.AST.Raw.Type
 import Compiler.Type.AST
 import Compiler.Type.Symbol
 

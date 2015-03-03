@@ -7,6 +7,7 @@ module Compiler.Type.AST
     ,   toSym
     ,   Program(..)
     ,   Subprogram(..)
+    ,   merge
     ) where
 
 import Compiler.Type.Token
@@ -59,14 +60,21 @@ instance Bifunctor Program where
 instance Bifunctor Subprogram where
     bimap f g (Subprogram as bs) = Subprogram (map f as) (map g bs)
 
+--------------------------------------------------------------------------------
 -- merge 2 Programs, taking the first of the first and the second of the second
 merge :: Program a b -> Program c d -> Program a d
 merge (Program d0 s0 c0) (Program _ s1 c1) = Program
     d0
     (map (uncurry mergeSubprogram) (zip s0 s1))
     (mergeSubprogram c0 c1)
+    where   mergeSubprogram (Subprogram d0 _) (Subprogram _ c1) = Subprogram d0 c1
 
-mergeSubprogram :: Subprogram a b -> Subprogram c d -> Subprogram a d
-mergeSubprogram (Subprogram d0 _) (Subprogram _ c1) = Subprogram
-    d0
-    c1
+--------------------------------------------------------------------------------
+extractFirst :: Program a b -> [a]
+extractFirst (Program decs subprogs _) = decs ++ (subprogs >>= extractSubprogramFirst)
+    where   extractSubprogramFirst (Subprogram d _) = d
+
+--------------------------------------------------------------------------------
+extractSecond :: Program a b -> [b]
+extractSecond (Program _ subprogs stmts) = subprogs ++ [stmts] >>= extractSubprogramSecond
+    where   extractSubprogramSecond (Subprogram _ s) = s

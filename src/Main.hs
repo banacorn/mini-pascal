@@ -19,13 +19,13 @@ main = pipeline $ do
 testA :: Pipeline ()
 testA = do
 
-    ast <- readSource "./test/semantics/test.p"
+    raw <- readSource "./test/semantics/test.p"
     -- ast <- readSource "./test/semantics/test-duplicate.p"
         >>= scan
         >>= parse
     --
     -- checkBinding ast $ \ abt ->
-    draw ast
+    draw (cookAST raw)
     -- draw symbolScope
     -- draw decScope
     -- draw occScope
