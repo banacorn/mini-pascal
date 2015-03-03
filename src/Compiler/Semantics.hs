@@ -1,7 +1,7 @@
 module Compiler.Semantics where
 
 import Compiler.Type
-import Compiler.Type.AST
+import Compiler.Type.DSL
 import Data.Set (Set, size, findMin)
 import Data.Maybe (isNothing)
 import Data.Bifunctor

@@ -2,7 +2,7 @@
 module Compiler.Parser where
 import Compiler.Type.Token
 import Compiler.Type.Pipeline
-import Compiler.Type.AST
+import Compiler.Type.DSL
 import Compiler.Type.Symbol
 import Compiler.Lexer
 import Control.Monad.Except
@@ -81,9 +81,9 @@ type
 
 
 standard_type
-    : typeInt       { IntType }
-    | typeReal      { RealType }
-    | typeStr       { StringType }
+    : typeInt       { RawIntType }
+    | typeReal      { RawRealType }
+    | typeStr       { RawStringType }
 
 
 subprogram_declarations

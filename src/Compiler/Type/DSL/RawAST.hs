@@ -1,11 +1,11 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Compiler.Type.AST.Raw where
+module Compiler.Type.DSL.RawAST where
 
 import Compiler.Class.Serializable
+import Compiler.Type.DSL.Expression
+import Compiler.Type.DSL.Statement
 import Compiler.Type.Symbol
-import Compiler.Type.AST.Expression
-import Compiler.Type.AST.Statement
 
 --------------------------------------------------------------------------------
 -- Raw Abstract Syntax Tree
@@ -30,24 +30,24 @@ instance Serializable RawProgram where
 
 -- Type
 type Number = String
-data Type   = Basic BasicType
-            | Array (Number, Number) Type
-data BasicType = IntType | RealType | StringType
+data RawType = Basic BasicType
+             | Array (Number, Number) RawType
+data BasicType = RawIntType | RawRealType | RawStringType
 
-instance Serializable Type where
+instance Serializable RawType where
     serialize (Basic t) = serialize t
     serialize (Array (a, b) t) =
         "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
 
 instance Serializable BasicType where
-    serialize IntType = "int"
-    serialize RealType = "real"
-    serialize StringType = "string"
+    serialize RawIntType = "int"
+    serialize RawRealType = "real"
+    serialize RawStringType = "string"
 
 
 -- Variable & Parameter Declaration
-data VarDec = VarDec [Symbol] Type
-data Parameter = Parameter [Symbol] Type
+data VarDec = VarDec [Symbol] RawType
+data Parameter = Parameter [Symbol] RawType
 
 instance Serializable VarDec where
     serialize (VarDec [] _) = ""

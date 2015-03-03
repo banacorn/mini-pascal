@@ -1,6 +1,6 @@
-module Compiler.AST.Raw.Symbol where
+module Compiler.DSL.RawAST.Symbol where
 
-import Compiler.Type.AST
+import Compiler.Type.DSL
 import Compiler.Type.Symbol
 
 collectSymbol :: RawProgram -> Program () Symbol

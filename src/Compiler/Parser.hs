@@ -2,7 +2,7 @@
 module Compiler.Parser where
 import Compiler.Type.Token
 import Compiler.Type.Pipeline
-import Compiler.Type.AST
+import Compiler.Type.DSL
 import Compiler.Type.Symbol
 import Compiler.Lexer
 import Control.Monad.Except
@@ -674,19 +674,19 @@ happyReduction_7 ((HappyAbsSyn7  happy_var_8) `HappyStk`
 happyReduce_8 = happySpecReduce_1  8 happyReduction_8
 happyReduction_8 _
 	 =  HappyAbsSyn8
-		 (IntType
+		 (RawIntType
 	)
 
 happyReduce_9 = happySpecReduce_1  8 happyReduction_9
 happyReduction_9 _
 	 =  HappyAbsSyn8
-		 (RealType
+		 (RawRealType
 	)
 
 happyReduce_10 = happySpecReduce_1  8 happyReduction_10
 happyReduction_10 _
 	 =  HappyAbsSyn8
-		 (StringType
+		 (RawStringType
 	)
 
 happyReduce_11 = happySpecReduce_0  9 happyReduction_11

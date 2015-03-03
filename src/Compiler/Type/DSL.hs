@@ -1,9 +1,9 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Compiler.Type.AST
-    (   module Compiler.Type.AST.Expression
-    ,   module Compiler.Type.AST.Statement
-    ,   module Compiler.Type.AST.Raw
+module Compiler.Type.DSL
+    (   module Compiler.Type.DSL.Expression
+    ,   module Compiler.Type.DSL.Statement
+    ,   module Compiler.Type.DSL.RawAST
     ,   Program(..)
     ,   Subprogram(..)
     ,   RawAST, AST, ABT
@@ -14,9 +14,9 @@ module Compiler.Type.AST
 import Compiler.Type.Token
 import Compiler.Type.Symbol
 
-import Compiler.Type.AST.Expression
-import Compiler.Type.AST.Statement
-import Compiler.Type.AST.Raw
+import Compiler.Type.DSL.Expression
+import Compiler.Type.DSL.Statement
+import Compiler.Type.DSL.RawAST
 
 
 import Data.Bifunctor

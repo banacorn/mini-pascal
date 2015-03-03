@@ -1,17 +1,17 @@
-module Compiler.AST.Raw (cookAST) where
+module Compiler.DSL.RawAST (toAST) where
 
-import Compiler.AST.Raw.Symbol
-import Compiler.AST.Raw.Declaration
+import Compiler.DSL.RawAST.Symbol
+import Compiler.DSL.RawAST.Declaration
 
 import Compiler.Type
-import Compiler.Type.AST
+import Compiler.Type.DSL
 import              Data.List (find)
 import              Data.Set (Set)
 import qualified    Data.Set as Set
 
 
-cookAST :: RawAST -> AST
-cookAST p = merge declarations bindings
+toAST :: RawAST -> AST
+toAST p = merge declarations bindings
     where   declarations = collectDeclaration p
             symbols = collectSymbol p
             bindings = collectBinding declarations symbols

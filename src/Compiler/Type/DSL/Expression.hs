@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Compiler.Type.AST.Expression where
+module Compiler.Type.DSL.Expression where
 
 import Compiler.Class.Serializable
 import Compiler.Type.Symbol

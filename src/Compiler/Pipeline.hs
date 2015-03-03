@@ -3,9 +3,8 @@ module Compiler.Pipeline where
 import Compiler.Type
 import Compiler.Semantics
 import Compiler.Class.Serializable
-import              Compiler.AST.Raw
--- import qualified    Compiler.Type.AST as AST
-import              Compiler.Type.AST
+import              Compiler.DSL.RawAST
+import              Compiler.Type.DSL
 import              Compiler.Semantics
 
 import              Control.Exception (try, IOException)
@@ -81,7 +80,7 @@ checkVariableUndeclared scope = case variableUndeclared scope of
 
 checkBinding :: RawAST -> Pipeline ABT
 checkBinding rawAST = do
-    let ast = cookAST rawAST
+    let ast = toAST rawAST
 
     checkSemanticsError $ do
         checkDeclarationDuplicated ast
