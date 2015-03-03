@@ -5,75 +5,102 @@ module Compiler.DSL.ABT where
 import Compiler.Type
 import Compiler.Type.DSL
 
+import Data.Monoid
+
 -- import qualified    Data.Set as Set
 -- import              Data.Bifunctor
 
 --------------------------------------------------------------------------------
---
--- sameType :: [Type] -> Maybe Type
--- sameType [] = Nothing
--- sameType [x] = Just x
--- sameType (x:xs) | x == sameType xs = x
---                 | otherwise        = Nothing
+-- TypeCheck data type
+data TypeCheck = Screwed [TypeError]
+               | GotType Value Type
+               deriving (Eq)
 
-(<=>) :: TypeCheck a => a -> Maybe Type -> Maybe Type
-a <=> Nothing = Nothing
-a <=> Just b' = case typeCheck a of
-    Just a' -> case a' == b' of
-        True -> Just a'
-        False -> Nothing
-    Nothing -> Nothing
 
-(<=~) :: (TypeCheck a, TypeCheck b) => a -> b -> Maybe Type
-(<=~) a b = a <=> typeCheck b
+data TypeError  = TypeMismatch Value Type Type -- expected, got
+                | ExpectArray Value  -- got to be array
+                | NotInvocable -- got to be subprogram
+                | IndexNotInt Value -- got to be all Int
+                | ArityError Value -- wrong number of parameters
+                deriving (Eq)
 
--- compose :: TypeCheck a => [a] -> Maybe Type
--- compose [] = Nothing
--- compose [x] = typeCheck x
--- compose (x:xs) = do
---     Type x <- typeCheck x
---     Type xs' <- compose xs
---     return (Type (x ++ xs'))
+instance Monoid TypeCheck where
+    mempty = Screwed []
+    Screwed e   `mappend` Screwed f   = Screwed (e ++ f)
+    Screwed e   `mappend` GotType _ _ = Screwed e
+    GotType _ _ `mappend` Screwed e   = Screwed e
+    GotType x s `mappend` GotType y t | x == y = GotType y t
+                                      | x /= y = Screwed [TypeMismatch y s t]
 
-typeCheckArray :: TypeCheck a => Variable -> [a] -> Maybe Type
+
+--------------------------------------------------------------------------------
+-- Typeable!
+
+
+-- (<=>) :: Typeable a => a -> TypeCheck -> TypeCheck
+-- a <=> Screwed e = Screwed e
+-- a <=> GotType b = case typeCheck a of
+--     Just a' -> case a' == b' of
+--         True -> Just a'
+--         False -> Nothing
+--     Nothing -> Nothing
+
+(<=>) :: (Typeable a, Typeable b) => a -> b -> TypeCheck
+a <=> b = typeCheck a <> typeCheck b
+
+
+-- (<=~) :: (TypeCheck a, TypeCheck b) => a -> b -> Maybe Type
+-- (<=~) a b = a <=> typeCheck b
+
+typeCheckArray :: Value -> [Expression Value] -> TypeCheck
 typeCheckArray var indices
-    | firstOrder arrayType = let Type [domain] = arrayType in check domain indices
-    | otherwise = Nothing
-    where   Variable _ dec = var
+    | not notSubprogram && not indicesChecked = Screwed [IndexNotInt var, ExpectArray var] 
+    |     notSubprogram && not indicesChecked = Screwed [IndexNotInt var]
+    | not notSubprogram &&     indicesChecked = Screwed [ExpectArray var]
+    |     notSubprogram &&     indicesChecked = let Type [domain] = arrayType in check domain indices
+    where   indicesChecked = all (gotTypeInt . typeCheck) indices
+            notSubprogram = firstOrder arrayType
+
+            gotTypeInt (GotType _ (Type [IntType])) = True
+            gotTypeInt _                            = False
+
+            Variable _ dec = var
             arrayType = decType dec
-            check (ArrayType (i, j) domain)
 
+            check _                         []     = GotType var arrayType
+            check (ArrayType (m, n) domain) (i:is) = check domain is
+            check _                         (i:is) = Screwed [ExpectArray var]
 
+-- typeCheckInvoke :: Variable -> [Expression Variable] -> TypeCheck
+-- typeCheckInvoke var params
 
-class TypeCheck a where
-    typeCheck :: a -> Maybe Type
+class Typeable a where
+    typeCheck :: a -> TypeCheck
 
-instance TypeCheck (Expression Variable) where
+instance Typeable (Expression Value) where
     typeCheck (UnaryExpression e) = typeCheck e
-    typeCheck (BinaryExpression a _ b) = a <=~ b
+    typeCheck (BinaryExpression a _ b) = a <=> b
 
-instance TypeCheck (SimpleExpression Variable) where
+instance Typeable (SimpleExpression Value) where
     typeCheck (TermSimpleExpression e) = typeCheck e
-    typeCheck (OpSimpleExpression a _ b) = a <=~ b
+    typeCheck (OpSimpleExpression a _ b) = a <=> b
 
-instance TypeCheck (Term Variable) where
+instance Typeable (Term Value) where
     typeCheck (FactorTerm e) = typeCheck e
-    typeCheck (OpTerm a _ b) = a <=~ b
+    typeCheck (OpTerm a _ b) = a <=> b
     typeCheck (NegTerm e) = typeCheck e
 
-instance TypeCheck (Factor Variable) where
-    typeCheck (ArrayAccessFactor a es) = typeCheck a
+instance Typeable (Factor Value) where
+    typeCheck (ArrayAccessFactor a es) = typeCheckArray a es
     typeCheck (InvocationFactor a es) = typeCheck a
     typeCheck (NumberFactor e) = typeCheck e
     typeCheck (SubFactor e) = typeCheck e
     typeCheck (NotFactor e) = typeCheck e
 
-instance TypeCheck Literal where
-    typeCheck (IntLiteral _) = Just (Type [IntType])
-    typeCheck (RealLiteral _) = Just (Type [RealType])
-
-instance TypeCheck Variable where
-    typeCheck (Variable _ (Declaration _ t)) = Just t
+instance Typeable Value where
+    typeCheck v@(Variable _ (Declaration _ t)) = GotType v t
+    typeCheck v@(IntLiteral _)                 = GotType v (Type [IntType])
+    typeCheck v@(RealLiteral _)                = GotType v (Type [RealType])
 
 
 

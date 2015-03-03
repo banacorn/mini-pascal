@@ -38,7 +38,7 @@ data Subprogram dec stmt = Subprogram
 
 type RawAST = RawProgram
 type AST = Program (Set Declaration) Binding
-type ABT = Program Declaration Variable
+type ABT = Program Declaration Value
 
 
 instance (Serializable a, Serializable b) => Serializable (Program a b) where

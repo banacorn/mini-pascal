@@ -83,18 +83,20 @@ instance Serializable Binding where
 --------------------------------------------------------------------------------
 -- Value, for ABT
 
-data Variable = Variable Symbol Declaration
+data Value  = Variable Symbol Declaration
+            | IntLiteral Int
+            | RealLiteral Double
+            deriving (Eq)
 
-instance Sym Variable where
-    getID (Variable s _) = getID s
-    getPos (Variable _ p) = getPos p
+-- instance Value Variable where
+--     valType (Variable _ dec) = decType dec
+--
+-- instance Sym Variable where
+--     getID (Variable s _) = getID s
+--     getPos (Variable _ p) = getPos p
 
-instance Serializable Variable where
+instance Serializable Value where
     serialize (Variable sym dec) = serialize sym ++ " ==> " ++ serialize dec
-
-data Literal = IntLiteral Int | RealLiteral Double
-
-instance Serializable Literal where
     serialize (IntLiteral i) = show i
     serialize (RealLiteral i) = show i
 
@@ -108,5 +110,5 @@ partite = foldl addToPartition []
             addToPartition (c:cs) x | x == findMin c = (x `insert` c) : cs
                                     | otherwise      = c              : addToPartition cs x
 
-toVariable :: Binding -> Variable
-toVariable (sym, dec) = Variable sym (findMin (fromJust dec))
+toValue :: Binding -> Value
+toValue (sym, dec) = Variable sym (findMin (fromJust dec))

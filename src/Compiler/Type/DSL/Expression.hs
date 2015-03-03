@@ -44,7 +44,7 @@ instance (Serializable a, Sym a) => Serializable (Term a) where
 -- Factor (basic building block)
 data Factor a = ArrayAccessFactor a [Expression a]     -- id[]
               | InvocationFactor  a [Expression a]     -- id()
-              | NumberFactor      Literal
+              | NumberFactor      Value
               | SubFactor         (Expression a)       -- (...)
               | NotFactor         (Factor a)           -- -id
               deriving Functor

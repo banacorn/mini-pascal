@@ -9,4 +9,4 @@ import              Data.Bifunctor
 
 --------------------------------------------------------------------------------
 toABT :: AST -> ABT
-toABT = bimap Set.findMin toVariable
+toABT = bimap Set.findMin toValue

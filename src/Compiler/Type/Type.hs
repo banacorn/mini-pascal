@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveFunctor #-}
+
 module Compiler.Type.Type where
 
 import Compiler.Type.Token
@@ -5,7 +7,7 @@ import Compiler.Class.Serializable
 
 import Data.List (intercalate)
 import Data.Monoid
-
+--------------------------------------------------------------------------------
 -- first order
 data Domain = IntType
             | RealType
@@ -31,6 +33,8 @@ instance Serializable Type where
 instance Monoid Type where
     mempty = Type []
     mappend (Type a) (Type b) = Type (a ++ b)
+
+--------------------------------------------------------------------------------
 
 order :: Type -> Int
 order (Type domains) = length domains
