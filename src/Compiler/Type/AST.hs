@@ -4,13 +4,11 @@ module Compiler.Type.AST
     (   module Compiler.Type.AST.Expression
     ,   module Compiler.Type.AST.Statement
     ,   module Compiler.Type.AST.Raw
-    ,   toSym
     ,   Program(..)
     ,   Subprogram(..)
     ,   RawAST, AST, ABT
     ,   merge
     ,   extractFirst, extractSecond
-    ,   toABT
     ) where
 
 import Compiler.Type.Token
@@ -21,17 +19,10 @@ import Compiler.Type.AST.Statement
 import Compiler.Type.AST.Raw
 
 
-import Data.Monoid ((<>))
 import Data.Bifunctor
 import Data.Set (Set, findMin)
 import Control.Applicative
 import Compiler.Class.Serializable
-
---------------------------------------------------------------------------------
--- Helper functions
-
-toSym :: Token -> Symbol
-toSym (Token (TokID i) p) = Symbol i p
 
 --------------------------------------------------------------------------------
 -- Main structure
@@ -87,8 +78,3 @@ extractFirst (Program decs subprogs _) = decs ++ (subprogs >>= extractSubprogram
 extractSecond :: Program a b -> [b]
 extractSecond (Program _ subprogs stmts) = subprogs ++ [stmts] >>= extractSubprogramSecond
     where   extractSubprogramSecond (Subprogram _ s) = s
-
-
---------------------------------------------------------------------------------
-toABT :: AST -> ABT
-toABT = bimap findMin toVariable

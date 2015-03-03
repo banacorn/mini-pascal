@@ -11,6 +11,12 @@ import           Data.Set (Set, findMin, insert, singleton)
 import qualified Data.Set as Set
 
 --------------------------------------------------------------------------------
+-- Helper functions
+
+toSym :: Token -> Symbol
+toSym (Token (TokID i) p) = Symbol i p
+
+--------------------------------------------------------------------------------
 --  Symbol
 
 class Sym s where

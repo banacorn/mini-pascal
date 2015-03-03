@@ -5,7 +5,8 @@ import Compiler.Semantics
 import Compiler.Class.Serializable
 import              Compiler.AST.Raw
 -- import qualified    Compiler.Type.AST as AST
-import              Compiler.Type.AST -- (Program(..), Subprogram(..), RawAST, AST, ABT)
+import              Compiler.Type.AST
+import              Compiler.Semantics
 
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except
