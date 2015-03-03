@@ -23,9 +23,7 @@ collectBinding (Program globalDecs subDecs stmts0) (Program _ subOccs stmts1) = 
     (bindSubprogram globalDecs stmts0 stmts1)
 
 findBinding :: [Set Declaration] -> Symbol -> Binding
-findBinding decs o@(Symbol name _) = case find match decs of
-    Just dec -> BoundVar o dec
-    Nothing  -> FreeVar o
+findBinding decs o@(Symbol name _) = (o, find match decs)
     where   match set = symID (decSymbol (Set.findMin set)) == name
 
 bindSubprogram :: [Set Declaration] -> Subprogram (Set Declaration) () -> Subprogram () Symbol -> Subprogram () Binding

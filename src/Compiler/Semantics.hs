@@ -4,9 +4,9 @@ module Compiler.Semantics
     ) where
 
 import Compiler.Type
-import Compiler.Type.AST (Program(..), Subprogram(..))
-import              Data.Set (Set, size)
-import              Data.Maybe (mapMaybe, isNothing)
+import Compiler.Type.AST
+import Data.Set (Set, size)
+import Data.Maybe (mapMaybe, isNothing)
 
 --------------------------------------------------------------------------------
 -- Declarations Duplicated
@@ -16,20 +16,10 @@ import              Data.Maybe (mapMaybe, isNothing)
 --      2. have the same name
 --      3. at the same level of scope
 declarationDuplicated :: Program (Set Declaration) () -> [Set Declaration]
-declarationDuplicated (Program decs subScopes stmts) =
-    pickDuplicated decs ++ (subScopes >>= subScopeDeclarationDuplicated)
-    where   pickDuplicated = filter ((> 1) . size)
-
-subScopeDeclarationDuplicated :: Subprogram (Set Declaration) () -> [Set Declaration]
-subScopeDeclarationDuplicated (Subprogram decs _) = filter ((> 1) . size) decs
+declarationDuplicated =  filter ((> 1) . size) . extractFirst
 
 --------------------------------------------------------------------------------
 -- Symbols Undeclared
 
 variableUndeclared :: Program () Binding -> [Symbol]
-variableUndeclared (Program _ subScopes stmts) = (subScopes ++ [stmts]) >>= subScopeVariableUndeclared
-
-subScopeVariableUndeclared :: Subprogram () Binding -> [Symbol]
-subScopeVariableUndeclared (Subprogram _ occs) = mapMaybe free occs
-    where   free (FreeVar occ) = Just occ
-            free _             = Nothing
+variableUndeclared = map fst . extractSecond

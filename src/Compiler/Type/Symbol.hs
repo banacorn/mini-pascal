@@ -1,4 +1,4 @@
--- {-# LANGUAGE GADTs #-}
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
 module Compiler.Type.Symbol where
 
@@ -64,12 +64,13 @@ instance Ord Declaration where
 --------------------------------------------------------------------------------
 -- Binding
 
-data Binding = BoundVar Symbol (Set Declaration)
-             | FreeVar  Symbol
-
+type Binding = (Symbol, Maybe (Set Declaration))
+--
 instance Serializable Binding where
-    serialize (BoundVar o d) = serialize o ++ " ==> " ++ serialize d
-    serialize (FreeVar  o  ) = serialize o ++ yellow " ==> ?"
+    serialize (sym, Nothing) = serialize sym ++ yellow " ==> ?"
+    serialize (sym, Just decs) = serialize sym ++ " ==> " ++ serialize decs
+--     serialize (BoundVar o d) = serialize o ++ " ==> " ++ serialize d
+--     serialize (FreeVar  o  ) = serialize o ++ yellow " ==> ?"
 
 
 --------------------------------------------------------------------------------

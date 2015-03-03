@@ -8,6 +8,7 @@ module Compiler.Type.AST
     ,   Program(..)
     ,   Subprogram(..)
     ,   merge
+    ,   extractFirst, extractSecond
     ) where
 
 import Compiler.Type.Token
