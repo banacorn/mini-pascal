@@ -6,6 +6,7 @@ import Compiler.Type.Token
 import Compiler.Type.Type
 import Compiler.Class.Serializable
 
+import           Data.Maybe (fromJust)
 import           Data.Set (Set, findMin, insert, singleton)
 import qualified Data.Set as Set
 
@@ -100,3 +101,6 @@ partite = foldl addToPartition []
     where   addToPartition [] x     = [singleton x]
             addToPartition (c:cs) x | x == findMin c = (x `insert` c) : cs
                                     | otherwise      = c              : addToPartition cs x
+
+toVariable :: Binding -> Variable
+toVariable (sym, dec) = Variable sym (findMin (fromJust dec))

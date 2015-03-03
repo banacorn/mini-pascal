@@ -4,8 +4,8 @@ import Compiler.Type
 import Compiler.Semantics
 import Compiler.Class.Serializable
 import              Compiler.AST.Raw
-import qualified    Compiler.Type.AST as AST
-import              Compiler.Type.AST (Program(..), Subprogram(..))
+-- import qualified    Compiler.Type.AST as AST
+import              Compiler.Type.AST -- (Program(..), Subprogram(..), RawAST, AST, ABT)
 
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except
@@ -65,7 +65,7 @@ throwSemanticsError err = do
 -- Semantics Checking: Declaration Duplicated
 --      Exception: throws SemanticsError if any declaration duplicated (implicitly)
 --      State: saves SemanticsError if there's any
-checkDeclarationDuplicated :: Program (Set Declaration) a -> Pipeline ()
+checkDeclarationDuplicated :: AST -> Pipeline ()
 checkDeclarationDuplicated scope = case declarationDuplicated scope of
     [] -> return ()
     xs -> throwSemanticsError (DeclarationDuplicated xs)
@@ -73,20 +73,21 @@ checkDeclarationDuplicated scope = case declarationDuplicated scope of
 -- Semantics Checking: Variable Undeclared
 --      Exception: throws SemanticsError if any declaration undeclared (implicitly)
 --      State: saves SemanticsError if there's any
-checkVariableUndeclared :: Program a Binding -> Pipeline ()
+checkVariableUndeclared :: AST -> Pipeline ()
 checkVariableUndeclared scope = case variableUndeclared scope of
     [] -> return ()
     xs -> throwSemanticsError (VariableUndeclared xs)
 
-checkBinding :: AST.RawProgram -> Pipeline ()
-checkBinding ast = do
-    let bindings = cookAST ast
+checkBinding :: RawAST -> Pipeline ABT
+checkBinding rawAST = do
+    let ast = cookAST rawAST
 
     checkSemanticsError $ do
-        checkDeclarationDuplicated bindings
-        checkVariableUndeclared bindings
+        checkDeclarationDuplicated ast
+        checkVariableUndeclared ast
 
     -- the AST is good enough to build ABT
+    return (toABT ast)
 
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?

@@ -7,9 +7,10 @@ module Compiler.Type.AST
     ,   toSym
     ,   Program(..)
     ,   Subprogram(..)
-    ,   RawAST, AST
+    ,   RawAST, AST, ABT
     ,   merge
     ,   extractFirst, extractSecond
+    ,   toABT
     ) where
 
 import Compiler.Type.Token
@@ -22,7 +23,7 @@ import Compiler.Type.AST.Raw
 
 import Data.Monoid ((<>))
 import Data.Bifunctor
-import Data.Set (Set)
+import Data.Set (Set, findMin)
 import Control.Applicative
 import Compiler.Class.Serializable
 
@@ -46,6 +47,7 @@ data Subprogram dec stmt = Subprogram
 
 type RawAST = RawProgram
 type AST = Program (Set Declaration) Binding
+type ABT = Program Declaration Variable
 
 
 instance (Serializable a, Serializable b) => Serializable (Program a b) where
@@ -85,3 +87,8 @@ extractFirst (Program decs subprogs _) = decs ++ (subprogs >>= extractSubprogram
 extractSecond :: Program a b -> [b]
 extractSecond (Program _ subprogs stmts) = subprogs ++ [stmts] >>= extractSubprogramSecond
     where   extractSubprogramSecond (Subprogram _ s) = s
+
+
+--------------------------------------------------------------------------------
+toABT :: AST -> ABT
+toABT = bimap findMin toVariable

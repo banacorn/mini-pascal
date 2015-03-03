@@ -23,6 +23,7 @@ testA = do
         >>= scan
         >>= parse
         >>= checkBinding
+        >>= draw
 
 
 testAll :: Pipeline ()
