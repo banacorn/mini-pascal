@@ -54,16 +54,12 @@ updateFileState source path = modify $ \state -> state
     , zustandFileSource = source
     }
 
-getSemanticsError :: Pipeline [SemanticsError]
-getSemanticsError = gets zustandSemanticsError
-
--- stores the error in Zustand
+-- stores the error in der Zustand
 throwSemanticsError :: SemanticsError -> Pipeline ()
 throwSemanticsError err = do
     errors <- gets zustandSemanticsError
     modify $ \state -> state
         { zustandSemanticsError = err : errors }
-
 
 --------------------------------------------------------------------------------
 -- Semantics Checking: Declaration Duplicated
@@ -82,26 +78,19 @@ checkVariableUndeclared scope = case variableUndeclared scope of
     [] -> return ()
     xs -> throwSemanticsError (VariableUndeclared xs)
 
-checkBinding :: AST.RawProgram -> (Program Declaration Variable -> Pipeline ()) -> Pipeline ()
-checkBinding ast f = do
-
+checkBinding :: AST.RawProgram -> Pipeline ()
+checkBinding ast = do
     let bindings = cookAST ast
+    checkSemanticsError $ do
+        checkDeclarationDuplicated bindings
+        checkVariableUndeclared bindings
 
-    checkDeclarationDuplicated bindings
-    checkVariableUndeclared bindings
 
-    errors <- getSemanticsError
-
-    if null errors then do
-        return ()
-        -- f (AST.fromAST ast)
-    else do
-        return ()
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?
 --      Exception: throws SemanticsError if any semantics error stored in der Zustand
-checkSemantics :: Pipeline () -> Pipeline ()
-checkSemantics f = do
+checkSemanticsError :: Pipeline () -> Pipeline ()
+checkSemanticsError f = do
     f
     errors <- gets zustandSemanticsError
     case errors of
@@ -110,7 +99,7 @@ checkSemantics f = do
 
 pipeline :: Pipeline () -> IO ()
 pipeline f = do
-    (result, state) <- runStateT (runExceptT (checkSemantics f)) (Zustand Nothing Nothing [])
+    (result, state) <- runStateT (runExceptT (checkSemanticsError f)) (Zustand Nothing Nothing [])
     case result of
         Left err -> mapM_ (putStrLn . serialize) (diagnoseError state err)
         Right () -> return ()

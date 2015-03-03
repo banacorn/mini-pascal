@@ -19,15 +19,12 @@ main = pipeline $ do
 testA :: Pipeline ()
 testA = do
 
-    ast <- readSource "./test/semantics/test.p"
+    ast <- readSource "./test/semantics/error.p"
         >>= scan
         >>= parse
 
-    checkBinding ast $ \ abt ->
-        draw abt
-    -- draw decScope
-    -- draw occScope
-    -- draw bindScope
+    checkBinding ast
+    
 
 testAll :: Pipeline ()
 testAll = mapM_ run filenames
