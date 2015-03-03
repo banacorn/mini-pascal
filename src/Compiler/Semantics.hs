@@ -2,9 +2,9 @@ module Compiler.Semantics where
 
 import Compiler.Type
 import Compiler.Type.DSL
-import Data.Set (Set, size, findMin)
+import Compiler.Type.DSL
+import Data.Set (Set, size)
 import Data.Maybe (isNothing)
-import Data.Bifunctor
 
 --------------------------------------------------------------------------------
 -- Declarations Duplicated
@@ -21,7 +21,3 @@ declarationDuplicated =  filter ((> 1) . size) . extractFirst
 
 variableUndeclared :: AST -> [Symbol]
 variableUndeclared = map fst . filter (isNothing . snd) . extractSecond
-
---------------------------------------------------------------------------------
-toABT :: AST -> ABT
-toABT = bimap findMin toVariable

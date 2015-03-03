@@ -4,6 +4,8 @@ import Compiler.Type
 import Compiler.Semantics
 import Compiler.Class.Serializable
 import              Compiler.DSL.RawAST
+import              Compiler.DSL.AST
+import              Compiler.DSL.ABT
 import              Compiler.Type.DSL
 import              Compiler.Semantics
 
@@ -88,6 +90,9 @@ checkBinding rawAST = do
 
     -- the AST is good enough to build ABT
     return (toABT ast)
+
+-- checkType :: ABT -> Pipeline Bool
+-- checkType
 
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?
