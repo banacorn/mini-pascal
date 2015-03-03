@@ -59,8 +59,14 @@ instance Bifunctor Program where
 instance Bifunctor Subprogram where
     bimap f g (Subprogram as bs) = Subprogram (map f as) (map g bs)
 
---------------------------------------------------------------------------------
--- functions on ASTs
+-- merge 2 Programs, taking the first of the first and the second of the second
+merge :: Program a b -> Program c d -> Program a d
+merge (Program d0 s0 c0) (Program _ s1 c1) = Program
+    d0
+    (map (uncurry mergeSubprogram) (zip s0 s1))
+    (mergeSubprogram c0 c1)
 
--- cook :: RawProgram -> Program
--- cook (RawProgram)
+mergeSubprogram :: Subprogram a b -> Subprogram c d -> Subprogram a d
+mergeSubprogram (Subprogram d0 _) (Subprogram _ c1) = Subprogram
+    d0
+    c1
