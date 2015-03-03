@@ -17,7 +17,7 @@ main = pipeline $ do
 testA :: Pipeline ()
 testA = do
 
-    readSource "./test/semantics/error.p"
+    readSource "./test/semantics/test.p"
         >>= scan
         >>= parse
         >>= checkBinding

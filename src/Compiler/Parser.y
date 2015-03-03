@@ -33,6 +33,7 @@ import Control.Monad.Except
     function        { Token TokFunction _ }
     procedure       { Token TokProc _ }
     begin           { Token TokBegin _ }
+    return          { Token TokReturn _ }
     end             { Token TokEnd _ }
     var             { Token TokVar _ }
     array           { Token TokArr _ }
@@ -117,6 +118,7 @@ statement_list
 
 statement
     : variable ':=' expression                      { Assignment $1 $3 }
+    | return expression                             { Return $2 }
     | id                                            { Invocation (toSym $1) [] }
     | id '(' expression_list ')'                    { Invocation (toSym $1) $3 }
     | compound_statement                            { Compound $1 }

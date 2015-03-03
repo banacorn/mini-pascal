@@ -61,6 +61,7 @@ tokens :-
     $f$u$n$c$t$i$o$n                        { constant TokFunction }
     $p$r$o$c$e$d$u$r$e                      { constant TokProc }
     $b$e$g$i$n                              { constant TokBegin }
+    $r$e$t$u$r$n                            { constant TokReturn }
     $e$n$d                                  { constant TokEnd }
     $v$a$r                                  { constant TokVar }
     $a$r$r$a$y                              { constant TokArr }

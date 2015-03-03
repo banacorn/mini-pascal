@@ -22,6 +22,7 @@ class HasSymbol n where
 
 instance HasSymbol Statement where
     getSymbol (Assignment var expr) = getSymbol var ++ getSymbol expr
+    getSymbol (Return expr) = getSymbol expr
     getSymbol (Invocation sym exprs) = sym : (exprs >>= getSymbol)
     getSymbol (Compound stmts) = stmts >>= getSymbol
     getSymbol (Branch predExpr thenStmt elseStmt) =

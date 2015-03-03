@@ -16,7 +16,7 @@ PROGRAM foo(input, output, error) ;
    function  addition(a, b: integer) : integer;
       var c: integer;  // local declaration
       begin
-         addition := a + b   // this is the return value
+         return a + b   // this is the return value
       end;
 
    begin

@@ -10,6 +10,7 @@ import Compiler.Type.DSL.Expression
 -- Statement
 
 data Statement a = Assignment (Assignee a) (Expression a)
+                 | Return (Expression a)
                  | Invocation a [Expression a]
                  | Compound [Statement a]
                  | Branch (Expression a) (Statement a) (Statement a)
