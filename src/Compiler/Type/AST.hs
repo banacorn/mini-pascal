@@ -32,13 +32,13 @@ toSym (Token (TokID i) p) = Symbol i p
 -- Main structure
 
 data Program dec stmt = Program
-    [dec]               --  program parameters, variable and subprogram declarations
-    [Subprogram dec stmt] --  subprogram
-    (Subprogram dec stmt) --  compound statement
+    [dec]                   --  program parameters, variable and subprogram declarations
+    [Subprogram dec stmt]   --  subprogram
+    (Subprogram dec stmt)   --  compound statement
 
 data Subprogram dec stmt = Subprogram
-    [dec]             --  variable and subprogram declarations
-    [stmt]             --  compound statement
+    [dec]                   --  variable and subprogram declarations
+    [stmt]                  --  compound statement
 
 instance (Serializable a, Serializable b) => Serializable (Program a b) where
     serialize (Program decs subScopes stmts) = paragraph $
@@ -58,3 +58,9 @@ instance Bifunctor Program where
 
 instance Bifunctor Subprogram where
     bimap f g (Subprogram as bs) = Subprogram (map f as) (map g bs)
+
+--------------------------------------------------------------------------------
+-- functions on ASTs
+
+-- cook :: RawProgram -> Program
+-- cook (RawProgram)

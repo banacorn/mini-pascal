@@ -7,7 +7,7 @@ import Compiler.Type
 import Compiler.Pipeline
 -- import Compiler.Semantics
 import Compiler.AST.Scope.Declaration
-import Compiler.AST.Scope.Occurrence
+import Compiler.AST.Symbol
 import Compiler.AST.Scope.Binding
 -- import Compiler.Type.ABT
 
@@ -28,12 +28,12 @@ testA = do
         >>= parse
 
     let decScope = collectDeclaration ast
-    let occScope = collectOccurrence ast
+    let symbolScope = collectSymbol ast
     let bindScope = collectBinding ast
     --
     -- checkBinding ast $ \ abt ->
     --     draw abt
-    draw ast
+    draw symbolScope
     -- draw decScope
     -- draw occScope
     -- draw bindScope
