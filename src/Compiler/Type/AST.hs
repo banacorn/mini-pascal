@@ -7,6 +7,7 @@ module Compiler.Type.AST
     ,   toSym
     ,   Program(..)
     ,   Subprogram(..)
+    ,   RawAST, AST
     ,   merge
     ,   extractFirst, extractSecond
     ) where
@@ -21,6 +22,7 @@ import Compiler.Type.AST.Raw
 
 import Data.Monoid ((<>))
 import Data.Bifunctor
+import Data.Set (Set)
 import Control.Applicative
 import Compiler.Class.Serializable
 
@@ -41,6 +43,10 @@ data Program dec stmt = Program
 data Subprogram dec stmt = Subprogram
     [dec]                   --  variable and subprogram declarations
     [stmt]                  --  compound statement
+
+type RawAST = RawProgram
+type AST = Program (Set Declaration) Binding
+
 
 instance (Serializable a, Serializable b) => Serializable (Program a b) where
     serialize (Program decs subScopes stmts) = paragraph $

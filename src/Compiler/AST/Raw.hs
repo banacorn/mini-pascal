@@ -10,7 +10,7 @@ import              Data.Set (Set)
 import qualified    Data.Set as Set
 
 
-cookAST :: RawProgram -> Program (Set Declaration) Binding
+cookAST :: RawAST -> AST
 cookAST p = merge declarations bindings
     where   declarations = collectDeclaration p
             symbols = collectSymbol p

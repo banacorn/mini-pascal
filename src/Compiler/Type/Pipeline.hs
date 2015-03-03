@@ -33,15 +33,15 @@ data ErrorClass = CommandLineErrorClass
                 | SemanticsErrorClass
                 deriving (Eq)
 
-data PipelineError  = InvalidArgument           -- EINVAL
-                    | NoSuchFile FilePath       -- ENOENT
-                    | NotEnoughInput FilePath Source
-                    | LexError FilePath Source String Position
-                    | ParseError FilePath Source Tok Position
-                    | DeclarationDuplicatedError FilePath Source (Set Declaration)
-                    | VariableUndeclaredError FilePath Source Symbol
+data Error  = InvalidArgument           -- EINVAL
+            | NoSuchFile FilePath       -- ENOENT
+            | NotEnoughInput FilePath Source
+            | LexError FilePath Source String Position
+            | ParseError FilePath Source Tok Position
+            | DeclarationDuplicatedError FilePath Source (Set Declaration)
+            | VariableUndeclaredError FilePath Source Symbol
 
-instance Serializable PipelineError where
+instance Serializable Error where
     serialize InvalidArgument =  paragraphPadded $
             0 >>>> ["invalid argument"]
     serialize (NoSuchFile path) = paragraphPadded $

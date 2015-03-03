@@ -81,10 +81,12 @@ checkVariableUndeclared scope = case variableUndeclared scope of
 checkBinding :: AST.RawProgram -> Pipeline ()
 checkBinding ast = do
     let bindings = cookAST ast
+
     checkSemanticsError $ do
         checkDeclarationDuplicated bindings
         checkVariableUndeclared bindings
 
+    -- the AST is good enough to build ABT
 
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?
@@ -106,7 +108,7 @@ pipeline f = do
 
 --------------------------------------------------------------------------------
 -- Diagnose and refine errors
-diagnoseError :: Zustand -> ErrorClass -> [PipelineError]
+diagnoseError :: Zustand -> ErrorClass -> [Error]
 diagnoseError (Zustand Nothing _ _) _ = [InvalidArgument]
 diagnoseError (Zustand (Just path) Nothing _) _ = [NoSuchFile path]
 diagnoseError (Zustand (Just path) _ _) FileErrorClass = [NoSuchFile path]
@@ -115,7 +117,7 @@ diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass (Just (Token 
 diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass Nothing) = [NotEnoughInput path src]
 diagnoseError (Zustand (Just path) (Just src) err) SemanticsErrorClass = diagnoseSemanticsError path src (sort err)
 
-diagnoseSemanticsError :: FilePath -> Source -> [SemanticsError] -> [PipelineError]
+diagnoseSemanticsError :: FilePath -> Source -> [SemanticsError] -> [Error]
 diagnoseSemanticsError path src [] = []
 diagnoseSemanticsError path src (DeclarationDuplicated ps : xs) = map (DeclarationDuplicatedError path src) ps ++ diagnoseSemanticsError path src xs
 diagnoseSemanticsError path src (VariableUndeclared ps : xs) = map (VariableUndeclaredError path src) ps ++ diagnoseSemanticsError path src xs
