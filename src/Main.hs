@@ -8,6 +8,7 @@ import Compiler.Pipeline
 
 import Control.Monad.IO.Class
 
+import Compiler.DSL.ABT
 
 main :: IO ()
 main = pipeline $ do

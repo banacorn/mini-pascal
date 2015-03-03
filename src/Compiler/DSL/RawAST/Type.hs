@@ -12,7 +12,7 @@ class HasType a where
     getType :: a -> Type
 
 instance HasType BasicType where
-    getType RawIntType    = Type [IntegerType]
+    getType RawIntType    = Type [IntType]
     getType RawRealType   = Type [RealType]
     getType RawStringType = Type [StringType]
 

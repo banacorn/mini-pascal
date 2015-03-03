@@ -7,7 +7,7 @@ import Data.List (intercalate)
 import Data.Monoid
 
 -- first order
-data Domain = IntegerType
+data Domain = IntType
             | RealType
             | StringType
             | ArrayType (String, String) Domain
@@ -18,7 +18,7 @@ data Domain = IntegerType
 data Type = Type [Domain] deriving (Eq)
 
 instance Serializable Domain where
-    serialize IntegerType = "Int"
+    serialize IntType = "Int"
     serialize RealType = "Real"
     serialize StringType = "String"
     serialize (ArrayType (from, to) t) = "Array [" ++ from ++ " .. " ++ to ++"] " ++ serialize t
