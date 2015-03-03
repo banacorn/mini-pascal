@@ -61,18 +61,11 @@ instance Eq Declaration where
 instance Ord Declaration where
     a `compare` b = decSymbol a `compare` decSymbol b
 
-
-
---------------------------------------------------------------------------------
--- Occurrence
-
-type Occurrence = Symbol
-
 --------------------------------------------------------------------------------
 -- Binding
 
-data Binding = BoundVar Occurrence (Set Declaration)
-             | FreeVar  Occurrence
+data Binding = BoundVar Symbol (Set Declaration)
+             | FreeVar  Symbol
 
 instance Serializable Binding where
     serialize (BoundVar o d) = serialize o ++ " ==> " ++ serialize d

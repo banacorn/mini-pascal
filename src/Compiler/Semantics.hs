@@ -26,10 +26,10 @@ subScopeDeclarationDuplicated (Subprogram decs _) = filter ((> 1) . size) decs
 --------------------------------------------------------------------------------
 -- Symbols Undeclared
 
-variableUndeclared :: Program () Binding -> [Occurrence]
+variableUndeclared :: Program () Binding -> [Symbol]
 variableUndeclared (Program _ subScopes stmts) = (subScopes ++ [stmts]) >>= subScopeVariableUndeclared
 
-subScopeVariableUndeclared :: Subprogram () Binding -> [Occurrence]
+subScopeVariableUndeclared :: Subprogram () Binding -> [Symbol]
 subScopeVariableUndeclared (Subprogram _ occs) = mapMaybe free occs
     where   free (FreeVar occ) = Just occ
             free _             = Nothing

@@ -39,7 +39,7 @@ data PipelineError  = InvalidArgument           -- EINVAL
                     | LexError FilePath Source String Position
                     | ParseError FilePath Source Tok Position
                     | DeclarationDuplicatedError FilePath Source (Set Declaration)
-                    | VariableUndeclaredError FilePath Source Occurrence
+                    | VariableUndeclaredError FilePath Source Symbol
 
 instance Serializable PipelineError where
     serialize InvalidArgument =  paragraphPadded $
@@ -71,7 +71,7 @@ instance Serializable PipelineError where
         --         markPosition declaration = path ++ ":" ++ serialize (decPos declaration)
 
 data SemanticsError = DeclarationDuplicated [Set Declaration]
-                    | VariableUndeclared [Occurrence]
+                    | VariableUndeclared [Symbol]
                     deriving (Eq, Ord)
 
 instance Serializable SemanticsError where
