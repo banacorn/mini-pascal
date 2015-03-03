@@ -3,8 +3,7 @@ module Compiler.Pipeline where
 import Compiler.Type
 import Compiler.Semantics
 import Compiler.Class.Serializable
-import           Compiler.AST.Scope.Declaration
-import           Compiler.AST.Scope.Binding
+import              Compiler.AST.Raw
 import qualified    Compiler.Type.AST as AST
 import              Compiler.Type.AST (Program(..), Subprogram(..))
 
@@ -83,22 +82,22 @@ checkVariableUndeclared scope = case variableUndeclared scope of
     [] -> return ()
     xs -> throwSemanticsError (VariableUndeclared xs)
 
-checkBinding :: AST.RawProgram -> Pipeline ()
-checkBinding ast = do
-
-    let decScope = collectDeclaration ast
-    let bindScope = collectBinding ast
-
-    checkDeclarationDuplicated decScope
-    checkVariableUndeclared bindScope
-
-    errors <- getSemanticsError
-
-    if null errors then do
-        return ()
-        -- f (AST.fromAST ast)
-    else do
-        return ()
+-- checkBinding :: AST.RawProgram -> Pipeline ()
+-- checkBinding ast = do
+--
+--     let decScope = collectDeclaration ast
+--     let bindScope = collectBinding ast
+--
+--     checkDeclarationDuplicated decScope
+--     checkVariableUndeclared bindScope
+--
+--     errors <- getSemanticsError
+--
+--     if null errors then do
+--         return ()
+--         -- f (AST.fromAST ast)
+--     else do
+--         return ()
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?
 --      Exception: throws SemanticsError if any semantics error stored in der Zustand

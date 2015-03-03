@@ -5,10 +5,7 @@ import Compiler.Parser
 import Compiler.Class.Serializable
 import Compiler.Type
 import Compiler.Pipeline
--- import Compiler.Semantics
-import Compiler.AST.Scope.Declaration
-import Compiler.AST.Symbol
-import Compiler.AST.Scope.Binding
+import Compiler.AST.Raw
 -- import Compiler.Type.ABT
 
 import Control.Monad.IO.Class
@@ -26,14 +23,10 @@ testA = do
     -- ast <- readSource "./test/semantics/test-duplicate.p"
         >>= scan
         >>= parse
-
-    let decScope = collectDeclaration ast
-    let symbolScope = collectSymbol ast
-    let bindScope = collectBinding ast
     --
     -- checkBinding ast $ \ abt ->
-    --     draw abt
-    draw symbolScope
+    draw ast
+    -- draw symbolScope
     -- draw decScope
     -- draw occScope
     -- draw bindScope
