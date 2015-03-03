@@ -69,7 +69,7 @@ throwSemanticsError err = do
 -- Semantics Checking: Declaration Duplicated
 --      Exception: throws SemanticsError if any declaration duplicated (implicitly)
 --      State: saves SemanticsError if there's any
-checkDeclarationDuplicated :: Program (Set Declaration) () -> Pipeline ()
+checkDeclarationDuplicated :: Program (Set Declaration) a -> Pipeline ()
 checkDeclarationDuplicated scope = case declarationDuplicated scope of
     [] -> return ()
     xs -> throwSemanticsError (DeclarationDuplicated xs)
@@ -77,27 +77,26 @@ checkDeclarationDuplicated scope = case declarationDuplicated scope of
 -- Semantics Checking: Variable Undeclared
 --      Exception: throws SemanticsError if any declaration undeclared (implicitly)
 --      State: saves SemanticsError if there's any
-checkVariableUndeclared :: Program () Binding -> Pipeline ()
+checkVariableUndeclared :: Program a Binding -> Pipeline ()
 checkVariableUndeclared scope = case variableUndeclared scope of
     [] -> return ()
     xs -> throwSemanticsError (VariableUndeclared xs)
 
--- checkBinding :: AST.RawProgram -> Pipeline ()
--- checkBinding ast = do
---
---     let decScope = collectDeclaration ast
---     let bindScope = collectBinding ast
---
---     checkDeclarationDuplicated decScope
---     checkVariableUndeclared bindScope
---
---     errors <- getSemanticsError
---
---     if null errors then do
---         return ()
---         -- f (AST.fromAST ast)
---     else do
---         return ()
+checkBinding :: AST.RawProgram -> (Program Declaration Variable -> Pipeline ()) -> Pipeline ()
+checkBinding ast f = do
+
+    let bindings = cookAST ast
+
+    checkDeclarationDuplicated bindings
+    checkVariableUndeclared bindings
+
+    errors <- getSemanticsError
+
+    if null errors then do
+        return ()
+        -- f (AST.fromAST ast)
+    else do
+        return ()
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?
 --      Exception: throws SemanticsError if any semantics error stored in der Zustand
