@@ -3,6 +3,7 @@ module Compiler.Semantics where
 import Compiler.Type
 import Compiler.Type.DSL
 import Compiler.DSL.ABT
+import Compiler.DSL.RawAST.Statement
 import Data.Set (Set, size)
 import Data.Maybe (isNothing)
 
@@ -25,5 +26,5 @@ variableUndeclared = map fst . filter (isNothing . snd) . extractSecond
 --------------------------------------------------------------------------------
 -- Type Checking
 
--- typeCheck :: ABT -> [TypeError]
--- typeCheck = _ . extractSecond
+typeCheck :: RawAST -> ABT -> [TypeError]
+typeCheck = _ . extractSecond
