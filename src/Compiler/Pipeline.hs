@@ -7,12 +7,10 @@ import Compiler.Syntax.Type.Position
 import Compiler.Syntax.Type.Token
 
 
-import              Compiler.DSL.RawAST
-import              Compiler.DSL.AST
-import              Compiler.Type.DSL
+import              Compiler.DSL
+import              Compiler.DSL.Type
 import              Compiler.Semantics
 import              Compiler.TypeCheck
--- import qualified    Compiler.CodeGen as CodeGen
 
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except

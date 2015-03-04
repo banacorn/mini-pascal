@@ -1,10 +1,10 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Compiler.Type.DSL.Statement where
+module Compiler.DSL.Type.Statement where
 
 import Compiler.Class.Serializable
 import Compiler.Type.Symbol
-import Compiler.Type.DSL.Expression
+import Compiler.DSL.Type.Expression
 
 --------------------------------------------------------------------------------
 -- Statement

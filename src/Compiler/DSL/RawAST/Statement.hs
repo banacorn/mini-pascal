@@ -1,6 +1,6 @@
 module Compiler.DSL.RawAST.Statement (restoreStatement) where
 
-import Compiler.Type.DSL
+import Compiler.DSL.Type
 import Compiler.Type.Symbol
 
 import Control.Monad.State

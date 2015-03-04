@@ -2,7 +2,7 @@ module Compiler.DSL.RawAST.Type (HasType(..)) where
 
 import Compiler.Type
 import Compiler.Type.Type
-import Compiler.Type.DSL
+import Compiler.DSL.Type
 
 import Data.Monoid
 

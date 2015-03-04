@@ -1,22 +1,13 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Compiler.Type.DSL
-    (   module Compiler.Type.DSL.Expression
-    ,   module Compiler.Type.DSL.Statement
-    ,   module Compiler.Type.DSL.RawAST
-    ,   Program(..)
-    ,   Subprogram(..)
-    ,   RawAST, AST, ABT
-    ,   merge
-    ,   extractFirst, extractSecond, map2
-    ) where
+module Compiler.DSL.Type.DSL where
 
 import Compiler.Syntax.Type.Token
 import Compiler.Type.Symbol
 
-import Compiler.Type.DSL.Expression
-import Compiler.Type.DSL.Statement
-import Compiler.Type.DSL.RawAST
+import Compiler.DSL.Type.Expression
+import Compiler.DSL.Type.Statement
+import Compiler.DSL.Type.RawAST
 
 
 import Data.Bifunctor

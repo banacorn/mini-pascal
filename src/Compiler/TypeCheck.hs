@@ -4,7 +4,7 @@ module Compiler.TypeCheck (typeCheckStatement, TypeError(..)) where
 
 import Compiler.Type.Symbol
 import Compiler.Type.Type
-import Compiler.Type.DSL
+import Compiler.DSL.Type
 import Compiler.Class.Serializable
 
 import Data.Maybe

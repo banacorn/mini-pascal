@@ -3,7 +3,7 @@ module Compiler.Syntax.Parser where
 
 import Compiler.Syntax.Type.Token
 import Compiler.Type.Pipeline
-import Compiler.Type.DSL
+import Compiler.DSL.Type
 import Compiler.Type.Symbol
 import Compiler.Syntax.Lexer
 import Control.Monad.Except

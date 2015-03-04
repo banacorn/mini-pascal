@@ -1,8 +1,8 @@
 module Compiler.DSL.RawAST.Declaration (collectDeclaration) where
 
 import Compiler.Type
-import Compiler.Type.DSL
 import Compiler.Type.Symbol
+import Compiler.DSL.Type
 import Compiler.DSL.RawAST.Type
 
 import Data.Set (Set)
