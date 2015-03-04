@@ -85,7 +85,7 @@ instance Typeable (Term Value) where
     typeCheck (NegTerm e) = typeCheck e
 
 instance Typeable (Factor Value) where
-    typeCheck (ArrayAccessFactor a) = typeCheck a
+    typeCheck (VariableFactor a) = typeCheck a
     typeCheck (InvocationFactor a es) = typeCheck a -- typeCheckInvocation a
     typeCheck (NumberFactor e) = typeCheck e
     typeCheck (SubFactor e) = typeCheck e

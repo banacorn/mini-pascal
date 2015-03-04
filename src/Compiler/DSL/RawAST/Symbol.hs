@@ -44,7 +44,7 @@ instance HasSymbol Term where
     getSymbol (NegTerm factor) = getSymbol factor
 
 instance HasSymbol Factor where
-    getSymbol (ArrayAccessFactor sym) = [sym]
+    getSymbol (VariableFactor sym) = [sym]
     getSymbol (InvocationFactor  sym exprs) = sym : (exprs >>= getSymbol)
     getSymbol (NumberFactor num) = []
     getSymbol (SubFactor expr) = getSymbol expr

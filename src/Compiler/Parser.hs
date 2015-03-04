@@ -802,7 +802,7 @@ happyReduction_34 _ _ _  = notHappyAtAll
 happyReduce_35 = happySpecReduce_1  18 happyReduction_35
 happyReduction_35 (HappyTerminal happy_var_1)
 	 =  HappyAbsSyn18
-		 (ArrayAccessFactor (toSym happy_var_1)
+		 (VariableFactor (toSym happy_var_1)
 	)
 happyReduction_35 _  = notHappyAtAll 
 

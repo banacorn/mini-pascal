@@ -130,7 +130,7 @@ term
 
 
 factor
-    : id                            { ArrayAccessFactor (toSym $1) }
+    : id                            { VariableFactor (toSym $1) }
     | id '(' expression_list ')'    { InvocationFactor (toSym $1) $3 }
     | int                           { NumberFactor (toLiteral $1) }
     | real                          { NumberFactor (toLiteral $1) }

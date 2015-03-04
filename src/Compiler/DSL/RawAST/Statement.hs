@@ -77,9 +77,9 @@ instance Restorable Term where
     restore (NegTerm factor) = restore factor >>= return . NegTerm
 
 instance Restorable Factor where
-    restore (ArrayAccessFactor sym) = do
+    restore (VariableFactor sym) = do
         sym' <- pop
-        return (ArrayAccessFactor sym')
+        return (VariableFactor sym')
     restore (InvocationFactor sym exprs) = do
         sym' <- pop
         exprs' <- mapM restore exprs
