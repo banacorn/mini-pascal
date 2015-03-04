@@ -680,14 +680,14 @@ happyReduce_7 = happyReduce 8 7 happyReduction_7
 happyReduction_7 ((HappyAbsSyn7  happy_var_8) `HappyStk`
 	_ `HappyStk`
 	_ `HappyStk`
-	(HappyTerminal (Token (TokInt happy_var_5) _)) `HappyStk`
+	(HappyTerminal happy_var_5) `HappyStk`
 	_ `HappyStk`
-	(HappyTerminal (Token (TokInt happy_var_3) _)) `HappyStk`
+	(HappyTerminal happy_var_3) `HappyStk`
 	_ `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn7
-		 (Array (happy_var_3, happy_var_5) happy_var_8
+		 (Array (getInt (toLiteral happy_var_3), getInt (toLiteral happy_var_5)) happy_var_8
 	) `HappyStk` happyRest
 
 happyReduce_8 = happySpecReduce_1  8 happyReduction_8
@@ -1003,16 +1003,16 @@ happyReduction_43 (_ `HappyStk`
 	) `HappyStk` happyRest
 
 happyReduce_44 = happySpecReduce_1  21 happyReduction_44
-happyReduction_44 (HappyTerminal (Token (TokInt happy_var_1) _))
+happyReduction_44 (HappyTerminal happy_var_1)
 	 =  HappyAbsSyn21
-		 (NumberFactor (IntLiteral (read happy_var_1))
+		 (NumberFactor (toLiteral happy_var_1)
 	)
 happyReduction_44 _  = notHappyAtAll 
 
 happyReduce_45 = happySpecReduce_1  21 happyReduction_45
-happyReduction_45 (HappyTerminal (Token (TokReal happy_var_1) _))
+happyReduction_45 (HappyTerminal happy_var_1)
 	 =  HappyAbsSyn21
-		 (NumberFactor (RealLiteral (read happy_var_1))
+		 (NumberFactor (toLiteral happy_var_1)
 	)
 happyReduction_45 _  = notHappyAtAll 
 
@@ -1108,9 +1108,9 @@ happyNewToken action sts stk (tk:tks) =
 	Token TokLSB _ -> cont 31;
 	Token TokRSB _ -> cont 32;
 	Token (TokID _) _ -> cont 33;
-	Token (TokStr happy_dollar_dollar) _ -> cont 34;
-	Token (TokInt happy_dollar_dollar) _ -> cont 35;
-	Token (TokReal happy_dollar_dollar) _ -> cont 36;
+	Token (TokStr _) _ -> cont 34;
+	Token (TokInt _) _ -> cont 35;
+	Token (TokReal _) _ -> cont 36;
 	Token TokTypeStr _ -> cont 37;
 	Token TokTypeInt _ -> cont 38;
 	Token TokTypeReal _ -> cont 39;

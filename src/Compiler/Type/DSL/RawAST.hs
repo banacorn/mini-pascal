@@ -29,15 +29,14 @@ instance Serializable RawProgram where
             paramList = intercalate' ", " (map getID params)
 
 -- Type
-type Number = String
 data RawType = Basic BasicType
-             | Array (Number, Number) RawType
+             | Array (Int, Int) RawType
 data BasicType = RawIntType | RawRealType | RawStringType
 
 instance Serializable RawType where
     serialize (Basic t) = serialize t
     serialize (Array (a, b) t) =
-        "array [ " ++ a ++ " .. " ++ b ++ " ] of " ++ serialize t
+        "array [ " ++ show a ++ " .. " ++ show b ++ " ] of " ++ serialize t
 
 instance Serializable BasicType where
     serialize RawIntType = "int"

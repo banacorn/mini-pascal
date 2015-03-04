@@ -23,9 +23,9 @@ import Control.Monad.Except
     '['             { Token TokLSB _ }
     ']'             { Token TokRSB _ }
     id              { Token (TokID _) _ }
-    str             { Token (TokStr $$) _ }
-    int             { Token (TokInt $$) _ }
-    real            { Token (TokReal $$) _ }
+    str             { Token (TokStr _) _ }
+    int             { Token (TokInt _) _ }
+    real            { Token (TokReal _) _ }
     typeStr         { Token TokTypeStr _ }
     typeInt         { Token TokTypeInt _ }
     typeReal        { Token TokTypeReal _ }
@@ -78,7 +78,7 @@ variable_declarations
 
 type
     : standard_type                          { Basic $1 }
-    | array '[' int '..' int ']' of type     { Array ($3, $5) $8 }
+    | array '[' int '..' int ']' of type     { Array (getInt (toLiteral $3), getInt (toLiteral $5)) $8 }
 
 
 standard_type
@@ -156,8 +156,8 @@ term
 factor
     : id tail                       { ArrayAccessFactor (toSym $1) $2 }
     | id '(' expression_list ')'    { InvocationFactor (toSym $1) $3 }
-    | int                           { NumberFactor (IntLiteral (read $1)) }
-    | real                          { NumberFactor (RealLiteral (read $1)) }
+    | int                           { NumberFactor (toLiteral $1) }
+    | real                          { NumberFactor (toLiteral $1) }
     | '(' expression ')'            { SubFactor $2 }
     | not factor                    { NotFactor $2 }
 

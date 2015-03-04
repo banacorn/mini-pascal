@@ -108,8 +108,8 @@ instance Typeable (Factor Value) where
 
 instance Typeable Value where
     typeCheck v@(Variable _ (Declaration _ t)) = GotType v t
-    typeCheck v@(IntLiteral _)                 = GotType v (Type [IntType])
-    typeCheck v@(RealLiteral _)                = GotType v (Type [RealType])
+    typeCheck v@(IntLiteral _ _)               = GotType v (Type [IntType])
+    typeCheck v@(RealLiteral _ _)              = GotType v (Type [RealType])
 
 --------------------------------------------------------------------------------
 

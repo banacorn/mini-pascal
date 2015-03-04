@@ -16,6 +16,13 @@ import qualified Data.Set as Set
 toSym :: Token -> Symbol
 toSym (Token (TokID i) p) = Symbol i p
 
+toLiteral :: Token -> Value
+toLiteral (Token (TokInt  i) p) = IntLiteral (read i) p
+toLiteral (Token (TokReal i) p) = RealLiteral (read i) p
+
+getInt :: Value -> Int
+getInt (IntLiteral i _) = i
+getInt _ = error "not Int"
 --------------------------------------------------------------------------------
 --  Symbol
 
@@ -84,25 +91,26 @@ instance Serializable Binding where
 -- Value, for ABT
 
 data Value  = Variable Symbol Declaration
-            | IntLiteral Int
-            | RealLiteral Double
+            | IntLiteral Int Position
+            | RealLiteral Double Position
             deriving (Eq, Ord)
 
 instance HasType Value where
     getType (Variable sym dec) = decType dec
-    getType (IntLiteral i) = Type [IntType]
-    getType (RealLiteral i) = Type [RealType]
+    getType (IntLiteral i _) = Type [IntType]
+    getType (RealLiteral i _) = Type [RealType]
 
 instance Serializable Value where
     serialize (Variable sym dec) = serialize sym ++ " ==> " ++ serialize dec
-    serialize (IntLiteral i) = show i
-    serialize (RealLiteral i) = show i
+    serialize (IntLiteral i _) = show i
+    serialize (RealLiteral i _) = show i
 
 instance Sym Value where
     getID (Variable sym dec) = getID dec
-    getID _ = "Literal"
+    getID literal = serialize literal
     getPos (Variable sym dec) = getPos dec
-    getPos _ = Unknown
+    getPos (IntLiteral _ p) = p
+    getPos (RealLiteral _ p) = p
 --------------------------------------------------------------------------------
 -- helper functions
 

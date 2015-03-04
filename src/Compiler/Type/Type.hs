@@ -14,7 +14,7 @@ import Data.Monoid
 data Domain = IntType
             | RealType
             | StringType
-            | ArrayType (String, String) Domain
+            | ArrayType (Int, Int) Domain
             | ProgramParamType
             | UnitType                          -- ()
             deriving (Eq, Ord)
@@ -28,7 +28,7 @@ instance Serializable Domain where
     serialize IntType = "Int"
     serialize RealType = "Real"
     serialize StringType = "String"
-    serialize (ArrayType (from, to) t) = "Array [" ++ from ++ " .. " ++ to ++"] " ++ serialize t
+    serialize (ArrayType (from, to) t) = "Array [" ++ show from ++ " .. " ++  show to ++"] " ++ serialize t
     serialize ProgramParamType = "ProgArg"
     serialize UnitType = "()"
 
