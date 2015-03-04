@@ -34,12 +34,6 @@ PROGRAM foo(input, output, error) ;
             b := b +1
          end;
          sort(d)   // a procedure call
-      end;
-      k[25][26] := 3;        // wrong element type
-      k[25][26] := 3.14;     // good
-      k[25][26] := k[25][26] + 3;     // good
-      k[25][126]  := 3.14;   // index out of bound, can your compiler find this error?
-      k[125][26]  := 3.14;   // index out of bound, can your compiler find this error?
-      k[125][126] := 3.14    // index out of bound, can your compiler find this error?
+      end
 
    end.   // this is the end of the program

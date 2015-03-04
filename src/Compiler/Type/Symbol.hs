@@ -101,14 +101,14 @@ instance HasType Value where
     getType (RealLiteral i _) = Type [RealType]
 
 instance Serializable Value where
-    serialize (Variable sym dec) = serialize sym ++ " ==> " ++ serialize dec
-    serialize (IntLiteral i _) = show i
-    serialize (RealLiteral i _) = show i
+    serialize (Variable sym dec) = "[ " ++ serialize sym ++ " (" ++ serialize dec ++ ")" ++ " ]"
+    serialize (IntLiteral i _) = "[ " ++ green (show i) ++ ": Int" ++ " ]"
+    serialize (RealLiteral i _) = "[ " ++ green (show i) ++ ": Real" ++ " ]"
 
 instance Sym Value where
-    getID (Variable sym dec) = getID dec
+    getID (Variable sym dec) = symID sym
     getID literal = serialize literal
-    getPos (Variable sym dec) = getPos dec
+    getPos (Variable sym dec) = symPos sym
     getPos (IntLiteral _ p) = p
     getPos (RealLiteral _ p) = p
 --------------------------------------------------------------------------------

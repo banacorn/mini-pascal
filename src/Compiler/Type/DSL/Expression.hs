@@ -50,9 +50,9 @@ data Factor a = ArrayAccessFactor a [Expression a]     -- id[]
               deriving Functor
 
 instance (Serializable a, Sym a) => Serializable (Factor a) where
-    serialize (ArrayAccessFactor sym exprs) = getID sym ++ (exprs >>= showArrayAccess)
+    serialize (ArrayAccessFactor sym exprs) = serialize sym ++ (exprs >>= showArrayAccess)
         where   showArrayAccess a = "[" ++ serialize a ++ "]"
-    serialize (InvocationFactor sym exprs)  = getID sym ++ "(" ++ exprs' ++ ")"
+    serialize (InvocationFactor sym exprs)  = serialize sym ++ "(" ++ exprs' ++ ")"
         where   exprs' = intercalate' ", " exprs
     serialize (NumberFactor s) = serialize s
     serialize (SubFactor e) = serialize e

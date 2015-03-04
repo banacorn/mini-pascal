@@ -22,8 +22,8 @@ data Assignee a = Assignee a [Expression a] -- e.g. a[1+2][3*4]
 instance (Serializable a, Sym a) => Serializable (Statement a) where
     serialize (Assignment v e) = serialize v ++ " := " ++ serialize e
     serialize (Return e) = "return " ++ serialize e
-    serialize (Invocation sym []) = getID sym
-    serialize (Invocation sym exprs) = getID sym ++ "(" ++ exprs' ++ ")"
+    serialize (Invocation sym []) = serialize sym
+    serialize (Invocation sym exprs) = serialize sym ++ "(" ++ exprs' ++ ")"
         where   exprs' = intercalate' ", " exprs
     serialize (Compound stmts) = paragraph $ compound stmts
     serialize (Branch e s t) = paragraph $
@@ -35,5 +35,5 @@ instance (Serializable a, Sym a) => Serializable (Statement a) where
         ++  1 >>>> [s]
 
 instance (Serializable a, Sym a) => Serializable (Assignee a) where
-    serialize (Assignee sym es) = getID sym ++ (es >>= showArrayAccess)
+    serialize (Assignee sym es) = serialize sym ++ (es >>= showArrayAccess)
         where   showArrayAccess e = "[" ++ serialize e ++ "]"

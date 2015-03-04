@@ -8,13 +8,17 @@ import Compiler.Type.DSL
 import Compiler.Class.Serializable
 
 import Data.Maybe
-
+import Compiler.Type.Token
 
 --------------------------------------------------------------------------------
 -- TypeCheck data type
 data TypeCheck = Screwed [TypeError]
                | GotType Value Type
                deriving (Eq)
+
+instance Serializable TypeCheck where
+    serialize (Screwed errors) = paragraph $ 0 >>>> errors
+    serialize (GotType val typ) = serialize val ++ " : " ++ serialize typ
 
 
 data TypeError  = TypeMismatch Value Type Type -- expected, got
@@ -26,13 +30,13 @@ data TypeError  = TypeMismatch Value Type Type -- expected, got
 
 instance Serializable TypeError where
     serialize (TypeMismatch v expected got) = paragraph $
-            0 >>>> ["Type Mismatch: " ++ yellow (serialize v)]
+            0 >>>> ["Type Mismatch: " ++ yellow (serialize $ getID v)]
         ++  1 >>>> ["expected: " ++ cyan (serialize expected)]
         ++  1 >>>> ["     got: " ++ cyan (serialize got)]
-    serialize (ExpectArray v) = "ExpectArray"
-    serialize (NotInvocable v) = "NotInvocable"
-    serialize (IndexNotInt v) = "IndexNotInt"
-    serialize (SubprogramTypeError v) = "SubprogramTypeError"
+    serialize (ExpectArray v) = "Not Array: " ++ yellow (serialize v)
+    serialize (NotInvocable v) = "Not Subprogram: " ++ yellow (serialize v)
+    serialize (IndexNotInt v) = "Index not Int: " ++ yellow (serialize v)
+    serialize (SubprogramTypeError v) = "Subprogram: " ++ yellow (serialize v)
 
 instance Sym TypeError where
     getID (TypeMismatch v _ _) = getID v
@@ -57,6 +61,28 @@ GotType x s <-> GotType y t | s == t = GotType y t
 (<=>) :: (Typeable a, Typeable b) => a -> b -> TypeCheck
 a <=> b = typeCheck a <-> typeCheck b
 
+qq :: Serializable a => a -> IO ()
+qq = putStrLn . serialize
+
+a :: Symbol
+a = Symbol "a" Unknown
+
+aa :: Value
+aa = Variable a (Declaration a (Type [IntType]))
+
+ab :: Value
+ab = Variable a (Declaration a (Type [RealType]))
+
+li :: Value
+li = IntLiteral 1 Unknown
+lr :: Value
+lr = RealLiteral 1.5 Unknown
+
+ee :: Expression Value
+ee = UnaryExpression (TermSimpleExpression (FactorTerm (NumberFactor lr)))
+
+as :: Statement Value
+as = Compound [Assignment (Assignee aa []) ee]
 --------------------------------------------------------------------------------
 -- Typeable!
 
