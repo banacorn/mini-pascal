@@ -69,9 +69,10 @@ instance Serializable Error where
         ++  1 >>>> codeBlocks
         where   codeBlocks = toCodeBlocks path src [pos]
     serialize (TypeCheckError path src typeError) = paragraphPadded $
-            0 >>>> [red "Type Error: "]
-        -- ++  1 >>>> codeBlocks
-        -- where   codeBlocks = toCodeBlocks path src [pos]
+            0 >>>> [red "Type Error: " ++ serialize typeError]
+        ++  1 >>>> codeBlocks
+        where   pos = getPos typeError
+                codeBlocks = toCodeBlocks path src [pos]
 data SemanticsError = SemDeclarationDuplicated [Set Declaration]
                     | SemVariableUndeclared [Symbol]
                     | SemTypeError [TypeError]

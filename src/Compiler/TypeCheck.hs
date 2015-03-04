@@ -19,21 +19,32 @@ data TypeCheck = Screwed [TypeError]
 
 data TypeError  = TypeMismatch Value Type Type -- expected, got
                 | ExpectArray Value  -- got to be array
-                | NotInvocable -- got to be subprogram
+                | NotInvocable Value -- got to be subprogram
                 | IndexNotInt Value -- got to be all Int
                 | SubprogramTypeError Value
                 deriving (Eq, Ord)
 
 instance Serializable TypeError where
-    serialize (TypeMismatch v expected got) =
-        "Type Mismatch: " ++ serialize v ++
-        "\n    expected: " ++ serialize expected ++
-        "\n         got: " ++ serialize got
+    serialize (TypeMismatch v expected got) = paragraph $
+            0 >>>> ["Type Mismatch: " ++ yellow (serialize v)]
+        ++  1 >>>> ["expected: " ++ cyan (serialize expected)]
+        ++  1 >>>> ["     got: " ++ cyan (serialize got)]
     serialize (ExpectArray v) = "ExpectArray"
-    serialize (NotInvocable) = "NotInvocable"
+    serialize (NotInvocable v) = "NotInvocable"
     serialize (IndexNotInt v) = "IndexNotInt"
     serialize (SubprogramTypeError v) = "SubprogramTypeError"
 
+instance Sym TypeError where
+    getID (TypeMismatch v _ _) = getID v
+    getID (ExpectArray v) = getID v
+    getID (NotInvocable v) = getID v
+    getID (IndexNotInt v) = getID v
+    getID (SubprogramTypeError v) = getID v
+    getPos (TypeMismatch v _ _) = getPos v
+    getPos (ExpectArray v) = getPos v
+    getPos (NotInvocable v) = getPos v
+    getPos (IndexNotInt v) = getPos v
+    getPos (SubprogramTypeError v) = getPos v
 --------------------------------------------------------------------------------
 -- functions on TypeCheck
 (<->) :: TypeCheck -> TypeCheck -> TypeCheck
