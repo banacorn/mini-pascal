@@ -5,6 +5,7 @@ import Compiler.Parser
 import Compiler.Class.Serializable
 import Compiler.Type
 import Compiler.Pipeline
+import Compiler.CodeGen
 
 import Control.Monad.IO.Class
 

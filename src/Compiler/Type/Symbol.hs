@@ -23,6 +23,8 @@ toLiteral (Token (TokReal i) p) = RealLiteral (read i) p
 getInt :: Value -> Int
 getInt (IntLiteral i _) = i
 getInt _ = error "not Int"
+
+
 --------------------------------------------------------------------------------
 --  Symbol
 
@@ -79,12 +81,10 @@ instance Ord Declaration where
 -- Binding
 
 type Binding = (Symbol, Maybe (Set Declaration))
---
+
 instance Serializable Binding where
     serialize (sym, Nothing) = serialize sym ++ yellow " ==> ?"
     serialize (sym, Just decs) = serialize sym ++ " ==> " ++ serialize decs
---     serialize (BoundVar o d) = serialize o ++ " ==> " ++ serialize d
---     serialize (FreeVar  o  ) = serialize o ++ yellow " ==> ?"
 
 
 --------------------------------------------------------------------------------
