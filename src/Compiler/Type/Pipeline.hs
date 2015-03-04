@@ -53,26 +53,26 @@ instance Serializable Error where
         ++  1 >>>> ["Not enough input"]
     serialize (LexError path src tok pos) = paragraphPadded $
             0 >>>> [red "Unrecognizable token: " ++ yellow tok]
-        ++  1 >>>> toCodeBlocks path src [pos]
+        ++  1 >>>> toCodeMaps path src [pos]
     serialize (ParseError path src tok pos) = paragraphPadded $
             0 >>>> [red "Unable to parse " ++ yellow (serialize tok)]
-        ++  1 >>>> toCodeBlocks path src [pos]
+        ++  1 >>>> toCodeMaps path src [pos]
     serialize (DeclarationDuplicatedError path src partition) = paragraphPadded $
             0 >>>> [red "Declaration Duplicated: " ++ yellow (serialize name)]
-        ++  1 >>>> codeBlocks
+        ++  1 >>>> codeMaps
         where   partition' = sort (Set.toList partition)              -- sort declarations base on their position
                 Declaration (Symbol name pos) typ = head partition'    -- get the foremost declaration
                 markPosition declaration = path ++ ":" ++ serialize (symPos (decSymbol declaration))
-                codeBlocks = toCodeBlocks path src (map (symPos . decSymbol) partition')
+                codeMaps = toCodeMaps path src (map (symPos . decSymbol) partition')
     serialize (VariableUndeclaredError path src (Symbol name pos)) = paragraphPadded $
             0 >>>> [red "Variable Undeclared: " ++ yellow (serialize name)]
-        ++  1 >>>> codeBlocks
-        where   codeBlocks = toCodeBlocks path src [pos]
+        ++  1 >>>> codeMaps
+        where   codeMaps = toCodeMaps path src [pos]
     serialize (TypeCheckError path src typeError) = paragraphPadded $
             0 >>>> [red "Type Error: " ++ serialize typeError]
-        ++  1 >>>> codeBlocks
+        ++  1 >>>> codeMaps
         where   pos = getPos typeError
-                codeBlocks = toCodeBlocks path src [pos]
+                codeMaps = toCodeMaps path src [pos]
 data SemanticsError = SemDeclarationDuplicated [Set Declaration]
                     | SemVariableUndeclared [Symbol]
                     | SemTypeError [TypeError]
@@ -83,36 +83,36 @@ instance Serializable SemanticsError where
     serialize (SemVariableUndeclared syms) = "VariableUndeclared: " ++ serialize syms
     serialize (SemTypeError errs) = "TypeError: " ++ serialize errs
 
-data CodeBlock = CodeBlock
-    {   codeBlockPath :: FilePath
-    ,   codeBlockSource :: Source
-    ,   codeBlockPositions :: [Position]
-    ,   codeBlockRange :: (Int, Int)        -- Line n ~ Line m
+data CodeMap = CodeMap
+    {   codeMapPath :: FilePath
+    ,   codeMapSource :: Source
+    ,   codeMapPositions :: [Position]
+    ,   codeMapRange :: (Int, Int)        -- Line n ~ Line m
     }   deriving Show
 
 
--- converts positions to code blocks
-toCodeBlocks :: FilePath -> Source -> [Position] -> [CodeBlock]
-toCodeBlocks path src ps = mergeCodeBlocks $ map (toCodeBlock path src) (sort ps)
+-- converts positions to code maps
+toCodeMaps :: FilePath -> Source -> [Position] -> [CodeMap]
+toCodeMaps path src ps = mergeCodeMaps $ map (toCodeMap path src) (sort ps)
     where
-        toCodeBlock :: FilePath -> Source -> Position -> CodeBlock
-        toCodeBlock path src Unknown = error "converting unknown position to Code Block"
-        toCodeBlock path src pos@(Position o n l c) = CodeBlock path src [pos] (rangeFrom, rangeTo)
+        toCodeMap :: FilePath -> Source -> Position -> CodeMap
+        toCodeMap path src Unknown = error "converting unknown position to Code Map"
+        toCodeMap path src pos@(Position o n l c) = CodeMap path src [pos] (rangeFrom, rangeTo)
             where   sourceHeight = length (lines src)
                     radius = 2                                      -- range [n - range, n + range]
                     rangeFrom = (l - 1 - radius) `max` 0            -- don't go below 0
                     rangeTo   = (l + radius) `min` sourceHeight     -- don't go over the source
 
-        -- merge Code Blocks if they are close to each other
-        mergeCodeBlocks :: [CodeBlock] -> [CodeBlock]
-        mergeCodeBlocks [] = []
-        mergeCodeBlocks [CodeBlock p s pos (m, n)] = [CodeBlock p s pos (m, n)]
-        mergeCodeBlocks (CodeBlock p s pos (m, n) : CodeBlock p' s' pos' (m', n') : xs)
-            | n >= m' && p == p' && s == s' = CodeBlock p s (pos ++ pos') (m, n') : mergeCodeBlocks xs -- overlap
-            | otherwise = CodeBlock p s pos (m, n ) : CodeBlock p' s' pos' (m', n') : mergeCodeBlocks xs
+        -- merge Code blocks if they are close to each other
+        mergeCodeMaps :: [CodeMap] -> [CodeMap]
+        mergeCodeMaps [] = []
+        mergeCodeMaps [CodeMap p s pos (m, n)] = [CodeMap p s pos (m, n)]
+        mergeCodeMaps (CodeMap p s pos (m, n) : CodeMap p' s' pos' (m', n') : xs)
+            | n >= m' && p == p' && s == s' = CodeMap p s (pos ++ pos') (m, n') : mergeCodeMaps xs -- overlap
+            | otherwise = CodeMap p s pos (m, n ) : CodeMap p' s' pos' (m', n') : mergeCodeMaps xs
 
-instance Serializable CodeBlock where
-    serialize (CodeBlock path src positions (from, to)) = paragraphPadded $
+instance Serializable CodeMap where
+    serialize (CodeMap path src positions (from, to)) = paragraphPadded $
             0 >>>> (map markPosition positions)
         ++  0 >>>> ["----------------------------------------------------------------"]
         ++  0 >>>> numberedLines
