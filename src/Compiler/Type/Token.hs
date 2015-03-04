@@ -16,11 +16,11 @@ data Tok    = TokID String         -- identifiers
             -- | TokRSB               -- ]
             | TokTypeInt           -- "integer"
             | TokTypeReal          -- "real"
+            | TokTypeVoid          -- "void"
             | TokInt String        -- integer literal
             | TokReal String       -- real literal
             | TokProgram           -- "program"
             | TokFunction          -- "function"
-            | TokProc              -- "procedure"
             | TokBegin             -- "begin"
             | TokReturn            -- "return"
             | TokEnd               -- "end"
@@ -58,20 +58,17 @@ instance Serializable Tok where
     serialize TokColon = ":"            -- :
     serialize TokPeriod = "."           -- .
     serialize TokComma = ","            -- ,
-    -- serialize TokLSB = "["              -- [
-    -- serialize TokRSB = "]"              -- ]
     serialize TokTypeInt = "integer"          -- "integer"
     serialize TokTypeReal = "real"         -- "real"
+    serialize TokTypeVoid = "void"              -- "void"
     serialize (TokInt s) = s        -- int numbers
     serialize (TokReal s) = s        -- real numbers
     serialize TokProgram = "program"          -- "program"
     serialize TokFunction = "function"         -- "function"
-    serialize TokProc = "procedure"             -- "procedure"
     serialize TokBegin = "begin"            -- "begin"
     serialize TokReturn = "return"          -- "return"
     serialize TokEnd = "end"              -- "end"
     serialize TokVar = "var"              -- "var"
-    -- serialize TokArr = "array"              -- "array"
     serialize TokOf = "of"               -- "of"
     serialize TokIf = "if"               -- "if"
     serialize TokThen = "then"             -- "then"

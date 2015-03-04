@@ -18,16 +18,9 @@ collectDeclaration (RawProgram _ params vars subprogs _) = Program
                  ++ (subprogs >>= fromSubprogs)
             fromVars (VarDec ids t) = map (flip Declaration (getType t)) ids
             fromSubprogs n@(FuncDec sym _ ret _ _) = [Declaration sym (getType n)]
-            fromSubprogs n@(ProcDec sym _     _ _) = [Declaration sym (getType n)]
 
 collectSubprogramDeclaration :: RawSubprogram -> Subprogram (Set Declaration) ()
 collectSubprogramDeclaration (FuncDec sym params ret vars stmt) = Subprogram (partite decs) []
-    where
-        decs = (params >>= fromParams) ++ (vars >>= fromVars)
-        fromParams (Parameter ids t) = map (flip Declaration (getType t)) ids
-        fromVars   (VarDec    ids t) = map (flip Declaration (getType t)) ids
-
-collectSubprogramDeclaration (ProcDec sym params vars stmt) = Subprogram (partite decs) []
     where
         decs = (params >>= fromParams) ++ (vars >>= fromVars)
         fromParams (Parameter ids t) = map (flip Declaration (getType t)) ids

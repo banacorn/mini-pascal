@@ -13,8 +13,8 @@ import Data.Monoid
 -- first order
 data Domain = IntType
             | RealType
+            | VoidType                          -- ()
             | ProgramParamType
-            | UnitType                          -- ()
             deriving (Eq, Ord)
 
 data Type   = BasicType Domain
@@ -26,8 +26,8 @@ class HasType a where
 instance Serializable Domain where
     serialize IntType = "Int"
     serialize RealType = "Real"
+    serialize VoidType = "void"
     serialize ProgramParamType = "ProgArg"
-    serialize UnitType = "()"
 
 instance Serializable Type where
     serialize (BasicType domain) = serialize domain

@@ -25,9 +25,9 @@ import Control.Monad.Except
     real            { Token (TokReal _) _ }
     typeInt         { Token TokTypeInt _ }
     typeReal        { Token TokTypeReal _ }
+    typeVoid        { Token TokTypeVoid _ }
     progtok         { Token TokProgram _ }
     function        { Token TokFunction _ }
-    procedure       { Token TokProc _ }
     begin           { Token TokBegin _ }
     return          { Token TokReturn _ }
     end             { Token TokEnd _ }
@@ -73,7 +73,7 @@ variable_declarations
 type
     : typeInt       { RawIntType }
     | typeReal      { RawRealType }
-
+    | typeVoid      { RawVoidType }
 
 subprogram_declarations
     : {- empty -}                                           { [] }
@@ -85,10 +85,6 @@ subprogram_declaration
         { FuncDec (toSym $2) [] $4 $6 $7 }
     | function id '(' parameter_list ')' ':' type ';' variable_declarations compound_statement
         { FuncDec (toSym $2) $4 $7 $9 $10 }
-    | procedure id ';' variable_declarations compound_statement
-        { ProcDec (toSym $2) [] $4 $5 }
-    | procedure id '(' parameter_list ')' ';' variable_declarations compound_statement
-        { ProcDec (toSym $2) $4 $7 $8 }
 
 parameter_list
     : identifier_list ':' type                      { Parameter $1 $3 : [] }

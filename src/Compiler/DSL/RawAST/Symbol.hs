@@ -11,7 +11,6 @@ collectSymbol (RawProgram _ _ _ subprogs stmts) = Program
 
 collectSubprogramSymbol :: RawSubprogram -> Subprogram () Symbol
 collectSubprogramSymbol (FuncDec _ _ _ _ stmts) = Subprogram [] (stmts >>= getSymbol)
-collectSubprogramSymbol (ProcDec _ _ _   stmts) = Subprogram [] (stmts >>= getSymbol)
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasSymbol

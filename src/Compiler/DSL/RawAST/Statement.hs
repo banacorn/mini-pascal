@@ -14,7 +14,6 @@ restoreStatement (RawProgram _ _ _ subprogs stmts) (Program decs subprogs' stmts
 
 restoreSubprogramStatement :: RawSubprogram -> Subprogram a b -> Subprogram a (Statement b)
 restoreSubprogramStatement (FuncDec _ _ _ _ stmts) (Subprogram decs stmts') = Subprogram decs (restoreCompoundStmt stmts stmts')
-restoreSubprogramStatement (ProcDec _ _ _   stmts) (Subprogram decs stmts') = Subprogram decs (restoreCompoundStmt stmts stmts')
 
 restore' :: Restorable n => n a -> [b] -> n b
 restore' s stack = evalState (restore s) stack

@@ -29,11 +29,12 @@ instance Serializable RawProgram where
             paramList = intercalate' ", " (map getID params)
 
 -- Type
-data RawType = RawIntType | RawRealType
+data RawType = RawIntType | RawRealType | RawVoidType
 
 instance Serializable RawType where
     serialize RawIntType = "int"
     serialize RawRealType = "real"
+    serialize RawVoidType = "void"
 
 
 -- Variable & Parameter Declaration
@@ -54,16 +55,11 @@ instance Serializable Parameter where
 
 -- Subprogram Declaration
 data RawSubprogram = FuncDec
-                    Symbol          -- function name
-                    [Parameter]     -- function parameters
-                    RawType    -- function return type
-                    [VarDec]        -- variable declarations
-                    [Statement Symbol]    -- compound statement
-                | ProcDec
-                    Symbol          -- procedure name
-                    [Parameter]     -- function parameters
-                    [VarDec]        -- variable declarations
-                    [Statement Symbol]    -- compound statement
+    Symbol          -- function name
+    [Parameter]     -- function parameters
+    RawType    -- function return type
+    [VarDec]        -- variable declarations
+    [Statement Symbol]    -- compound statement
 
 instance Serializable RawSubprogram where
     -- function, no parameter
@@ -74,17 +70,6 @@ instance Serializable RawSubprogram where
     -- function, with parameters
     serialize (FuncDec sym params typ vars stmts) = paragraph $
             0 >>>> ["function " ++ getID sym ++ "(" ++ paramList ++ "): " ++ serialize typ ++ ";"]
-        ++  1 >>>> vars
-        ++  1 >>>> compound stmts
-        where   paramList = intercalate' ", " params
-    -- procedure, no paramter
-    serialize (ProcDec sym [] vars stmts) = paragraph $
-            0 >>>> ["procedure " ++ getID sym ++ ";"]
-        ++  1 >>>> vars
-        ++  1 >>>> compound stmts
-    -- procedure, with parameters
-    serialize (ProcDec sym params vars stmts) = paragraph $
-            0 >>>> ["function " ++ getID sym ++ "(" ++ paramList ++ ");"]
         ++  1 >>>> vars
         ++  1 >>>> compound stmts
         where   paramList = intercalate' ", " params

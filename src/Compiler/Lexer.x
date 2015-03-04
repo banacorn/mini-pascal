@@ -59,7 +59,6 @@ tokens :-
 
     $p$r$o$g$r$a$m                          { constant TokProgram }
     $f$u$n$c$t$i$o$n                        { constant TokFunction }
-    $p$r$o$c$e$d$u$r$e                      { constant TokProc }
     $b$e$g$i$n                              { constant TokBegin }
     $r$e$t$u$r$n                            { constant TokReturn }
     $e$n$d                                  { constant TokEnd }
@@ -73,6 +72,7 @@ tokens :-
     $n$o$t                                  { constant TokNot }
     $i$n$t$e$g$e$r                          { constant TokTypeInt }
     $r$e$a$l                                { constant TokTypeReal }
+    $v$o$i$d                                { constant TokTypeVoid }
     @real                                   { unary    TokReal }
     @integer                                { unary    TokInt }
     @identifier                             { unary    TokID }
