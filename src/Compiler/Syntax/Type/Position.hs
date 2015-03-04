@@ -1,6 +1,6 @@
 module Compiler.Syntax.Type.Position where
 
-import Compiler.Class.Serializable
+import Compiler.Serializable
 
 import Data.Monoid
 

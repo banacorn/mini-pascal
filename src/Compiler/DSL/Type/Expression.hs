@@ -2,7 +2,7 @@
 
 module Compiler.DSL.Type.Expression where
 
-import Compiler.Class.Serializable
+import Compiler.Serializable
 import Compiler.Type.Symbol
 
 --------------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 module Compiler.Type.Type where
 
 import Compiler.Syntax.Type.Position
-import Compiler.Class.Serializable
+import Compiler.Serializable
 
 import Data.List (intercalate)
 import Data.Monoid

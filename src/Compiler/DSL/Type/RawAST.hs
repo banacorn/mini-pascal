@@ -2,7 +2,7 @@
 
 module Compiler.DSL.Type.RawAST where
 
-import Compiler.Class.Serializable
+import Compiler.Serializable
 import Compiler.DSL.Type.Expression
 import Compiler.DSL.Type.Statement
 import Compiler.Type.Symbol

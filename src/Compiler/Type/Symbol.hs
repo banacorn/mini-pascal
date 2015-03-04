@@ -4,7 +4,7 @@ module Compiler.Type.Symbol where
 
 import Compiler.Syntax.Type.Position
 import Compiler.Type.Type
-import Compiler.Class.Serializable
+import Compiler.Serializable
 
 import           Data.Maybe (fromJust)
 import           Data.Set (Set, findMin, insert, singleton)

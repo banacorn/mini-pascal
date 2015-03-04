@@ -2,7 +2,7 @@ module Compiler where
 
 import Compiler.Syntax.Lexer
 import Compiler.Syntax.Parser
-import Compiler.Class.Serializable
+import Compiler.Serializable
 import Compiler.Pipeline
 
 main :: IO ()

@@ -5,7 +5,7 @@ module Compiler.TypeCheck (typeCheckStatement, TypeError(..)) where
 import Compiler.Type.Symbol
 import Compiler.Type.Type
 import Compiler.DSL.Type
-import Compiler.Class.Serializable
+import Compiler.Serializable
 
 import Data.Maybe
 import Compiler.Syntax.Type.Token

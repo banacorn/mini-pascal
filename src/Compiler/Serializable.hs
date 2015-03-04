@@ -1,7 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances, OverlappingInstances #-}
-module Compiler.Class.Serializable where
+module Compiler.Serializable where
 
--- import Compiler.Type hiding (Compiler.Type.Symbol)
 import              Data.List (intercalate, sort)
 import              Data.Set (Set, size, findMin, toList)
 import qualified    Data.Set as Set

@@ -1,6 +1,6 @@
 module Compiler.Syntax.Type.Token where
 
-import Compiler.Class.Serializable
+import Compiler.Serializable
 import Compiler.Syntax.Type.Position
 import Compiler.Type.Symbol
 

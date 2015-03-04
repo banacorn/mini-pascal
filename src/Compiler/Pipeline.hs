@@ -2,7 +2,7 @@ module Compiler.Pipeline where
 
 import Compiler.Type
 import Compiler.Semantics
-import Compiler.Class.Serializable
+import Compiler.Serializable
 import Compiler.Syntax.Type.Position
 import Compiler.Syntax.Type.Token
 

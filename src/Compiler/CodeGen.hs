@@ -3,7 +3,7 @@ module Compiler.CodeGen where
 import Compiler.Type.DSL
 import Compiler.Type.Symbol
 import Compiler.Type.Type
-import Compiler.Class.Serializable
+import Compiler.Serializable
 
 import Control.Monad.State
 
