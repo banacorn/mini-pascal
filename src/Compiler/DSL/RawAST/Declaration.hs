@@ -13,7 +13,7 @@ collectDeclaration (RawProgram _ params vars subprogs _) = Program
         (map collectSubprogramDeclaration subprogs)
         (Subprogram [] [])
         where
-            decs =  (map (flip Declaration (Type [ProgramParamType])) params)
+            decs =  (map (flip Declaration (BasicType ProgramParamType)) params)
                  ++ (vars     >>= fromVars)
                  ++ (subprogs >>= fromSubprogs)
             fromVars (VarDec ids t) = map (flip Declaration (getType t)) ids

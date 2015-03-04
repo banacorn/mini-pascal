@@ -70,12 +70,7 @@ variable_declarations
     : {- empty -}                                               { [] }
     | variable_declarations var identifier_list ':' type ';'    { VarDec (reverse $3) $5 : $1 }
 
-
 type
-    : standard_type                          { Basic $1 }
-
-
-standard_type
     : typeInt       { RawIntType }
     | typeReal      { RawRealType }
 
@@ -86,9 +81,9 @@ subprogram_declarations
 
 
 subprogram_declaration
-    : function id ':' standard_type ';' variable_declarations compound_statement
+    : function id ':' type ';' variable_declarations compound_statement
         { FuncDec (toSym $2) [] $4 $6 $7 }
-    | function id '(' parameter_list ')' ':' standard_type ';' variable_declarations compound_statement
+    | function id '(' parameter_list ')' ':' type ';' variable_declarations compound_statement
         { FuncDec (toSym $2) $4 $7 $9 $10 }
     | procedure id ';' variable_declarations compound_statement
         { ProcDec (toSym $2) [] $4 $5 }

@@ -97,8 +97,8 @@ data Value  = Variable Symbol Declaration
 
 instance HasType Value where
     getType (Variable sym dec) = decType dec
-    getType (IntLiteral i _) = Type [IntType]
-    getType (RealLiteral i _) = Type [RealType]
+    getType (IntLiteral i _) = BasicType IntType
+    getType (RealLiteral i _) = BasicType RealType
 
 instance Serializable Value where
     serialize (Variable sym dec) = "[ " ++ serialize sym ++ " (" ++ serialize dec ++ ")" ++ " ]"

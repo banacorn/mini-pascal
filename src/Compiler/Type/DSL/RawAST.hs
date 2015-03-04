@@ -29,13 +29,9 @@ instance Serializable RawProgram where
             paramList = intercalate' ", " (map getID params)
 
 -- Type
-data RawType = Basic BasicType
-data BasicType = RawIntType | RawRealType
+data RawType = RawIntType | RawRealType
 
 instance Serializable RawType where
-    serialize (Basic t) = serialize t
-
-instance Serializable BasicType where
     serialize RawIntType = "int"
     serialize RawRealType = "real"
 
@@ -60,7 +56,7 @@ instance Serializable Parameter where
 data RawSubprogram = FuncDec
                     Symbol          -- function name
                     [Parameter]     -- function parameters
-                    BasicType    -- function return type
+                    RawType    -- function return type
                     [VarDec]        -- variable declarations
                     [Statement Symbol]    -- compound statement
                 | ProcDec
