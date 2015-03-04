@@ -74,8 +74,6 @@ tokens :-
     $n$o$t                                  { constant TokNot }
     $i$n$t$e$g$e$r                          { constant TokTypeInt }
     $r$e$a$l                                { constant TokTypeReal }
-    $s$t$r$i$n$g                            { constant TokTypeStr }
-    @string                                 { unary    TokStr }
     @real                                   { unary    TokReal }
     @integer                                { unary    TokInt }
     @identifier                             { unary    TokID }

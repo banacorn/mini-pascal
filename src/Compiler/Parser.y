@@ -23,10 +23,8 @@ import Control.Monad.Except
     '['             { Token TokLSB _ }
     ']'             { Token TokRSB _ }
     id              { Token (TokID _) _ }
-    str             { Token (TokStr _) _ }
     int             { Token (TokInt _) _ }
     real            { Token (TokReal _) _ }
-    typeStr         { Token TokTypeStr _ }
     typeInt         { Token TokTypeInt _ }
     typeReal        { Token TokTypeReal _ }
     progtok         { Token TokProgram _ }
@@ -84,7 +82,6 @@ type
 standard_type
     : typeInt       { RawIntType }
     | typeReal      { RawRealType }
-    | typeStr       { RawStringType }
 
 
 subprogram_declarations

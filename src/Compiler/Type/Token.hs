@@ -16,8 +16,6 @@ data Tok    = TokID String         -- identifiers
             | TokRSB               -- ]
             | TokTypeInt           -- "integer"
             | TokTypeReal          -- "real"
-            | TokTypeStr           -- "string"
-            | TokStr String        -- string literal
             | TokInt String        -- integer literal
             | TokReal String       -- real literal
             | TokProgram           -- "program"
@@ -64,8 +62,6 @@ instance Serializable Tok where
     serialize TokRSB = "]"              -- ]
     serialize TokTypeInt = "integer"          -- "integer"
     serialize TokTypeReal = "real"         -- "real"
-    serialize TokTypeStr = "string"          -- "string"
-    serialize (TokStr s) = s        -- string literal
     serialize (TokInt s) = s        -- int numbers
     serialize (TokReal s) = s        -- real numbers
     serialize TokProgram = "program"          -- "program"

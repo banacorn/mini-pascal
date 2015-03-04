@@ -12,7 +12,6 @@ import Data.Monoid
 instance HasType BasicType where
     getType RawIntType    = Type [IntType]
     getType RawRealType   = Type [RealType]
-    getType RawStringType = Type [StringType]
 
 instance HasType RawType where
     getType (Basic t) = getType t
