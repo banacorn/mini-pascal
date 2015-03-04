@@ -71,9 +71,6 @@ a <=> b = typeCheck a <-> typeCheck b
 class Typeable a where
     typeCheck :: a -> TypeCheck
 
-instance Typeable (Assignee Value) where
-    typeCheck (Assignee v) = typeCheck v
-
 instance Typeable (Expression Value) where
     typeCheck (UnaryExpression e) = typeCheck e
     typeCheck (BinaryExpression a _ b) = a <=> b

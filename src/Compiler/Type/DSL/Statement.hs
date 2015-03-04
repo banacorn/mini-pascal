@@ -9,15 +9,13 @@ import Compiler.Type.DSL.Expression
 --------------------------------------------------------------------------------
 -- Statement
 
-data Statement a = Assignment (Assignee a) (Expression a)
+data Statement a = Assignment a (Expression a)
                  | Return (Expression a)
                  | Invocation a [Expression a]
                  | Compound [Statement a]
                  | Branch (Expression a) (Statement a) (Statement a)
                  | Loop (Expression a) (Statement a)
                  deriving Functor
-data Assignee a = Assignee a -- e.g. a[1+2][3*4]
-                deriving Functor
 
 instance (Serializable a, Sym a) => Serializable (Statement a) where
     serialize (Assignment v e) = serialize v ++ " := " ++ serialize e
@@ -33,6 +31,3 @@ instance (Serializable a, Sym a) => Serializable (Statement a) where
     serialize (Loop e s) = paragraph $
             0 >>>> ["while " ++ serialize e ++ " do"]
         ++  1 >>>> [s]
-
-instance (Serializable a, Sym a) => Serializable (Assignee a) where
-    serialize (Assignee sym ) = serialize sym

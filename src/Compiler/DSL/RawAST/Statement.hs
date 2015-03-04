@@ -38,10 +38,10 @@ pop = do
     return (head stack)
 
 instance Restorable Statement where
-    restore (Assignment var expr) =  do
-        var' <- restore var
+    restore (Assignment _ expr) =  do
+        sym' <- pop
         expr' <- restore expr
-        return (Assignment var' expr')
+        return (Assignment sym' expr')
     restore (Return expr) = restore expr >>= return . Return
     restore (Invocation sym exprs) = do
         sym' <- pop
@@ -57,11 +57,6 @@ instance Restorable Statement where
         expr' <- restore expr
         stmt' <- restore stmt
         return (Loop expr' stmt')
-
-instance Restorable Assignee where
-    restore (Assignee sym) = do
-        sym' <- pop
-        return (Assignee sym')
 
 instance Restorable Expression where
     restore (UnaryExpression expr) = restore expr >>= return . UnaryExpression

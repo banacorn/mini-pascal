@@ -21,7 +21,7 @@ class HasSymbol n where
     getSymbol _ = []
 
 instance HasSymbol Statement where
-    getSymbol (Assignment var expr) = getSymbol var ++ getSymbol expr
+    getSymbol (Assignment sym expr) = sym : getSymbol expr
     getSymbol (Return expr) = getSymbol expr
     getSymbol (Invocation sym exprs) = sym : (exprs >>= getSymbol)
     getSymbol (Compound stmts) = stmts >>= getSymbol
@@ -30,9 +30,6 @@ instance HasSymbol Statement where
         ++  getSymbol thenStmt
         ++  getSymbol elseStmt
     getSymbol (Loop expr stmt) = getSymbol expr ++ getSymbol stmt
-
-instance HasSymbol Assignee where
-    getSymbol (Assignee sym) = [sym]
 
 instance HasSymbol Expression where
     getSymbol (UnaryExpression expr) = getSymbol expr
