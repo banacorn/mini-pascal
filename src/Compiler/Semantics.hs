@@ -25,6 +25,6 @@ variableUndeclared = map fst . filter (isNothing . snd) . extractSecond
 
 --------------------------------------------------------------------------------
 -- Type Checking
-
-typeCheck :: RawAST -> ABT -> [TypeError]
-typeCheck = _ . extractSecond
+--
+-- typeCheck :: RawAST -> ABT -> [TypeError]
+-- typeCheck = _ . extractSecond

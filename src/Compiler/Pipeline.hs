@@ -89,7 +89,7 @@ checkBinding rawAST = do
         checkVariableUndeclared ast
 
     -- the AST is good enough to build ABT
-    return (toABT ast)
+    return (toABT rawAST ast)
 
 -- checkType :: ABT -> Pipeline Bool
 -- checkType
@@ -131,3 +131,9 @@ diagnoseSemanticsError path src (VariableUndeclared ps : xs) = map (VariableUnde
 
 draw :: Serializable a => a -> Pipeline ()
 draw = liftIO . putStrLn . serialize
+
+
+draw' :: Serializable a => a -> Pipeline a
+draw' a = do
+    liftIO (putStrLn (serialize a))
+    return a

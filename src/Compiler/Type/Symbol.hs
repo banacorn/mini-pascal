@@ -98,7 +98,11 @@ instance Serializable Value where
     serialize (IntLiteral i) = show i
     serialize (RealLiteral i) = show i
 
-
+instance Sym Value where
+    getID (Variable sym dec) = getID dec
+    getID _ = "Literal"
+    getPos (Variable sym dec) = getPos dec
+    getPos _ = Unknown
 --------------------------------------------------------------------------------
 -- helper functions
 

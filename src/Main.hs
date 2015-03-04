@@ -21,6 +21,7 @@ testA = do
     readSource "./test/semantics/test.p"
         >>= scan
         >>= parse
+        >>= draw'
         >>= checkBinding
         >>= draw
 

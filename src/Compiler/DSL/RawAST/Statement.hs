@@ -68,7 +68,7 @@ instance Restorable Expression where
     restore (UnaryExpression expr) = restore expr >>= return . UnaryExpression
     restore (BinaryExpression expr0 op expr1) = do
         expr0' <- restore expr0
-        expr1' <- restore expr0
+        expr1' <- restore expr1
         return (BinaryExpression expr0' op expr1')
 
 instance Restorable SimpleExpression where
