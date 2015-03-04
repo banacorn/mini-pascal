@@ -4,6 +4,8 @@
 module Compiler.Syntax.Lexer (Token(..), Tok(..), AlexPosn(..), constant, unary, scan) where
 
 import Compiler.Syntax.Type.Token
+import Compiler.Syntax.Type.Position
+
 import Compiler.Type.Pipeline
 import Data.List (find)
 import Control.Monad.Except (throwError)
@@ -276,7 +278,7 @@ alex_deflt :: Array Int Int
 alex_deflt = listArray (0,113) [-1,-1,-1,-1,9,9,-1,11,11,15,15,18,18,20,20,20,113,113,113,-1,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
 
 alex_accept = listArray (0::Int,113) [AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccNone,AlexAccSkip,AlexAccSkip,AlexAcc (alex_action_2),AlexAcc (alex_action_3),AlexAcc (alex_action_4),AlexAcc (alex_action_5),AlexAcc (alex_action_6),AlexAcc (alex_action_7),AlexAcc (alex_action_8),AlexAcc (alex_action_9),AlexAcc (alex_action_10),AlexAcc (alex_action_11),AlexAcc (alex_action_12),AlexAcc (alex_action_13),AlexAcc (alex_action_14),AlexAcc (alex_action_15),AlexAcc (alex_action_16),AlexAcc (alex_action_17),AlexAcc (alex_action_18),AlexAcc (alex_action_19),AlexAcc (alex_action_19),AlexAcc (alex_action_19),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_20),AlexAcc (alex_action_21),AlexAcc (alex_action_22),AlexAcc (alex_action_23),AlexAcc (alex_action_24),AlexAcc (alex_action_25),AlexAcc (alex_action_26),AlexAcc (alex_action_27),AlexAcc (alex_action_28),AlexAcc (alex_action_29),AlexAcc (alex_action_30),AlexAcc (alex_action_31),AlexAcc (alex_action_32),AlexAcc (alex_action_33),AlexAcc (alex_action_34),AlexAcc (alex_action_35),AlexAcc (alex_action_36),AlexAcc (alex_action_37),AlexAcc (alex_action_38),AlexAcc (alex_action_39),AlexAccSkip,AlexAcc (alex_action_41),AlexAcc (alex_action_41)]
-{-# LINE 102 "src/Compiler/Syntax/Lexer.x" #-}
+{-# LINE 104 "src/Compiler/Syntax/Lexer.x" #-}
 
 
 alexEOF :: Alex Token

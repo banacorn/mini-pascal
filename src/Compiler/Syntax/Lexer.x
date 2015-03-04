@@ -2,6 +2,8 @@
 module Compiler.Syntax.Lexer (Token(..), Tok(..), AlexPosn(..), constant, unary, scan) where
 
 import Compiler.Syntax.Type.Token
+import Compiler.Syntax.Type.Position
+
 import Compiler.Type.Pipeline
 import Data.List (find)
 import Control.Monad.Except (throwError)

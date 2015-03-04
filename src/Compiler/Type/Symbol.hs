@@ -2,7 +2,7 @@
 
 module Compiler.Type.Symbol where
 
-import Compiler.Syntax.Type.Token
+import Compiler.Syntax.Type.Position
 import Compiler.Type.Type
 import Compiler.Class.Serializable
 
@@ -12,13 +12,6 @@ import qualified Data.Set as Set
 
 --------------------------------------------------------------------------------
 -- Helper functions
-
-toSym :: Token -> Symbol
-toSym (Token (TokID i) p) = Symbol i p
-
-toLiteral :: Token -> Value
-toLiteral (Token (TokInt  i) p) = IntLiteral (read i) p
-toLiteral (Token (TokReal i) p) = RealLiteral (read i) p
 
 getInt :: Value -> Int
 getInt (IntLiteral i _) = i

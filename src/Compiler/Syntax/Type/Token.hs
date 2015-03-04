@@ -1,8 +1,8 @@
 module Compiler.Syntax.Type.Token where
 
 import Compiler.Class.Serializable
-
-import Data.Monoid
+import Compiler.Syntax.Type.Position
+import Compiler.Type.Symbol
 
 data Tok    = TokID String         -- identifiers
             | TokLParen            -- (
@@ -11,8 +11,6 @@ data Tok    = TokID String         -- identifiers
             | TokColon             -- :
             | TokPeriod            -- .
             | TokComma             -- ,
-            -- | TokLSB               -- [
-            -- | TokRSB               -- ]
             | TokTypeInt           -- "integer"
             | TokTypeReal          -- "real"
             | TokTypeVoid          -- "void"
@@ -24,7 +22,6 @@ data Tok    = TokID String         -- identifiers
             | TokReturn            -- "return"
             | TokEnd               -- "end"
             | TokVar               -- "var"
-            -- | TokArr               -- "array"
             | TokOf                -- "of"
             | TokIf                -- "if"
             | TokThen              -- "then"
@@ -90,41 +87,20 @@ instance Serializable Tok where
     serialize (TokError s) = s
 
 --------------------------------------------------------------------------------
--- Position
-
-data Position = Position
-    {   posOffset :: Int
-    ,   posLength :: Int
-    ,   posLine :: Int
-    ,   posColumn :: Int
-    } | Unknown
-    deriving (Eq)
-
-instance Show Position where
-    show (Position offset len line column) = "Position " ++ show offset ++ " " ++ show len ++ " L"++ show line ++ " C" ++ show column
-    show Unknown = "Unknown"
-
-instance Serializable Position where
-    serialize Unknown = "?"
-    serialize (Position o n l c) = show l ++ ":" ++ show c
-
-instance Monoid Position where
-    mempty = Unknown
-    Position o n l c `mappend` Position o' n' _ _ = Position o (o' - o + n') l n
-
--- imagine Unknown as infinitely big Position
-instance Ord Position where
-    Unknown `compare` Unknown = EQ
-    Unknown `compare` _       = GT
-    _       `compare` Unknown = LT
-    Position o _ _ _ `compare` Position o' _ _ _ = o `compare` o'
-
-
---------------------------------------------------------------------------------
 -- Token
+
 data TokenF a = Token a Position
     deriving (Eq, Show)
 type Token = TokenF Tok
 
+--------------------------------------------------------------------------------
+
 getPosition :: TokenF a -> Position
 getPosition (Token _ p) = p
+
+toSym :: Token -> Symbol
+toSym (Token (TokID i) p) = Symbol i p
+
+toLiteral :: Token -> Value
+toLiteral (Token (TokInt  i) p) = IntLiteral (read i) p
+toLiteral (Token (TokReal i) p) = RealLiteral (read i) p
