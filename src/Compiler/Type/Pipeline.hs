@@ -3,6 +3,7 @@ module Compiler.Type.Pipeline where
 import Compiler.Type.Token
 import Compiler.Type.Symbol
 import Compiler.Class.Serializable
+import Compiler.TypeCheck
 
 import Control.Monad.Except
 import Control.Monad.State
@@ -40,6 +41,7 @@ data Error  = InvalidArgument           -- EINVAL
             | ParseError FilePath Source Tok Position
             | DeclarationDuplicatedError FilePath Source (Set Declaration)
             | VariableUndeclaredError FilePath Source Symbol
+            | TypeCheckError FilePath Source TypeError
 
 instance Serializable Error where
     serialize InvalidArgument =  paragraphPadded $
@@ -66,17 +68,19 @@ instance Serializable Error where
             0 >>>> [red "Variable Undeclared: " ++ yellow (serialize name)]
         ++  1 >>>> codeBlocks
         where   codeBlocks = toCodeBlocks path src [pos]
-        -- where   partition' = sort (toList partition)    -- sort declarations base on their position
-        --         Declaration t i pos = head partition'    -- get the foremost declaration
-        --         markPosition declaration = path ++ ":" ++ serialize (decPos declaration)
-
-data SemanticsError = DeclarationDuplicated [Set Declaration]
-                    | VariableUndeclared [Symbol]
+    serialize (TypeCheckError path src typeError) = paragraphPadded $
+            0 >>>> [red "Type Error: "]
+        -- ++  1 >>>> codeBlocks
+        -- where   codeBlocks = toCodeBlocks path src [pos]
+data SemanticsError = SemDeclarationDuplicated [Set Declaration]
+                    | SemVariableUndeclared [Symbol]
+                    | SemTypeError [TypeError]
                     deriving (Eq, Ord)
 
 instance Serializable SemanticsError where
-    serialize (DeclarationDuplicated decs) = "DeclarationDuplicated: " ++ serialize decs
-    serialize (VariableUndeclared occs) = "VariableUndeclared: " ++ serialize occs
+    serialize (SemDeclarationDuplicated decs) = "DeclarationDuplicated: " ++ serialize decs
+    serialize (SemVariableUndeclared syms) = "VariableUndeclared: " ++ serialize syms
+    serialize (SemTypeError errs) = "TypeError: " ++ serialize errs
 
 data CodeBlock = CodeBlock
     {   codeBlockPath :: FilePath

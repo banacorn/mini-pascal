@@ -17,9 +17,9 @@ data Domain = IntType
             | ArrayType (String, String) Domain
             | ProgramParamType
             | UnitType                          -- ()
-            deriving (Eq)
+            deriving (Eq, Ord)
 
-data Type = Type [Domain] deriving (Eq)
+data Type = Type [Domain] deriving (Eq, Ord)
 
 class HasType a where
     getType :: a -> Type

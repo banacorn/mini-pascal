@@ -5,9 +5,9 @@ import Compiler.Semantics
 import Compiler.Class.Serializable
 import              Compiler.DSL.RawAST
 import              Compiler.DSL.AST
-import              Compiler.DSL.ABT
 import              Compiler.Type.DSL
 import              Compiler.Semantics
+import              Compiler.TypeCheck
 
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except
@@ -68,17 +68,23 @@ throwSemanticsError err = do
 --      Exception: throws SemanticsError if any declaration duplicated (implicitly)
 --      State: saves SemanticsError if there's any
 checkDeclarationDuplicated :: AST -> Pipeline ()
-checkDeclarationDuplicated scope = case declarationDuplicated scope of
+checkDeclarationDuplicated ast = case declarationDuplicated ast of
     [] -> return ()
-    xs -> throwSemanticsError (DeclarationDuplicated xs)
+    xs -> throwSemanticsError (SemDeclarationDuplicated xs)
 
 -- Semantics Checking: Variable Undeclared
 --      Exception: throws SemanticsError if any declaration undeclared (implicitly)
 --      State: saves SemanticsError if there's any
 checkVariableUndeclared :: AST -> Pipeline ()
-checkVariableUndeclared scope = case variableUndeclared scope of
+checkVariableUndeclared ast = case variableUndeclared ast of
     [] -> return ()
-    xs -> throwSemanticsError (VariableUndeclared xs)
+    xs -> throwSemanticsError (SemVariableUndeclared xs)
+
+checkTypeError :: ABT -> Pipeline ()
+checkTypeError abt = case typeCheck abt of
+    [] -> return ()
+    xs -> throwSemanticsError (SemTypeError xs)
+
 
 checkBinding :: RawAST -> Pipeline ABT
 checkBinding rawAST = do
@@ -91,8 +97,11 @@ checkBinding rawAST = do
     -- the AST is good enough to build ABT
     return (toABT rawAST ast)
 
--- checkType :: ABT -> Pipeline Bool
--- checkType
+checkType :: ABT -> Pipeline ABT
+checkType abt = do
+    checkSemanticsError $ do
+        checkTypeError abt
+    return abt
 
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?
@@ -125,8 +134,9 @@ diagnoseError (Zustand (Just path) (Just src) err) SemanticsErrorClass = diagnos
 
 diagnoseSemanticsError :: FilePath -> Source -> [SemanticsError] -> [Error]
 diagnoseSemanticsError path src [] = []
-diagnoseSemanticsError path src (DeclarationDuplicated ps : xs) = map (DeclarationDuplicatedError path src) ps ++ diagnoseSemanticsError path src xs
-diagnoseSemanticsError path src (VariableUndeclared ps : xs) = map (VariableUndeclaredError path src) ps ++ diagnoseSemanticsError path src xs
+diagnoseSemanticsError path src (SemDeclarationDuplicated ps : xs) = map (DeclarationDuplicatedError path src) ps ++ diagnoseSemanticsError path src xs
+diagnoseSemanticsError path src (SemVariableUndeclared ps : xs) = map (VariableUndeclaredError path src) ps ++ diagnoseSemanticsError path src xs
+diagnoseSemanticsError path src (SemTypeError ps : xs) = map (TypeCheckError path src) ps ++ diagnoseSemanticsError path src xs
 
 
 draw :: Serializable a => a -> Pipeline ()

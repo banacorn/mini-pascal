@@ -1,14 +1,14 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module Compiler.DSL.ABT (typeCheckStmt, TypeError(..)) where
+module Compiler.TypeCheck (typeCheckStatement, TypeError(..)) where
 
-import Compiler.Type
+import Compiler.Type.Symbol
+import Compiler.Type.Type
 import Compiler.Type.DSL
+import Compiler.Class.Serializable
 
 import Data.Maybe
 
--- import qualified    Data.Set as Set
--- import              Data.Bifunctor
 
 --------------------------------------------------------------------------------
 -- TypeCheck data type
@@ -22,14 +22,26 @@ data TypeError  = TypeMismatch Value Type Type -- expected, got
                 | NotInvocable -- got to be subprogram
                 | IndexNotInt Value -- got to be all Int
                 | SubprogramTypeError Value
-                deriving (Eq)
+                deriving (Eq, Ord)
 
+instance Serializable TypeError where
+    serialize (TypeMismatch v expected got) =
+        "Type Mismatch: " ++ serialize v ++
+        "\n    expected: " ++ serialize expected ++
+        "\n         got: " ++ serialize got
+    serialize (ExpectArray v) = "ExpectArray"
+    serialize (NotInvocable) = "NotInvocable"
+    serialize (IndexNotInt v) = "IndexNotInt"
+    serialize (SubprogramTypeError v) = "SubprogramTypeError"
+
+--------------------------------------------------------------------------------
+-- functions on TypeCheck
 (<->) :: TypeCheck -> TypeCheck -> TypeCheck
 Screwed e   <-> Screwed f   = Screwed (e ++ f)
 Screwed e   <-> GotType _ _ = Screwed e
 GotType _ _ <-> Screwed e   = Screwed e
-GotType x s <-> GotType y t | x == y = GotType y t
-                                  | x /= y = Screwed [TypeMismatch y s t]
+GotType x s <-> GotType y t | s == t = GotType y t
+                            | s /= t = Screwed [TypeMismatch y s t]
 
 (<=>) :: (Typeable a, Typeable b) => a -> b -> TypeCheck
 a <=> b = typeCheck a <-> typeCheck b
@@ -68,24 +80,8 @@ a <=> b = typeCheck a <-> typeCheck b
 --     | higherOrder val && isVariable val = let Type (d:ds) = getType val in
 --     | otherwise       = Screwed [SubprogramTypeError val]
 
-
-toResult :: TypeCheck -> Maybe [TypeError]
-toResult (Screwed es)  = Just es
-toResult (GotType _ _) = Nothing
-
-collectResult :: [Maybe [TypeError]] -> Maybe [TypeError]
-collectResult = fmap concat . sequence
-
 class Typeable a where
     typeCheck :: a -> TypeCheck
-
-typeCheckStmt :: Statement Value -> Maybe [TypeError]
-typeCheckStmt (Assignment v e)  = toResult (v <=> e)
-typeCheckStmt (Return e)        = toResult (typeCheck e)
-typeCheckStmt (Invocation v es) = toResult (typeCheck v)
-typeCheckStmt (Compound ss)     = collectResult (map typeCheckStmt ss)
-typeCheckStmt (Branch e s t)    = collectResult [toResult (typeCheck e), typeCheckStmt s, typeCheckStmt t]
-typeCheckStmt (Loop e s)        = collectResult [toResult (typeCheck e), typeCheckStmt s]
 
 instance Typeable (Assignee Value) where
     typeCheck (Assignee v es) = typeCheck v
@@ -114,3 +110,23 @@ instance Typeable Value where
     typeCheck v@(Variable _ (Declaration _ t)) = GotType v t
     typeCheck v@(IntLiteral _)                 = GotType v (Type [IntType])
     typeCheck v@(RealLiteral _)                = GotType v (Type [RealType])
+
+--------------------------------------------------------------------------------
+
+toResult :: TypeCheck -> Maybe [TypeError]
+toResult (Screwed es)  = Just es
+toResult (GotType _ _) = Nothing
+
+collectResult :: [Maybe [TypeError]] -> Maybe [TypeError]
+collectResult = fmap concat . sequence
+
+typeCheckStmt :: Statement Value -> Maybe [TypeError]
+typeCheckStmt (Assignment v e)  = toResult (v <=> e)
+typeCheckStmt (Return e)        = toResult (typeCheck e)
+typeCheckStmt (Invocation v es) = toResult (typeCheck v)
+typeCheckStmt (Compound ss)     = collectResult (map typeCheckStmt ss)
+typeCheckStmt (Branch e s t)    = collectResult [toResult (typeCheck e), typeCheckStmt s, typeCheckStmt t]
+typeCheckStmt (Loop e s)        = collectResult [toResult (typeCheck e), typeCheckStmt s]
+
+typeCheckStatement :: Statement Value -> [TypeError]
+typeCheckStatement = concat . maybeToList . typeCheckStmt

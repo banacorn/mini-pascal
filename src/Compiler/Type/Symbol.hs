@@ -86,7 +86,7 @@ instance Serializable Binding where
 data Value  = Variable Symbol Declaration
             | IntLiteral Int
             | RealLiteral Double
-            deriving (Eq)
+            deriving (Eq, Ord)
 
 instance HasType Value where
     getType (Variable sym dec) = decType dec
