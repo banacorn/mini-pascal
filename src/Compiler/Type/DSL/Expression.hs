@@ -42,7 +42,7 @@ instance (Serializable a, Sym a) => Serializable (Term a) where
 
 --------------------------------------------------------------------------------
 -- Factor (basic building block)
-data Factor a = ArrayAccessFactor a [Expression a]     -- id[]
+data Factor a = ArrayAccessFactor a
               | InvocationFactor  a [Expression a]     -- id()
               | NumberFactor      Value
               | SubFactor         (Expression a)       -- (...)
@@ -50,8 +50,7 @@ data Factor a = ArrayAccessFactor a [Expression a]     -- id[]
               deriving Functor
 
 instance (Serializable a, Sym a) => Serializable (Factor a) where
-    serialize (ArrayAccessFactor sym exprs) = serialize sym ++ (exprs >>= showArrayAccess)
-        where   showArrayAccess a = "[" ++ serialize a ++ "]"
+    serialize (ArrayAccessFactor sym) = serialize sym
     serialize (InvocationFactor sym exprs)  = serialize sym ++ "(" ++ exprs' ++ ")"
         where   exprs' = intercalate' ", " exprs
     serialize (NumberFactor s) = serialize s

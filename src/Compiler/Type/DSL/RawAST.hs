@@ -30,18 +30,14 @@ instance Serializable RawProgram where
 
 -- Type
 data RawType = Basic BasicType
-             | Array (Int, Int) RawType
-data BasicType = RawIntType | RawRealType | RawStringType
+data BasicType = RawIntType | RawRealType
 
 instance Serializable RawType where
     serialize (Basic t) = serialize t
-    serialize (Array (a, b) t) =
-        "array [ " ++ show a ++ " .. " ++ show b ++ " ] of " ++ serialize t
 
 instance Serializable BasicType where
     serialize RawIntType = "int"
     serialize RawRealType = "real"
-    serialize RawStringType = "string"
 
 
 -- Variable & Parameter Declaration

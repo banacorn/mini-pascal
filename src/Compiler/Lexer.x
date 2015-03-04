@@ -64,7 +64,6 @@ tokens :-
     $r$e$t$u$r$n                            { constant TokReturn }
     $e$n$d                                  { constant TokEnd }
     $v$a$r                                  { constant TokVar }
-    $a$r$r$a$y                              { constant TokArr }
     $o$f                                    { constant TokOf }
     $i$f                                    { constant TokIf }
     $t$h$e$n                                { constant TokThen }
@@ -84,8 +83,6 @@ tokens :-
     ";"                                     { constant TokSemicolon }
     "."                                     { constant TokPeriod }
     ","                                     { constant TokComma }
-    "["                                     { constant TokLSB }
-    "]"                                     { constant TokRSB }
     ":="                                    { constant TokAssign }
     ">"                                     { constant TokL }
     "<"                                     { constant TokS }

@@ -32,7 +32,7 @@ instance HasSymbol Statement where
     getSymbol (Loop expr stmt) = getSymbol expr ++ getSymbol stmt
 
 instance HasSymbol Assignee where
-    getSymbol (Assignee sym exprs) = sym : (exprs >>= getSymbol)
+    getSymbol (Assignee sym) = [sym]
 
 instance HasSymbol Expression where
     getSymbol (UnaryExpression expr) = getSymbol expr
@@ -48,7 +48,7 @@ instance HasSymbol Term where
     getSymbol (NegTerm factor) = getSymbol factor
 
 instance HasSymbol Factor where
-    getSymbol (ArrayAccessFactor sym exprs) = sym : (exprs >>= getSymbol)
+    getSymbol (ArrayAccessFactor sym) = [sym]
     getSymbol (InvocationFactor  sym exprs) = sym : (exprs >>= getSymbol)
     getSymbol (NumberFactor num) = []
     getSymbol (SubFactor expr) = getSymbol expr

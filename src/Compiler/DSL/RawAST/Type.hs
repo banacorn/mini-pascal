@@ -15,7 +15,6 @@ instance HasType BasicType where
 
 instance HasType RawType where
     getType (Basic t) = getType t
-    getType (Array range t) = let Type [t'] = getType t in Type [ArrayType range t']
 
 instance HasType RawSubprogram where
     getType (FuncDec _ params ret _ _) = mconcat (map getType params) <> getType ret

@@ -22,9 +22,7 @@ instance Serializable TypeCheck where
 
 
 data TypeError  = TypeMismatch Value Type Type -- expected, got
-                | ExpectArray Value  -- got to be array
                 | NotInvocable Value -- got to be subprogram
-                | IndexNotInt Value -- got to be all Int
                 | SubprogramTypeError Value
                 deriving (Eq, Ord)
 
@@ -33,21 +31,15 @@ instance Serializable TypeError where
             0 >>>> ["Type Mismatch: " ++ yellow (serialize $ getID v)]
         ++  1 >>>> ["expected: " ++ cyan (serialize expected)]
         ++  1 >>>> ["     got: " ++ cyan (serialize got)]
-    serialize (ExpectArray v) = "Not Array: " ++ yellow (serialize v)
     serialize (NotInvocable v) = "Not Subprogram: " ++ yellow (serialize v)
-    serialize (IndexNotInt v) = "Index not Int: " ++ yellow (serialize v)
     serialize (SubprogramTypeError v) = "Subprogram: " ++ yellow (serialize v)
 
 instance Sym TypeError where
     getID (TypeMismatch v _ _) = getID v
-    getID (ExpectArray v) = getID v
     getID (NotInvocable v) = getID v
-    getID (IndexNotInt v) = getID v
     getID (SubprogramTypeError v) = getID v
     getPos (TypeMismatch v _ _) = getPos v
-    getPos (ExpectArray v) = getPos v
     getPos (NotInvocable v) = getPos v
-    getPos (IndexNotInt v) = getPos v
     getPos (SubprogramTypeError v) = getPos v
 --------------------------------------------------------------------------------
 -- functions on TypeCheck
@@ -61,49 +53,8 @@ GotType x s <-> GotType y t | s == t = GotType y t
 (<=>) :: (Typeable a, Typeable b) => a -> b -> TypeCheck
 a <=> b = typeCheck a <-> typeCheck b
 
-qq :: Serializable a => a -> IO ()
-qq = putStrLn . serialize
-
-a :: Symbol
-a = Symbol "a" Unknown
-
-aa :: Value
-aa = Variable a (Declaration a (Type [IntType]))
-
-ab :: Value
-ab = Variable a (Declaration a (Type [RealType]))
-
-li :: Value
-li = IntLiteral 1 Unknown
-lr :: Value
-lr = RealLiteral 1.5 Unknown
-
-ee :: Expression Value
-ee = UnaryExpression (TermSimpleExpression (FactorTerm (NumberFactor lr)))
-
-as :: Statement Value
-as = Compound [Assignment (Assignee aa []) ee]
 --------------------------------------------------------------------------------
 -- Typeable!
-
-
--- typeCheckArray :: Value -> [Expression Value] -> TypeCheck
--- typeCheckArray val indices
---     | not notSubprogram && not indicesChecked = Screwed [IndexNotInt val, ExpectArray val] 
---     |     notSubprogram && not indicesChecked = Screwed [IndexNotInt val]
---     | not notSubprogram &&     indicesChecked = Screwed [ExpectArray val]
---     |     notSubprogram &&     indicesChecked = let Type [domain] = arrayType in check domain indices
---     where   indicesChecked = all (gotTypeInt . typeCheck) indices
---             notSubprogram = firstOrder arrayType
---
---             gotTypeInt (GotType _ (Type [IntType])) = True
---             gotTypeInt _                            = False
---
---             arrayType = getType val
---
---             check _                         []     = GotType val arrayType
---             check (ArrayType (m, n) domain) (i:is) = check domain is
---             check _                         (i:is) = Screwed [ExpectArray val]
 
 -- typeCheckInvocation :: Value -> [Expression Value] -> TypeCheck
 -- typeCheckInvocation val params = check (getType val) (map typeCheck params)
@@ -121,7 +72,7 @@ class Typeable a where
     typeCheck :: a -> TypeCheck
 
 instance Typeable (Assignee Value) where
-    typeCheck (Assignee v es) = typeCheck v
+    typeCheck (Assignee v) = typeCheck v
 
 instance Typeable (Expression Value) where
     typeCheck (UnaryExpression e) = typeCheck e
@@ -137,7 +88,7 @@ instance Typeable (Term Value) where
     typeCheck (NegTerm e) = typeCheck e
 
 instance Typeable (Factor Value) where
-    typeCheck (ArrayAccessFactor a es) = typeCheck a -- typeCheckArray a es
+    typeCheck (ArrayAccessFactor a) = typeCheck a
     typeCheck (InvocationFactor a es) = typeCheck a -- typeCheckInvocation a
     typeCheck (NumberFactor e) = typeCheck e
     typeCheck (SubFactor e) = typeCheck e

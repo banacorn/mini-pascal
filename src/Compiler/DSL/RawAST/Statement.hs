@@ -59,10 +59,9 @@ instance Restorable Statement where
         return (Loop expr' stmt')
 
 instance Restorable Assignee where
-    restore (Assignee sym exprs) = do
+    restore (Assignee sym) = do
         sym' <- pop
-        exprs' <- mapM restore exprs
-        return (Assignee sym' exprs')
+        return (Assignee sym')
 
 instance Restorable Expression where
     restore (UnaryExpression expr) = restore expr >>= return . UnaryExpression
@@ -87,10 +86,9 @@ instance Restorable Term where
     restore (NegTerm factor) = restore factor >>= return . NegTerm
 
 instance Restorable Factor where
-    restore (ArrayAccessFactor sym exprs) = do
+    restore (ArrayAccessFactor sym) = do
         sym' <- pop
-        exprs' <- mapM restore exprs
-        return (ArrayAccessFactor sym' exprs')
+        return (ArrayAccessFactor sym')
     restore (InvocationFactor sym exprs) = do
         sym' <- pop
         exprs' <- mapM restore exprs

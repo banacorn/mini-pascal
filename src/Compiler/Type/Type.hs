@@ -13,7 +13,6 @@ import Data.Monoid
 -- first order
 data Domain = IntType
             | RealType
-            | ArrayType (Int, Int) Domain
             | ProgramParamType
             | UnitType                          -- ()
             deriving (Eq, Ord)
@@ -26,7 +25,6 @@ class HasType a where
 instance Serializable Domain where
     serialize IntType = "Int"
     serialize RealType = "Real"
-    serialize (ArrayType (from, to) t) = "Array [" ++ show from ++ " .. " ++  show to ++"] " ++ serialize t
     serialize ProgramParamType = "ProgArg"
     serialize UnitType = "()"
 

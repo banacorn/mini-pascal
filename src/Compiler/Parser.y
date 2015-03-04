@@ -20,8 +20,6 @@ import Control.Monad.Except
     ':'             { Token TokColon _ }
     '.'             { Token TokPeriod _ }
     ','             { Token TokComma _ }
-    '['             { Token TokLSB _ }
-    ']'             { Token TokRSB _ }
     id              { Token (TokID _) _ }
     int             { Token (TokInt _) _ }
     real            { Token (TokReal _) _ }
@@ -34,7 +32,6 @@ import Control.Monad.Except
     return          { Token TokReturn _ }
     end             { Token TokEnd _ }
     var             { Token TokVar _ }
-    array           { Token TokArr _ }
     of              { Token TokOf _ }
     if              { Token TokIf _ }
     then            { Token TokThen _ }
@@ -76,7 +73,6 @@ variable_declarations
 
 type
     : standard_type                          { Basic $1 }
-    | array '[' int '..' int ']' of type     { Array (getInt (toLiteral $3), getInt (toLiteral $5)) $8 }
 
 
 standard_type
@@ -124,11 +120,7 @@ statement
 
 
 variable
-    : id tail  { Assignee (toSym $1) $2 }
-
-tail
-    : {- empty -}                   { [] }
-    | '[' expression ']' tail       { $2 : $4 }
+    : id  { Assignee (toSym $1) }
 
 expression_list : expression                        { $1 : [] }
                 | expression_list ',' expression    { $3 : $1 }
@@ -151,7 +143,7 @@ term
 
 
 factor
-    : id tail                       { ArrayAccessFactor (toSym $1) $2 }
+    : id                            { ArrayAccessFactor (toSym $1) }
     | id '(' expression_list ')'    { InvocationFactor (toSym $1) $3 }
     | int                           { NumberFactor (toLiteral $1) }
     | real                          { NumberFactor (toLiteral $1) }

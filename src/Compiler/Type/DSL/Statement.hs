@@ -16,7 +16,7 @@ data Statement a = Assignment (Assignee a) (Expression a)
                  | Branch (Expression a) (Statement a) (Statement a)
                  | Loop (Expression a) (Statement a)
                  deriving Functor
-data Assignee a = Assignee a [Expression a] -- e.g. a[1+2][3*4]
+data Assignee a = Assignee a -- e.g. a[1+2][3*4]
                 deriving Functor
 
 instance (Serializable a, Sym a) => Serializable (Statement a) where
@@ -35,5 +35,4 @@ instance (Serializable a, Sym a) => Serializable (Statement a) where
         ++  1 >>>> [s]
 
 instance (Serializable a, Sym a) => Serializable (Assignee a) where
-    serialize (Assignee sym es) = serialize sym ++ (es >>= showArrayAccess)
-        where   showArrayAccess e = "[" ++ serialize e ++ "]"
+    serialize (Assignee sym ) = serialize sym
