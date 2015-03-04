@@ -16,6 +16,8 @@ import              Data.Maybe (fromJust)
 import              Data.List (intercalate, sort)
 import              Data.Set (Set, toList)
 import              System.Environment (getArgs)
+import              System.Process
+import              System.IO
 import              System.Console.ANSI
 
 --------------------------------------------------------------------------------
@@ -102,6 +104,16 @@ checkType abt = do
     checkSemanticsError $ do
         checkTypeError abt
     return abt
+
+runWithLLI :: String -> Pipeline ()
+runWithLLI src = do
+    (pin, _, _, _) <- liftIO $ createProcess (proc "lli" [])
+        {   std_in = CreatePipe }
+    case pin of
+        Just hin -> do
+            liftIO $ hPutStr hin src
+        Nothing -> error "fuck"
+
 
 --------------------------------------------------------------------------------
 -- Semantics Checking: ?

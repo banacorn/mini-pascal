@@ -22,7 +22,8 @@ testA = do
         >>= parse
         >>= checkBinding
         >>= checkType
-        >>= draw
+        -- >>= draw'
+        >>= runWithLLI . genCode
 
 
 testAll :: Pipeline ()
