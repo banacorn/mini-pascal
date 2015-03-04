@@ -5,6 +5,9 @@ import Compiler.Type.Symbol
 import Compiler.Type.Type
 import Compiler.Class.Serializable
 
+import Control.Monad.State
+
+
 genCode :: ABT -> String
 genCode (Program decs subprogs stmts) = paragraph $
         0 >>>> globalVarDeclarations
@@ -28,10 +31,10 @@ genCode (Program decs subprogs stmts) = paragraph $
     -- "declare i32 @putchar(i32)"
 --
 
-genType :: Type -> String
-genType (BasicType IntType) = "i32"
-genType (BasicType RealType) = "double"
-genType (BasicType VoidType) = "void"
+genType :: Domain -> String
+genType (IntType) = "i32"
+genType (RealType) = "double"
+genType (VoidType) = "void"
 
 genGlobalDeclaration :: Declaration -> String
 genGlobalDeclaration (Declaration sym (BasicType IntType)) =
@@ -41,8 +44,8 @@ genGlobalDeclaration (Declaration sym (BasicType RealType)) =
 
 genSubprogram :: Subprogram Declaration (Statement Value) -> Declaration -> String
 genSubprogram (Subprogram decs stmts) (Declaration sym (SubprogramType types)) = paragraph $
-        0   >>>> ["define " ++ serialize retType ++ " @" ++ funcName ++ "() {"]
-    ++  1   >>>> genCompoundStmt stmts
+        0   >>>> ["define " ++ genType retType ++ " @" ++ funcName ++ "() {"]
+    -- ++  1   >>>> genCompoundStmt stmts
     ++  1   >>>> retVoid
     ++  0   >>>> ["}"]
     where   retType = last types
@@ -63,3 +66,21 @@ genCompoundStmt _ = [""]
 
 
 class CodeGen a where
+    gen :: a -> GenBlock a
+
+
+type GenBlock = State Block
+data Block = Block
+    {   blockCount :: Int           -- for unamed variables
+    ,   blockStack :: [String]
+    }
+
+genBlock :: State Block a -> Block -> [String]
+genBlock f s = blockStack (execState f s)
+
+freshVar :: GenBlock Int
+freshVar = do
+    i <- gets blockCount
+    modify $ \s -> s { blockCount = i + 1 }
+    return $ i + 1
+    -- modify

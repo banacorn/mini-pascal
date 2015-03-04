@@ -8,7 +8,7 @@ import              Compiler.DSL.AST
 import              Compiler.Type.DSL
 import              Compiler.Semantics
 import              Compiler.TypeCheck
-import qualified    Compiler.CodeGen as CodeGen
+-- import qualified    Compiler.CodeGen as CodeGen
 
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except
@@ -106,17 +106,17 @@ checkType abt = do
         checkTypeError abt
     return abt
 
-genCode :: ABT -> Pipeline String
-genCode = return . CodeGen.genCode
-
-runWithLLI :: String -> Pipeline ()
-runWithLLI src = do
-    (pin, _, _, _) <- liftIO $ createProcess (proc "lli" [])
-        {   std_in = CreatePipe }
-    case pin of
-        Just hin -> do
-            liftIO $ hPutStr hin src
-        Nothing -> error "fuck"
+-- genCode :: ABT -> Pipeline String
+-- genCode = return . CodeGen.genCode
+--
+-- runWithLLI :: String -> Pipeline ()
+-- runWithLLI src = do
+--     (pin, _, _, _) <- liftIO $ createProcess (proc "lli" [])
+--         {   std_in = CreatePipe }
+--     case pin of
+--         Just hin -> do
+--             liftIO $ hPutStr hin src
+--         Nothing -> error "fuck"
 
 
 --------------------------------------------------------------------------------

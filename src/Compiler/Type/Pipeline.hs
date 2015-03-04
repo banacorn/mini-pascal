@@ -83,6 +83,10 @@ instance Serializable SemanticsError where
     serialize (SemVariableUndeclared syms) = "VariableUndeclared: " ++ serialize syms
     serialize (SemTypeError errs) = "TypeError: " ++ serialize errs
 
+--------------------------------------------------------------------------------
+-- Code Map
+--------------------------------------------------------------------------------
+
 data CodeMap = CodeMap
     {   codeMapPath :: FilePath
     ,   codeMapSource :: Source

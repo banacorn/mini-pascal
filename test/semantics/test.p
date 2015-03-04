@@ -4,10 +4,10 @@ PROGRAM foo(input, output, error) ;
    var g, h: real;
 
 
-   function  addition(a, b: integer) : integer;
+   function addition(a, b: integer) : integer;
       var c: integer;  // local declaration
       begin
-         return a + b   // this is the return value
+         return 1   // this is the return value
       end;
 
    begin

@@ -17,7 +17,7 @@ data Domain = IntType
             deriving (Eq, Ord)
 
 data Type   = BasicType Domain
-            | SubprogramType [Domain] deriving (Eq, Ord)
+            | FunctionType [Domain] deriving (Eq, Ord)
 
 class HasType a where
     getType :: a -> Type
@@ -29,20 +29,20 @@ instance Serializable Domain where
 
 instance Serializable Type where
     serialize (BasicType domain) = serialize domain
-    serialize (SubprogramType domains) = intercalate " → " (map serialize domains)
+    serialize (FunctionType domains) = intercalate " → " (map serialize domains)
 
 instance Monoid Type where
-    mempty = SubprogramType []
-    mappend (BasicType      a) (BasicType      b) = SubprogramType [a, b]
-    mappend (SubprogramType a) (BasicType      b) = SubprogramType (a ++ [b])
-    mappend (BasicType      a) (SubprogramType b) = SubprogramType (a : b)
-    mappend (SubprogramType a) (SubprogramType b) = SubprogramType (a ++ b)
+    mempty = FunctionType []
+    mappend (BasicType    a) (BasicType    b) = FunctionType [a, b]
+    mappend (FunctionType a) (BasicType    b) = FunctionType (a ++ [b])
+    mappend (BasicType    a) (FunctionType b) = FunctionType (a : b)
+    mappend (FunctionType a) (FunctionType b) = FunctionType (a ++ b)
 
 --------------------------------------------------------------------------------
 
 order :: Type -> Int
 order (BasicType _) = 1
-order (SubprogramType domains) = length domains
+order (FunctionType domains) = length domains
 
 firstOrder :: Type -> Bool
 firstOrder = (== 1) . order
