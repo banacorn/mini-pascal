@@ -11,7 +11,7 @@ module Compiler.Type.DSL
     ,   extractFirst, extractSecond, map2
     ) where
 
-import Compiler.Type.Token
+import Compiler.Syntax.Type.Token
 import Compiler.Type.Symbol
 
 import Compiler.Type.DSL.Expression

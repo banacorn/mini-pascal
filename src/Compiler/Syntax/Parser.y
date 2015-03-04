@@ -1,6 +1,7 @@
 {
 module Compiler.Syntax.Parser where
-import Compiler.Type.Token
+
+import Compiler.Syntax.Type.Token
 import Compiler.Type.Pipeline
 import Compiler.Type.DSL
 import Compiler.Type.Symbol

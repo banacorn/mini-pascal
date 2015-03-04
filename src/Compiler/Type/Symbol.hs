@@ -2,7 +2,7 @@
 
 module Compiler.Type.Symbol where
 
-import Compiler.Type.Token
+import Compiler.Syntax.Type.Token
 import Compiler.Type.Type
 import Compiler.Class.Serializable
 

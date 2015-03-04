@@ -2,7 +2,7 @@
 
 module Compiler.Type.Type where
 
-import Compiler.Type.Token
+import Compiler.Syntax.Type.Token
 import Compiler.Class.Serializable
 
 import Data.List (intercalate)

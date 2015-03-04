@@ -8,7 +8,7 @@ import Compiler.Type.DSL
 import Compiler.Class.Serializable
 
 import Data.Maybe
-import Compiler.Type.Token
+import Compiler.Syntax.Type.Token
 
 --------------------------------------------------------------------------------
 -- TypeCheck data type

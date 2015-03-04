@@ -1,9 +1,8 @@
-module Compiler.Type.Token where
+module Compiler.Syntax.Type.Token where
 
 import Compiler.Class.Serializable
 
 import Data.Monoid
-import Control.Applicative
 
 data Tok    = TokID String         -- identifiers
             | TokLParen            -- (
