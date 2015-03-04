@@ -1,15 +1,13 @@
 module Compiler.DSL.RawAST.Type (HasType(..)) where
 
 import Compiler.Type
+import Compiler.Type.Type
 import Compiler.Type.DSL
 
 import Data.Monoid
 
 --------------------------------------------------------------------------------
 -- Class & Instances of HasType
-
-class HasType a where
-    getType :: a -> Type
 
 instance HasType BasicType where
     getType RawIntType    = Type [IntType]

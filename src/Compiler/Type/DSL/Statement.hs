@@ -21,6 +21,7 @@ data Assignee a = Assignee a [Expression a] -- e.g. a[1+2][3*4]
 
 instance (Serializable a, Sym a) => Serializable (Statement a) where
     serialize (Assignment v e) = serialize v ++ " := " ++ serialize e
+    serialize (Return e) = "return " ++ serialize e
     serialize (Invocation sym []) = getID sym
     serialize (Invocation sym exprs) = getID sym ++ "(" ++ exprs' ++ ")"
         where   exprs' = intercalate' ", " exprs

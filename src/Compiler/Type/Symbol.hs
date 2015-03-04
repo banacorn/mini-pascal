@@ -88,17 +88,16 @@ data Value  = Variable Symbol Declaration
             | RealLiteral Double
             deriving (Eq)
 
--- instance Value Variable where
---     valType (Variable _ dec) = decType dec
---
--- instance Sym Variable where
---     getID (Variable s _) = getID s
---     getPos (Variable _ p) = getPos p
+instance HasType Value where
+    getType (Variable sym dec) = decType dec
+    getType (IntLiteral i) = Type [IntType]
+    getType (RealLiteral i) = Type [RealType]
 
 instance Serializable Value where
     serialize (Variable sym dec) = serialize sym ++ " ==> " ++ serialize dec
     serialize (IntLiteral i) = show i
     serialize (RealLiteral i) = show i
+
 
 --------------------------------------------------------------------------------
 -- helper functions
@@ -112,3 +111,7 @@ partite = foldl addToPartition []
 
 toValue :: Binding -> Value
 toValue (sym, dec) = Variable sym (findMin (fromJust dec))
+
+isVariable :: Value -> Bool
+isVariable (Variable _ _) = True
+isVariable _ = False

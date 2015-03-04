@@ -7,6 +7,8 @@ import Compiler.Class.Serializable
 
 import Data.List (intercalate)
 import Data.Monoid
+
+
 --------------------------------------------------------------------------------
 -- first order
 data Domain = IntType
@@ -18,6 +20,9 @@ data Domain = IntType
             deriving (Eq)
 
 data Type = Type [Domain] deriving (Eq)
+
+class HasType a where
+    getType :: a -> Type
 
 instance Serializable Domain where
     serialize IntType = "Int"

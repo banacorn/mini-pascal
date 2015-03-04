@@ -2,7 +2,7 @@ module Compiler.Semantics where
 
 import Compiler.Type
 import Compiler.Type.DSL
-import Compiler.Type.DSL
+import Compiler.DSL.ABT
 import Data.Set (Set, size)
 import Data.Maybe (isNothing)
 
@@ -21,3 +21,9 @@ declarationDuplicated =  filter ((> 1) . size) . extractFirst
 
 variableUndeclared :: AST -> [Symbol]
 variableUndeclared = map fst . filter (isNothing . snd) . extractSecond
+
+--------------------------------------------------------------------------------
+-- Type Checking
+
+-- typeCheck :: ABT -> [TypeError]
+-- typeCheck = _ . extractSecond
