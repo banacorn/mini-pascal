@@ -1,12 +1,9 @@
 module Compiler where
 
-import Compiler.Lexer
-import Compiler.Parser
+import Compiler.Syntax.Lexer
+import Compiler.Syntax.Parser
 import Compiler.Class.Serializable
-import Compiler.Type
 import Compiler.Pipeline
-
-import Control.Monad.IO.Class
 
 main :: IO ()
 main = pipeline $ do

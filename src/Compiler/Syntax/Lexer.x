@@ -1,5 +1,6 @@
 {
-module Compiler.Lexer (Token(..), Tok(..), AlexPosn(..), constant, unary, scan) where
+module Compiler.Syntax.Lexer (Token(..), Tok(..), AlexPosn(..), constant, unary, scan) where
+
 import Compiler.Type.Token
 import Compiler.Type.Pipeline
 import Data.List (find)
