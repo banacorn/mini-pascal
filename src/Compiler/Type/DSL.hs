@@ -8,7 +8,7 @@ module Compiler.Type.DSL
     ,   Subprogram(..)
     ,   RawAST, AST, ABT
     ,   merge
-    ,   extractFirst, extractSecond
+    ,   extractFirst, extractSecond, map2
     ) where
 
 import Compiler.Type.Token
@@ -78,3 +78,6 @@ extractFirst (Program decs subprogs _) = decs ++ (subprogs >>= extractSubprogram
 extractSecond :: Program a b -> [b]
 extractSecond (Program _ subprogs stmts) = subprogs ++ [stmts] >>= extractSubprogramSecond
     where   extractSubprogramSecond (Subprogram _ s) = s
+
+map2 :: (a -> b -> c) -> [a] -> [b] -> [c]
+map2 f a b = map (uncurry f) (zip a b)

@@ -54,7 +54,7 @@ instance (Serializable a, Sym a) => Serializable (Factor a) where
     serialize (InvocationFactor sym exprs)  = serialize sym ++ "(" ++ exprs' ++ ")"
         where   exprs' = intercalate' ", " exprs
     serialize (NumberFactor s) = serialize s
-    serialize (SubFactor e) = serialize e
+    serialize (SubFactor e) = "(" ++ serialize e ++ ")"
     serialize (NotFactor f) = "not " ++ serialize f
 
 

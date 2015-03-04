@@ -21,9 +21,6 @@ restore' s stack = evalState (restore s) stack
 restoreCompoundStmt :: Restorable n => [n a] -> [b] -> [n b]
 restoreCompoundStmt xs stack = evalState (mapM restore xs) stack
 
-map2 :: (a -> b -> c) -> [a] -> [b] -> [c]
-map2 f a b = map (uncurry f) (zip a b)
-
 --------------------------------------------------------------------------------
 -- Class & Instances
 

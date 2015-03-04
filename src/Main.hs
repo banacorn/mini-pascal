@@ -5,7 +5,6 @@ import Compiler.Parser
 import Compiler.Class.Serializable
 import Compiler.Type
 import Compiler.Pipeline
-import Compiler.CodeGen
 
 import Control.Monad.IO.Class
 
@@ -22,8 +21,10 @@ testA = do
         >>= parse
         >>= checkBinding
         >>= checkType
-        -- >>= draw'
-        >>= runWithLLI . genCode
+        >>= draw'
+        >>= genCode
+        >>= draw'
+        >>= runWithLLI
 
 
 testAll :: Pipeline ()

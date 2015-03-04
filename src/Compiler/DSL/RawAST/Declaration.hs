@@ -8,13 +8,12 @@ import Compiler.DSL.RawAST.Type
 import Data.Set (Set)
 
 collectDeclaration :: RawProgram -> Program (Set Declaration) ()
-collectDeclaration (RawProgram _ params vars subprogs _) = Program
+collectDeclaration (RawProgram _ _ vars subprogs _) = Program
         (partite decs)
         (map collectSubprogramDeclaration subprogs)
         (Subprogram [] [])
         where
-            decs =  (map (flip Declaration (BasicType ProgramParamType)) params)
-                 ++ (vars     >>= fromVars)
+            decs =  (vars     >>= fromVars)
                  ++ (subprogs >>= fromSubprogs)
             fromVars (VarDec ids t) = map (flip Declaration (getType t)) ids
             fromSubprogs n@(FuncDec sym _ ret _ _) = [Declaration sym (getType n)]

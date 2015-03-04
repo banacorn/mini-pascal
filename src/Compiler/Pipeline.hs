@@ -8,6 +8,7 @@ import              Compiler.DSL.AST
 import              Compiler.Type.DSL
 import              Compiler.Semantics
 import              Compiler.TypeCheck
+import qualified    Compiler.CodeGen as CodeGen
 
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except
@@ -104,6 +105,9 @@ checkType abt = do
     checkSemanticsError $ do
         checkTypeError abt
     return abt
+
+genCode :: ABT -> Pipeline String
+genCode = return . CodeGen.genCode
 
 runWithLLI :: String -> Pipeline ()
 runWithLLI src = do

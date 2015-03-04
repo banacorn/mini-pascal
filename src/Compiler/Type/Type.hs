@@ -14,7 +14,6 @@ import Data.Monoid
 data Domain = IntType
             | RealType
             | VoidType                          -- ()
-            | ProgramParamType
             deriving (Eq, Ord)
 
 data Type   = BasicType Domain
@@ -27,7 +26,6 @@ instance Serializable Domain where
     serialize IntType = "Int"
     serialize RealType = "Real"
     serialize VoidType = "void"
-    serialize ProgramParamType = "ProgArg"
 
 instance Serializable Type where
     serialize (BasicType domain) = serialize domain
