@@ -1,6 +1,6 @@
 module Compiler.Semantics where
 
-import Compiler.Type.Symbol
+import Compiler.Syntax.Type
 import Compiler.DSL.Type
 import Compiler.TypeCheck
 import Data.Set (Set, size)

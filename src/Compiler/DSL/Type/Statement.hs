@@ -3,7 +3,7 @@
 module Compiler.DSL.Type.Statement where
 
 import Compiler.Serializable
-import Compiler.Type.Symbol
+import Compiler.Syntax.Type
 import Compiler.DSL.Type.Expression
 
 --------------------------------------------------------------------------------

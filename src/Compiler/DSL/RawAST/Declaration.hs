@@ -1,7 +1,7 @@
 module Compiler.DSL.RawAST.Declaration (collectDeclaration) where
 
 import Compiler.Type
-import Compiler.Type.Symbol
+import Compiler.Syntax.Type
 import Compiler.DSL.Type
 import Compiler.DSL.RawAST.Type
 

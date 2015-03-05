@@ -1,7 +1,7 @@
 module Compiler.DSL.RawAST.Symbol where
 
 import Compiler.DSL.Type
-import Compiler.Type.Symbol
+import Compiler.Syntax.Type
 
 collectSymbol :: RawProgram -> Program () Symbol
 collectSymbol (RawProgram _ _ _ subprogs stmts) = Program

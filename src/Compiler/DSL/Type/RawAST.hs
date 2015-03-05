@@ -5,7 +5,7 @@ module Compiler.DSL.Type.RawAST where
 import Compiler.Serializable
 import Compiler.DSL.Type.Expression
 import Compiler.DSL.Type.Statement
-import Compiler.Type.Symbol
+import Compiler.Syntax.Type
 
 --------------------------------------------------------------------------------
 -- Raw Abstract Syntax Tree

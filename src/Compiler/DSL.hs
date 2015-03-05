@@ -2,7 +2,7 @@ module Compiler.DSL (toAST, toABT) where
 
 import Compiler.DSL.Type
 import Compiler.DSL.RawAST
-import Compiler.Type.Symbol
+import Compiler.Syntax.Type
 
 import              Data.List (find)
 import              Data.Set (Set)

@@ -1,9 +1,6 @@
 module Compiler.Type.Pipeline where
 
-import Compiler.Syntax.Type.Position
-import Compiler.Syntax.Type.Token
-
-import Compiler.Type.Symbol
+import Compiler.Syntax.Type
 import Compiler.Serializable
 import Compiler.TypeCheck
 

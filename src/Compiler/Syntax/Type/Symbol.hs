@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
-module Compiler.Type.Symbol where
+module Compiler.Syntax.Type.Symbol where
 
 import Compiler.Syntax.Type.Position
 import Compiler.Type.Type

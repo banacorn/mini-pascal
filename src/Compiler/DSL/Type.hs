@@ -11,8 +11,7 @@ import Compiler.DSL.Type.Expression
 import Compiler.DSL.Type.Statement
 import Compiler.DSL.Type.RawAST
 
-import Compiler.Syntax.Type.Token
-import Compiler.Type.Symbol
+import Compiler.Syntax.Type
 import Compiler.Serializable
 
 

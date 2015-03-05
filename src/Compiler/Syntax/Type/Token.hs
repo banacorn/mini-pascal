@@ -2,7 +2,7 @@ module Compiler.Syntax.Type.Token where
 
 import Compiler.Serializable
 import Compiler.Syntax.Type.Position
-import Compiler.Type.Symbol
+import Compiler.Syntax.Type.Symbol
 
 data Tok    = TokID String         -- identifiers
             | TokLParen            -- (
