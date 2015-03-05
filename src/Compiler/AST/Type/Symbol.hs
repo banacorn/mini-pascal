@@ -62,8 +62,8 @@ instance Serializable Declaration where
 --      2. have the same name
 instance Eq Declaration where
     Declaration (Symbol i _) t == Declaration (Symbol i' _) t'
-        | firstOrder  t && firstOrder  t' = i == i'
-        | higherOrder t && higherOrder t' = i == i'
+        | not (isFunction t) && not (isFunction t') = i == i'
+        |      isFunction t  &&      isFunction t'  = i == i'
         | otherwise                       = False
 
 -- Order Declaration base on their Position
@@ -100,10 +100,12 @@ instance Serializable Value where
 
 instance Sym Value where
     getID (Variable sym dec) = symID sym
-    getID literal = serialize literal
+    getID (IntLiteral i _) = serialize i
+    getID (RealLiteral i _) = serialize i
     getPos (Variable sym dec) = symPos sym
     getPos (IntLiteral _ p) = p
     getPos (RealLiteral _ p) = p
+
 --------------------------------------------------------------------------------
 -- helper functions
 

@@ -87,5 +87,14 @@ instance Serializable a => Serializable [a] where
 instance Serializable String where
     serialize = id
 
+
+instance Serializable Double where
+    serialize = show
+instance Serializable Bool where
+    serialize = show
+
+instance Serializable Int where
+    serialize = show
+
 instance Serializable () where
     serialize _ = ""

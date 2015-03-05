@@ -40,12 +40,15 @@ instance Monoid Type where
 
 --------------------------------------------------------------------------------
 
-order :: Type -> Int
-order (BasicType _) = 1
-order (FunctionType domains) = length domains
 
-firstOrder :: Type -> Bool
-firstOrder = (== 1) . order
+isFunction :: Type -> Bool
+isFunction (BasicType _) = False
+isFunction (FunctionType _) = True
 
-higherOrder :: Type -> Bool
-higherOrder = (> 1) . order
+arity :: Type -> Int
+arity (BasicType _) = 0
+arity (FunctionType domains) = length domains
+
+getParamType :: Type -> [Domain]
+getParamType (BasicType _) = error "not function"
+getParamType (FunctionType domains) = domains
