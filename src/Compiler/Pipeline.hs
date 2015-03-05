@@ -6,8 +6,8 @@ import Compiler.Serializable
 import Compiler.Syntax.Type
 
 
-import              Compiler.DSL
-import              Compiler.DSL.Type
+import              Compiler.AST
+import              Compiler.AST.Type
 import              Compiler.Semantics
 import              Compiler.TypeCheck
 
@@ -18,8 +18,6 @@ import              Data.Maybe (fromJust)
 import              Data.List (intercalate, sort)
 import              Data.Set (Set, toList)
 import              System.Environment (getArgs)
-import              System.Process
-import              System.IO
 import              System.Console.ANSI
 
 --------------------------------------------------------------------------------

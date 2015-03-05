@@ -1,8 +1,8 @@
-module Compiler.DSL.RawAST.Type (HasType(..)) where
+module Compiler.AST.Raw.Type (HasType(..)) where
 
 import Compiler.Type
 import Compiler.Type.Type
-import Compiler.DSL.Type
+import Compiler.AST.Type
 
 import Data.Monoid
 

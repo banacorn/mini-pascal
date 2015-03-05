@@ -1,7 +1,7 @@
-module Compiler.DSL (toAST, toABT) where
+module Compiler.AST (toAST, toABT) where
 
-import Compiler.DSL.Type
-import Compiler.DSL.RawAST
+import Compiler.AST.Type
+import Compiler.AST.Raw
 import Compiler.Syntax.Type
 
 import              Data.List (find)

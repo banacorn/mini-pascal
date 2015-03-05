@@ -1,9 +1,9 @@
-module Compiler.DSL.RawAST.Declaration (collectDeclaration) where
+module Compiler.AST.Raw.Declaration (collectDeclaration) where
 
 import Compiler.Type
 import Compiler.Syntax.Type
-import Compiler.DSL.Type
-import Compiler.DSL.RawAST.Type
+import Compiler.AST.Type
+import Compiler.AST.Raw.Type
 
 import Data.Set (Set)
 

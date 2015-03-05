@@ -1,26 +1,24 @@
-module Compiler.DSL.Type
-    (   module Compiler.DSL.Type.Expression
-    ,   module Compiler.DSL.Type.Statement
-    ,   module Compiler.DSL.Type.RawAST
+module Compiler.AST.Type
+    (   module Compiler.AST.Type.Expression
+    ,   module Compiler.AST.Type.Statement
+    ,   module Compiler.AST.Type.Raw
     ,   Program(..), Subprogram(..)
     ,   RawAST, AST, ABT
     ,   merge, extractFirst, extractSecond, map2
     ) where
 
-import Compiler.DSL.Type.Expression
-import Compiler.DSL.Type.Statement
-import Compiler.DSL.Type.RawAST
-
+import Compiler.AST.Type.Statement
+import Compiler.AST.Type.Raw
+import Compiler.AST.Type.Expression
 import Compiler.Syntax.Type
 import Compiler.Serializable
 
-
 import Data.Bifunctor
 import Data.Set (Set, findMin)
-import Control.Applicative
 
 --------------------------------------------------------------------------------
--- Main structure
+--  Main structure
+--------------------------------------------------------------------------------
 
 data Program dec stmt = Program
     [dec]                   --  program parameters, variable and subprogram declarations
@@ -31,9 +29,9 @@ data Subprogram dec stmt = Subprogram
     [dec]                   --  variable and subprogram declarations
     [stmt]                  --  compound statement
 
-type RawAST = RawProgram
-type AST = Program (Set Declaration) Binding
-type ABT = Program Declaration (Statement Value)
+--------------------------------------------------------------------------------
+--  Type synonyms
+--------------------------------------------------------------------------------
 
 
 instance (Serializable a, Serializable b) => Serializable (Program a b) where
@@ -56,6 +54,16 @@ instance Bifunctor Subprogram where
     bimap f g (Subprogram as bs) = Subprogram (map f as) (map g bs)
 
 --------------------------------------------------------------------------------
+--  Type synonyms
+--------------------------------------------------------------------------------
+
+type RawAST = RawProgram
+type AST = Program (Set Declaration) Binding
+type ABT = Program Declaration (Statement Value)
+
+--------------------------------------------------------------------------------
+
+
 -- merge 2 Programs, taking the first of the first and the second of the second
 merge :: Program a b -> Program c d -> Program a d
 merge (Program d0 s0 c0) (Program _ s1 c1) = Program
@@ -64,12 +72,10 @@ merge (Program d0 s0 c0) (Program _ s1 c1) = Program
     (mergeSubprogram c0 c1)
     where   mergeSubprogram (Subprogram d0 _) (Subprogram _ c1) = Subprogram d0 c1
 
---------------------------------------------------------------------------------
 extractFirst :: Program a b -> [a]
 extractFirst (Program decs subprogs _) = decs ++ (subprogs >>= extractSubprogramFirst)
     where   extractSubprogramFirst (Subprogram d _) = d
 
---------------------------------------------------------------------------------
 extractSecond :: Program a b -> [b]
 extractSecond (Program _ subprogs stmts) = subprogs ++ [stmts] >>= extractSubprogramSecond
     where   extractSubprogramSecond (Subprogram _ s) = s

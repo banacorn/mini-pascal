@@ -1,7 +1,7 @@
 module Compiler.Semantics where
 
 import Compiler.Syntax.Type
-import Compiler.DSL.Type
+import Compiler.AST.Type
 import Compiler.TypeCheck
 import Data.Set (Set, size)
 import Data.Maybe (isNothing)

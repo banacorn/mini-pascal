@@ -1,10 +1,10 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Compiler.DSL.Type.RawAST where
+module Compiler.AST.Type.Raw where
 
 import Compiler.Serializable
-import Compiler.DSL.Type.Expression
-import Compiler.DSL.Type.Statement
+import Compiler.AST.Type.Expression
+import Compiler.AST.Type.Statement
 import Compiler.Syntax.Type
 
 --------------------------------------------------------------------------------
