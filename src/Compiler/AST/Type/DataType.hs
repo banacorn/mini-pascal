@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Compiler.Type.Type where
+module Compiler.AST.Type.DataType where
 
 import Compiler.Syntax.Type.Position
 import Compiler.Serializable

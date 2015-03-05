@@ -3,7 +3,7 @@
 module Compiler.AST.Type.Expression where
 
 import Compiler.Serializable
-import Compiler.Syntax.Type
+import Compiler.AST.Type.Symbol
 
 --------------------------------------------------------------------------------
 -- Expression (with >/>=/=....)

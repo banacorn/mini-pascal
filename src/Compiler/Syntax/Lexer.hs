@@ -83,7 +83,7 @@ alexInputPrevChar (p,c,bs,s) = c
 alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
 alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
 alexGetByte (p,c,[],[]) = Nothing
-alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c 
+alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c
                                   (b:bs) = utf8Encode c
                               in p' `seq`  Just (b, (p', c, bs, s))
 
@@ -138,9 +138,9 @@ data AlexState = AlexState {
 -- Compile with -funbox-strict-fields for best results!
 
 runAlex :: String -> Alex a -> Either String a
-runAlex input (Alex f) 
+runAlex input (Alex f)
    = case f (AlexState {alex_pos = alexStartPos,
-                        alex_inp = input,       
+                        alex_inp = input,
                         alex_chr = '\n',
                         alex_bytes = [],
 
@@ -152,14 +152,14 @@ runAlex input (Alex f)
 newtype Alex a = Alex { unAlex :: AlexState -> Either String (AlexState, a) }
 
 instance Monad Alex where
-  m >>= k  = Alex $ \s -> case unAlex m s of 
+  m >>= k  = Alex $ \s -> case unAlex m s of
                                 Left msg -> Left msg
                                 Right (s',a) -> unAlex (k a) s'
   return a = Alex $ \s -> Right (s,a)
 
 alexGetInput :: Alex AlexInput
 alexGetInput
- = Alex $ \s@AlexState{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} -> 
+ = Alex $ \s@AlexState{alex_pos=pos,alex_chr=c,alex_bytes=bs,alex_inp=inp} ->
         Right (s, (pos,c,bs,inp))
 
 alexSetInput :: AlexInput -> Alex ()
@@ -306,45 +306,45 @@ scan str = case runAlex str extractTokens of
                         a <- extractTokens
                         return $ others : a
 
-alex_action_2 =  constant TokProgram 
-alex_action_3 =  constant TokFunction 
-alex_action_4 =  constant TokBegin 
-alex_action_5 =  constant TokReturn 
-alex_action_6 =  constant TokEnd 
-alex_action_7 =  constant TokVar 
-alex_action_8 =  constant TokOf 
-alex_action_9 =  constant TokIf 
-alex_action_10 =  constant TokThen 
-alex_action_11 =  constant TokElse 
-alex_action_12 =  constant TokWhile 
-alex_action_13 =  constant TokDo 
-alex_action_14 =  constant TokNot 
-alex_action_15 =  constant TokTypeInt 
-alex_action_16 =  constant TokTypeReal 
-alex_action_17 =  constant TokTypeVoid 
-alex_action_18 =  unary    TokReal 
-alex_action_19 =  unary    TokInt 
-alex_action_20 =  unary    TokID 
-alex_action_21 =  unary    TokError 
-alex_action_22 =  constant TokLParen 
-alex_action_23 =  constant TokRParen 
-alex_action_24 =  constant TokColon 
-alex_action_25 =  constant TokSemicolon 
-alex_action_26 =  constant TokPeriod 
-alex_action_27 =  constant TokComma 
-alex_action_28 =  constant TokAssign 
-alex_action_29 =  constant TokL 
-alex_action_30 =  constant TokS 
-alex_action_31 =  constant TokLE 
-alex_action_32 =  constant TokSE 
-alex_action_33 =  constant TokEq 
-alex_action_34 =  constant TokNEq 
-alex_action_35 =  constant TokPlus 
-alex_action_36 =  constant TokMinus 
-alex_action_37 =  constant TokTimes 
-alex_action_38 =  constant TokDiv 
-alex_action_39 =  constant TokTo 
-alex_action_41 =  unary TokError 
+alex_action_2 =  constant TokProgram
+alex_action_3 =  constant TokFunction
+alex_action_4 =  constant TokBegin
+alex_action_5 =  constant TokReturn
+alex_action_6 =  constant TokEnd
+alex_action_7 =  constant TokVar
+alex_action_8 =  constant TokOf
+alex_action_9 =  constant TokIf
+alex_action_10 =  constant TokThen
+alex_action_11 =  constant TokElse
+alex_action_12 =  constant TokWhile
+alex_action_13 =  constant TokDo
+alex_action_14 =  constant TokNot
+alex_action_15 =  constant TokTypeInt
+alex_action_16 =  constant TokTypeReal
+alex_action_17 =  constant TokTypeVoid
+alex_action_18 =  unary    TokReal
+alex_action_19 =  unary    TokInt
+alex_action_20 =  unary    TokID
+alex_action_21 =  unary    TokError
+alex_action_22 =  constant TokLParen
+alex_action_23 =  constant TokRParen
+alex_action_24 =  constant TokColon
+alex_action_25 =  constant TokSemicolon
+alex_action_26 =  constant TokPeriod
+alex_action_27 =  constant TokComma
+alex_action_28 =  constant TokAssign
+alex_action_29 =  constant TokL
+alex_action_30 =  constant TokS
+alex_action_31 =  constant TokLE
+alex_action_32 =  constant TokSE
+alex_action_33 =  constant TokEq
+alex_action_34 =  constant TokNEq
+alex_action_35 =  constant TokPlus
+alex_action_36 =  constant TokMinus
+alex_action_37 =  constant TokTimes
+alex_action_38 =  constant TokDiv
+alex_action_39 =  constant TokTo
+alex_action_41 =  unary TokError
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}
@@ -396,7 +396,7 @@ alexScanUser user input (sc)
   = case alex_scan_tkn user input (0) input sc AlexNone of
 	(AlexNone, input') ->
 		case alexGetByte input of
-			Nothing -> 
+			Nothing ->
 
 
 
@@ -425,13 +425,13 @@ alexScanUser user input (sc)
 
 alex_scan_tkn user orig_input len input s last_acc =
   input `seq` -- strict in the input
-  let 
+  let
 	new_acc = (check_accs (alex_accept `quickIndex` (s)))
   in
   new_acc `seq`
   case alexGetByte input of
      Nothing -> (new_acc, input)
-     Just (c, new_input) -> 
+     Just (c, new_input) ->
 
 
 
@@ -440,7 +440,7 @@ alex_scan_tkn user orig_input len input s last_acc =
                 base   = alexIndexInt32OffAddr alex_base s
                 offset = (base + ord_c)
                 check  = alexIndexInt16OffAddr alex_check offset
-		
+
                 new_s = if (offset >= (0)) && (check == ord_c)
 			  then alexIndexInt16OffAddr alex_table offset
 			  else alexIndexInt16OffAddr alex_deflt s
@@ -496,16 +496,16 @@ type AlexAccPred user = user -> AlexInput -> Int -> AlexInput -> Bool
 alexAndPred p1 p2 user in1 len in2
   = p1 user in1 len in2 && p2 user in1 len in2
 
---alexPrevCharIsPred :: Char -> AlexAccPred _ 
+--alexPrevCharIsPred :: Char -> AlexAccPred _
 alexPrevCharIs c _ input _ _ = c == alexInputPrevChar input
 
 alexPrevCharMatches f _ input _ _ = f (alexInputPrevChar input)
 
---alexPrevCharIsOneOfPred :: Array Char Bool -> AlexAccPred _ 
+--alexPrevCharIsOneOfPred :: Array Char Bool -> AlexAccPred _
 alexPrevCharIsOneOf arr _ input _ _ = arr ! alexInputPrevChar input
 
 --alexRightContext :: Int -> AlexAccPred _
-alexRightContext (sc) user _ _ input = 
+alexRightContext (sc) user _ _ input =
      case alex_scan_tkn user input (0) input sc AlexNone of
 	  (AlexNone, _) -> False
 	  _ -> True
@@ -516,4 +516,3 @@ alexRightContext (sc) user _ _ input =
 
 -- used by wrappers
 iUnbox (i) = i
-

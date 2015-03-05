@@ -1,7 +1,5 @@
-module Compiler.AST.Raw.Type (HasType(..)) where
+module Compiler.AST.Raw.DataType (HasType(..)) where
 
-import Compiler.Type
-import Compiler.Type.Type
 import Compiler.AST.Type
 
 import Data.Monoid

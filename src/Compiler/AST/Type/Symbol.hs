@@ -1,9 +1,9 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
-module Compiler.Syntax.Type.Symbol where
+module Compiler.AST.Type.Symbol where
 
 import Compiler.Syntax.Type.Position
-import Compiler.Type.Type
+import Compiler.AST.Type.DataType
 import Compiler.Serializable
 
 import           Data.Maybe (fromJust)

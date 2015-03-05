@@ -1,5 +1,6 @@
 module Compiler.Type.Pipeline where
 
+import Compiler.AST.Type
 import Compiler.Syntax.Type
 import Compiler.Serializable
 import Compiler.TypeCheck

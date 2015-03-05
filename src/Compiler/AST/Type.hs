@@ -2,6 +2,8 @@ module Compiler.AST.Type
     (   module Compiler.AST.Type.Expression
     ,   module Compiler.AST.Type.Statement
     ,   module Compiler.AST.Type.Raw
+    ,   module Compiler.AST.Type.Symbol
+    ,   module Compiler.AST.Type.DataType
     ,   Program(..), Subprogram(..)
     ,   RawAST, AST, ABT
     ,   merge, extractFirst, extractSecond, map2
@@ -10,6 +12,8 @@ module Compiler.AST.Type
 import Compiler.AST.Type.Statement
 import Compiler.AST.Type.Raw
 import Compiler.AST.Type.Expression
+import Compiler.AST.Type.DataType
+import Compiler.AST.Type.Symbol
 import Compiler.Syntax.Type
 import Compiler.Serializable
 

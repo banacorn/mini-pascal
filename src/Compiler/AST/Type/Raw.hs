@@ -5,7 +5,7 @@ module Compiler.AST.Type.Raw where
 import Compiler.Serializable
 import Compiler.AST.Type.Expression
 import Compiler.AST.Type.Statement
-import Compiler.Syntax.Type
+import Compiler.AST.Type.Symbol
 
 --------------------------------------------------------------------------------
 -- Raw Abstract Syntax Tree
