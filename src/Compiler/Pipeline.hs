@@ -22,7 +22,7 @@ import              System.Console.ANSI
 
 --------------------------------------------------------------------------------
 -- get path from command argument
---  Exception: throws FileError if argument not given
+--      Exception: throws FileError if argument not given
 getPath :: Pipeline String
 getPath = do
     args <- liftIO getArgs
@@ -30,10 +30,12 @@ getPath = do
         []      -> throwError CommandLineErrorClass
         (x:_)   -> return x
 
+
 --------------------------------------------------------------------------------
 -- read source from file
---  Exception: throws FileError if file not found
---  State: saves source if possible
+--      Exception: throws FileError if file not found
+--      State: saves source if possible
+
 readSource :: String -> Pipeline String
 readSource path = do
     result <- liftIO $ try (readFile path) :: Pipeline (Either IOException String)
@@ -45,7 +47,31 @@ readSource path = do
 
 
 --------------------------------------------------------------------------------
+--      Exception: Declaration Duplicated or Variable Undeclared
+
+checkBinding :: RawAST -> Pipeline ABT
+checkBinding rawAST = do
+    let ast = toAST rawAST
+
+    checkSemanticsError $ do
+        checkDeclarationDuplicated ast
+        checkVariableUndeclared ast
+
+    -- the AST is good enough to build ABT
+    return (toABT rawAST ast)
+
+--------------------------------------------------------------------------------
+--      Exception: all sorts of TypeErrors
+
+checkType :: ABT -> Pipeline ABT
+checkType abt = do
+    checkSemanticsError $ do
+        checkTypeError abt
+    return abt
+
+--------------------------------------------------------------------------------
 -- helper functions
+--------------------------------------------------------------------------------
 
 testWithSource :: String -> Pipeline String
 testWithSource input = do
@@ -65,18 +91,12 @@ throwSemanticsError err = do
     modify $ \state -> state
         { zustandSemanticsError = err : errors }
 
---------------------------------------------------------------------------------
--- Semantics Checking: Declaration Duplicated
---      Exception: throws SemanticsError if any declaration duplicated (implicitly)
---      State: saves SemanticsError if there's any
+
 checkDeclarationDuplicated :: AST -> Pipeline ()
 checkDeclarationDuplicated ast = case declarationDuplicated ast of
     [] -> return ()
     xs -> throwSemanticsError (SemDeclarationDuplicated xs)
 
--- Semantics Checking: Variable Undeclared
---      Exception: throws SemanticsError if any declaration undeclared (implicitly)
---      State: saves SemanticsError if there's any
 checkVariableUndeclared :: AST -> Pipeline ()
 checkVariableUndeclared ast = case variableUndeclared ast of
     [] -> return ()
@@ -87,40 +107,11 @@ checkTypeError abt = case typeCheck abt of
     [] -> return ()
     xs -> throwSemanticsError (SemTypeError xs)
 
-
-checkBinding :: RawAST -> Pipeline ABT
-checkBinding rawAST = do
-    let ast = toAST rawAST
-
-    checkSemanticsError $ do
-        checkDeclarationDuplicated ast
-        checkVariableUndeclared ast
-
-    -- the AST is good enough to build ABT
-    return (toABT rawAST ast)
-
-checkType :: ABT -> Pipeline ABT
-checkType abt = do
-    checkSemanticsError $ do
-        checkTypeError abt
-    return abt
-
--- genCode :: ABT -> Pipeline String
--- genCode = return . CodeGen.genCode
---
--- runWithLLI :: String -> Pipeline ()
--- runWithLLI src = do
---     (pin, _, _, _) <- liftIO $ createProcess (proc "lli" [])
---         {   std_in = CreatePipe }
---     case pin of
---         Just hin -> do
---             liftIO $ hPutStr hin src
---         Nothing -> error "fuck"
-
-
 --------------------------------------------------------------------------------
--- Semantics Checking: ?
---      Exception: throws SemanticsError if any semantics error stored in der Zustand
+-- Diagnose and report errors
+--------------------------------------------------------------------------------
+
+
 checkSemanticsError :: Pipeline () -> Pipeline ()
 checkSemanticsError f = do
     f
@@ -137,7 +128,8 @@ pipeline f = do
         Right () -> return ()
 
 --------------------------------------------------------------------------------
--- Diagnose and refine errors
+-- Diagnose and report errors
+--------------------------------------------------------------------------------
 diagnoseError :: Zustand -> ErrorClass -> [Error]
 diagnoseError (Zustand Nothing _ _) _ = [InvalidArgument]
 diagnoseError (Zustand (Just path) Nothing _) _ = [NoSuchFile path]
@@ -154,11 +146,13 @@ diagnoseSemanticsError path src (SemVariableUndeclared ps : xs) = map (VariableU
 diagnoseSemanticsError path src (SemTypeError ps : xs) = map (TypeCheckError path src) ps ++ diagnoseSemanticsError path src xs
 
 
-draw :: Serializable a => a -> Pipeline ()
-draw = liftIO . putStrLn . serialize
+--------------------------------------------------------------------------------
+-- Helper functions
+--------------------------------------------------------------------------------
+printIt :: Serializable a => a -> Pipeline ()
+printIt = liftIO . putStrLn . serialize
 
-
-draw' :: Serializable a => a -> Pipeline a
-draw' a = do
-    liftIO (putStrLn (serialize a))
+printIt' :: Serializable a => a -> Pipeline a
+printIt' a = do
+    printIt a
     return a

@@ -91,6 +91,10 @@ instance Serializable Tok where
 
 data TokenF a = Token a Position
     deriving (Eq, Show)
+
+instance Serializable a => Serializable (TokenF a) where
+    serialize (Token a pos) = green (serialize a) ++ " " ++ serialize pos
+
 type Token = TokenF Tok
 
 --------------------------------------------------------------------------------

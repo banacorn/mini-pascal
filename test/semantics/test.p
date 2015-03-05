@@ -1,15 +1,17 @@
-PROGRAM foo(input, output, error) ;
-   // variable declaraions
+program foo(input, output, error) ;
+
+   // global variable declarations
    var a, b, c: integer;
    var g, h: real;
 
-
+   // global function declarations
    function addition(a, b: integer) : integer;
-      var c: integer;  // local declaration
+      var c: integer;   // local variable declaration
       begin
-         return 1   // this is the return value
+         c := a + b;
+         return 1
       end;
-
+   // compound statements, "main"
    begin
       addition(2, 1)
-   end.   // this is the end of the program
+   end.

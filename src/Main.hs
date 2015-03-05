@@ -2,7 +2,6 @@ module Compiler where
 
 import Compiler.Syntax.Lexer
 import Compiler.Syntax.Parser
-import Compiler.Serializable
 import Compiler.Pipeline
 
 main :: IO ()
@@ -12,4 +11,7 @@ main = pipeline $ do
         >>= parse
         >>= checkBinding
         >>= checkType
-        >>= draw
+        >>= printIt'
+
+    printIt "=== Success ==="
+    
