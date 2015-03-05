@@ -11,5 +11,5 @@ PROGRAM foo(input, output, error) ;
       end;
 
    begin
-      c := addition(2, 1)
+      addition(2, 1)
    end.   // this is the end of the program

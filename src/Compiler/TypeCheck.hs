@@ -72,7 +72,7 @@ typeCheckInvocation val@(Variable sym (Declaration sym' t)) args
             argsTypes = catMaybes (map (toResult . typeCheck) args)
             funcTypes = let FunctionType ds = t in map BasicType ds
             argsMatched = all (uncurry (==)) (zip funcTypes argsTypes)
-            
+
 class Typeable a where
     typeCheck :: a -> TypeCheck
 
@@ -132,7 +132,7 @@ collectError xs = case concat (map maybeToList xs) of
 typeCheckStmt :: Statement Value -> Maybe [TypeError]
 typeCheckStmt (Assignment v e)  = toError (v <=> e)
 typeCheckStmt (Return e)        = toError (typeCheck e)
-typeCheckStmt (Invocation v es) = toError (typeCheck v)
+typeCheckStmt (Invocation v es) = toError (typeCheckInvocation v es)
 typeCheckStmt (Compound ss)     = collectError (map typeCheckStmt ss)
 typeCheckStmt (Branch e s t)    = collectError [toError (typeCheck e), typeCheckStmt s, typeCheckStmt t]
 typeCheckStmt (Loop e s)        = collectError [toError (typeCheck e), typeCheckStmt s]
