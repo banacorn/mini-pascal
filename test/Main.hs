@@ -2,9 +2,9 @@ module Main where
 
 import Test.Framework (defaultMain)
 
-import qualified Test.Scanner
+import qualified Test.Syntax.Lexer
 
 main :: IO ()
 main = defaultMain
-    [   Test.Scanner.tests
+    [   Test.Syntax.Lexer.tests
     ]

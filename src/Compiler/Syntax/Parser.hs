@@ -7,8 +7,9 @@ import Compiler.Type.Pipeline
 import Compiler.Syntax.Lexer
 import Control.Monad.Except
 import Control.Applicative(Applicative(..))
+import Control.Monad (ap)
 
--- parser produced by Happy Version 1.19.4
+-- parser produced by Happy Version 1.19.5
 
 data HappyAbsSyn t4 t5 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 t16 t17 t18 t19 t20 t21
 	= HappyTerminal (Token)
@@ -979,6 +980,27 @@ parseError tokens = throwError (SyntaxErrorClass (maybeHead tokens))
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}
+{-# LINE 16 "<built-in>" #-}
+{-# LINE 1 "/usr/local/lib/ghc-7.10.1/include/ghcversion.h" #-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-# LINE 17 "<built-in>" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 -- Id: GenericTemplate.hs,v 1.26 2005/01/14 14:47:22 simonmar Exp 
 

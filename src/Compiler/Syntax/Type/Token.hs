@@ -43,6 +43,8 @@ data Tok    = TokID String         -- identifiers
             | TokTo                -- ..
             | TokError String      -- anything else
             | TokEOF               -- EOF
+            -- | TokLSB                -- [
+            -- | TokRSB                -- ]
             deriving (Eq, Show)
 
 

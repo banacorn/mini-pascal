@@ -32,7 +32,7 @@ data ErrorClass = CommandLineErrorClass
                 | FileErrorClass
                 | SyntaxErrorClass (Maybe Token)
                 | SemanticsErrorClass
-                deriving (Eq)
+                deriving (Eq, Show)
 
 data Error  = InvalidArgument           -- EINVAL
             | NoSuchFile FilePath       -- ENOENT

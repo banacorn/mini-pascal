@@ -6,12 +6,11 @@ import Compiler.Pipeline
 
 main :: IO ()
 main = pipeline $ do
-    readSource "./test/semantics/test.p"
+    readSource "./test/code/semantics/test.p"
         >>= scan
-        >>= parse
-        >>= checkBinding
-        >>= checkType
         >>= printIt'
+        -- >>= parse
+        -- >>= checkBinding
+        -- >>= checkType
 
     printIt "=== Success ==="
-    
