@@ -14,7 +14,8 @@ main = pipeline $ do
         >>= checkBinding
         >>= checkType
         >>= printIt'
-        >>= genCode
+        >>= toModule
+        -- >>= toIRAssembly
         >>= runJIT
         >>= printIt'
 

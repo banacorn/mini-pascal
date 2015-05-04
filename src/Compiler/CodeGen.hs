@@ -6,8 +6,8 @@ import Compiler.AST.Type
 
 import LLVM.General.AST
 
-genCode :: ABT -> Pipeline Module
-genCode _ = return defaultModule {
+toModule :: ABT -> Pipeline Module
+toModule _ = return defaultModule {
         moduleName = "program"
     ,   moduleDefinitions = []
     }
