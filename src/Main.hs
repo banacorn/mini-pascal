@@ -4,6 +4,7 @@ import Compiler.Syntax.Lexer
 import Compiler.Syntax.Parser
 import Compiler.Pipeline
 import Compiler.CodeGen
+import Compiler.JIT
 
 main :: IO ()
 main = pipeline $ do
@@ -12,6 +13,7 @@ main = pipeline $ do
         >>= parse
         >>= checkBinding
         >>= checkType
+        >>= printIt'
         >>= genCode
         >>= runJIT
         >>= printIt'
