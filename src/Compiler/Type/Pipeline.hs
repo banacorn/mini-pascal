@@ -32,6 +32,7 @@ data ErrorClass = CommandLineErrorClass
                 | FileErrorClass
                 | SyntaxErrorClass (Maybe Token)
                 | SemanticsErrorClass
+                | CompileErrorClass String
                 deriving (Eq, Show)
 
 data Error  = InvalidArgument           -- EINVAL
