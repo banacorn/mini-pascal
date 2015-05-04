@@ -8,7 +8,7 @@ import Compiler.JIT
 
 main :: IO ()
 main = pipeline $ do
-    abt <- readSource "./test/code/semantics/test.p"
+    abt <- readSource "./test/code/test.p"
         >>= scan
         >>= parse
         >>= checkBinding

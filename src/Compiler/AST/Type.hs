@@ -43,6 +43,7 @@ instance (Serializable a, Serializable b) => Serializable (Program a b) where
             0 >>>> ["Program"]
         ++  1 >>>> decs
         ++  1 >>>> subScopes
+        ++  1 >>>> ["\nCOMPOUND STATEMENTS"]
         ++  1 >>>> [stmts]
 
 instance (Serializable a, Serializable b) => Serializable (Subprogram a b) where

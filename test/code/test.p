@@ -11,6 +11,8 @@ program foo(input, output, error) ;
          c := a + b;
          return 1
       end;
+
+      
    // compound statements, "main"
    begin
       addition(2, 1)
