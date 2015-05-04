@@ -1,16 +1,14 @@
-; ModuleID = 'my cool jit'
 
-@banana = external global i32
+; ModuleID = 'program'
 
-declare i32 @putchar(i32)
+@a = external global i32
+@b = external global i32
+@c = external global i32
+@g = external global double
+@h = external global double
 
-define i32 @add(i32 %a, i32 %b) {
-  %1 = add i32 %a, %b
-  ret i32 %1
-}
+; declare void @main()
 
 define void @main() {
-  %1 = call i32 @add(i32 0, i32 97)
-  call i32 @putchar(i32 %1)
   ret void
 }

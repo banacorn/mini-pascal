@@ -15,9 +15,11 @@ main = pipeline $ do
         >>= checkType
         >>= printIt'
 
+    printIt "\n=== ASSEMBLY ===\n"
     toIRAssembly (toModule abt) >>= printIt'
         -- >>= printIt
         -- >>= runJIT
         -- >>= printIt'
 
-    printIt "=== Success ==="
+    printIt "\n=== JIT ===\n"
+    runJIT (toModule abt) >>= printIt'

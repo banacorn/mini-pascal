@@ -15,8 +15,8 @@ import Foreign.Ptr
 
 foreign import ccall "dynamic" haskFun :: FunPtr (IO Double) -> (IO Double)
 
-run :: FunPtr a -> IO String
-run fn = show <$> haskFun (castFunPtr fn :: FunPtr (IO Double))
+run :: FunPtr a -> IO ()
+run fn = void $ haskFun (castFunPtr fn :: FunPtr (IO Double))
 
 jit :: Context -> (EE.MCJIT -> IO a) -> IO a
 jit context = EE.withMCJIT context optLvl model ptrElim fastIns
@@ -35,7 +35,7 @@ withModuleFromIR f mod = do
         Right as -> return as
 
 
-runJIT :: IR.Module -> Pipeline String
+runJIT :: IR.Module -> Pipeline ()
 runJIT = withModuleFromIR $ \mod -> do
     withContext $ \context -> do
         jit context $ \engine ->
@@ -43,7 +43,7 @@ runJIT = withModuleFromIR $ \mod -> do
                 mainFunction <- EE.getFunction ee (IR.Name "main")
                 case mainFunction of
                     Just fn -> run fn
-                    Nothing -> return "Error!!"
+                    Nothing -> return ()
 
 toIRAssembly :: IR.Module -> Pipeline String
 toIRAssembly = withModuleFromIR moduleLLVMAssembly
