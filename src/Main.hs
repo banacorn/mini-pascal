@@ -8,15 +8,16 @@ import Compiler.JIT
 
 main :: IO ()
 main = pipeline $ do
-    readSource "./test/code/semantics/test.p"
+    abt <- readSource "./test/code/semantics/test.p"
         >>= scan
         >>= parse
         >>= checkBinding
         >>= checkType
         >>= printIt'
-        >>= toModule
-        -- >>= toIRAssembly
-        >>= runJIT
-        >>= printIt'
+
+    toIRAssembly (toModule abt) >>= printIt'
+        -- >>= printIt
+        -- >>= runJIT
+        -- >>= printIt'
 
     printIt "=== Success ==="
