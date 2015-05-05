@@ -52,8 +52,12 @@ instance (Serializable a, Serializable b) => Serializable (Program a b) where
                     ++  0 >>>> [dec]
                     ++  1 >>>> [subprog]
 
-                varDecs = take (length decs - length subprogs - 1) decs
-                funcDecs = drop (length decs - length subprogs - 1) decs
+                varDecs = take varNo decs
+                funcDecs = drop varNo decs
+
+                funcNo = length subprogs
+                extern = 1
+                varNo = length decs - funcNo - extern
 
 instance (Serializable a, Serializable b) => Serializable (Subprogram a b) where
     serialize (Subprogram decs stmts) = paragraph $

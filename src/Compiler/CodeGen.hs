@@ -59,8 +59,8 @@ genFunction (AST.Declaration (AST.Symbol label _) typ) body = GlobalDefinition $
     ,   basicBlocks = body
     }
 
-toModule :: AST.ABT -> Module
-toModule (AST.Program decs _) = defaultModule {
+genModule :: AST.ABT -> Module
+genModule (AST.Program decs _) = defaultModule {
         moduleName = "program"
     ,   moduleDefinitions =
                 [ genGlobalVariable dec | dec <- decs, AST.isVariable (AST.decType dec) ]

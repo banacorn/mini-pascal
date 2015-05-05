@@ -16,10 +16,10 @@ main = pipeline $ do
         >>= printIt'
 
     printIt "\n=== ASSEMBLY ===\n"
-    toIRAssembly (toModule abt) >>= printIt'
+    toIRAssembly (genModule abt) >>= printIt'
         -- >>= printIt
         -- >>= runJIT
         -- >>= printIt'
 
     printIt "\n=== JIT ===\n"
-    runJIT (toModule abt) >>= printIt'
+    runJIT (genModule abt) >>= printIt'
