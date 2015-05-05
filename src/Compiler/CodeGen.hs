@@ -32,7 +32,7 @@ toModule (Program decs _ _) = defaultModule {
                         name = Name "main"
                     ,   returnType = VoidType
                     ,   basicBlocks = [
-                            BasicBlock (Name "block entry") [] (ret $ ConstantOperand $ C.Null $ ptr $ IntegerType 32)
+                            BasicBlock (Name "block entry") [] (Do $ Ret Nothing [])
                         ]
                     } ]
     }
