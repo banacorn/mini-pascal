@@ -59,7 +59,7 @@ typeCheckInvocation val@(Variable sym (Declaration sym' t)) args
     |     isFunc && not arityOK                                  = Screwed [FunctionArityError val funcArity argsNum]
     |     isFunc &&     arityOK && not argsOK                    = Screwed argsErrors
     |     isFunc &&     arityOK &&     argsOK && not argsMatched = Screwed [FunctionTypeError val]
-    |     isFunc &&     arityOK &&     argsOK &&     argsMatched = GotType val (BasicType $ last (getParamType t))
+    |     isFunc &&     arityOK &&     argsOK &&     argsMatched = GotType val (getReturnType t)
     where   isFunc = isFunction t
 
             funcArity = arity t

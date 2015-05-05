@@ -118,7 +118,7 @@ partite = foldl addToPartition []
 
 toValue :: Binding -> Value
 toValue (sym, dec) = Variable sym (findMin (fromJust dec))
-
-isVariable :: Value -> Bool
-isVariable (Variable _ _) = True
-isVariable _ = False
+--
+-- isVariable :: Value -> Bool
+-- isVariable (Variable _ _) = True
+-- isVariable _ = False

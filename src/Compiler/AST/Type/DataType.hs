@@ -41,14 +41,23 @@ instance Monoid Type where
 --------------------------------------------------------------------------------
 
 
+isVariable :: Type -> Bool
+isVariable (BasicType _) = True
+isVariable (FunctionType _) = False
+
 isFunction :: Type -> Bool
-isFunction (BasicType _) = False
-isFunction (FunctionType _) = True
+isFunction = not . isVariable
 
 arity :: Type -> Int
 arity (BasicType _) = 0
 arity (FunctionType domains) = length domains
 
-getParamType :: Type -> [Domain]
-getParamType (BasicType _) = error "not function"
-getParamType (FunctionType domains) = domains
+getDomains :: Type -> [Domain]
+getDomains (BasicType _) = error "not a function"
+getDomains (FunctionType domains) = domains
+
+getParamType :: Type -> [Type]
+getParamType = map BasicType . init . getDomains
+
+getReturnType :: Type -> Type
+getReturnType = BasicType . last . getDomains
