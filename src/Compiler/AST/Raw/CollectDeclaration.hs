@@ -1,8 +1,7 @@
-module Compiler.AST.Raw.Declaration (collectDeclaration) where
+module Compiler.AST.Raw.CollectDeclaration (collectDeclaration) where
 
 import Compiler.Syntax.Type
 import Compiler.AST.Type
-import Compiler.AST.Raw.DataType
 
 import Data.Set (Set)
 

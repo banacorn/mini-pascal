@@ -21,6 +21,14 @@ import Data.Bifunctor
 import Data.Set (Set, findMin)
 
 --------------------------------------------------------------------------------
+--  Type synonyms
+--------------------------------------------------------------------------------
+
+type RawAST = RawProgram
+type AST = Program (Set Declaration) Binding
+type ABT = Program Declaration (Statement Value)
+
+--------------------------------------------------------------------------------
 --  Main structure
 --------------------------------------------------------------------------------
 
@@ -31,19 +39,6 @@ data Program dec stmt = Program
 data Subprogram dec stmt = Subprogram
     [dec]                   --  variable and subprogram declarations
     [stmt]                  --  compound statement
-
---------------------------------------------------------------------------------
---  Type synonyms
---------------------------------------------------------------------------------
-
-type RawAST = RawProgram
-type AST = Program (Set Declaration) Binding
-type ABT = Program Declaration (Statement Value)
-
---------------------------------------------------------------------------------
---  Instances
---------------------------------------------------------------------------------
-
 
 instance (Serializable a, Serializable b) => Serializable (Program a b) where
     serialize (Program decs subScopes) = paragraph $

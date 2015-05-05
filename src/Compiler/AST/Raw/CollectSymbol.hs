@@ -1,4 +1,4 @@
-module Compiler.AST.Raw.Symbol where
+module Compiler.AST.Raw.CollectSymbol where
 
 import Compiler.AST.Type
 import Compiler.Syntax.Type

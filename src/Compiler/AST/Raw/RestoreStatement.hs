@@ -9,8 +9,6 @@ restoreStatement :: RawProgram -> Program a b -> Program a (Statement b)
 restoreStatement (RawProgram _ _ _ subprogs) (Program decs subprogs') = Program
     decs
     (map2 restoreSubprogramStatement subprogs subprogs')
-    -- (Subprogram compoundDecs (restoreCompoundStmt stmts compoundStmts))
-    -- where   Subprogram compoundDecs compoundStmts = stmts'
 
 restoreSubprogramStatement :: RawSubprogram -> Subprogram a b -> Subprogram a (Statement b)
 restoreSubprogramStatement (FuncDec _ _ _ _ stmts) (Subprogram decs stmts') = Subprogram decs (restoreCompoundStmt stmts stmts')

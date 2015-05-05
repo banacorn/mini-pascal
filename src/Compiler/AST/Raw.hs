@@ -4,6 +4,6 @@ module Compiler.AST.Raw
     ,   collectSymbol
     ) where
 
-import Compiler.AST.Raw.Declaration
+import Compiler.AST.Raw.CollectDeclaration
+import Compiler.AST.Raw.CollectSymbol
 import Compiler.AST.Raw.RestoreStatement
-import Compiler.AST.Raw.Symbol

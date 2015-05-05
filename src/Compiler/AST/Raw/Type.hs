@@ -6,9 +6,12 @@ import Compiler.Serializable
 import Compiler.AST.Type.Expression
 import Compiler.AST.Type.Statement
 import Compiler.AST.Type.Symbol
+import Compiler.AST.Type.DataType
 
+import Data.Monoid
 --------------------------------------------------------------------------------
--- Raw Abstract Syntax Tree
+--  Raw Abstract Syntax Tree
+--------------------------------------------------------------------------------
 
 -- Program Declaration
 data RawProgram = RawProgram
@@ -26,6 +29,13 @@ instance Serializable RawProgram where
             header = "program " ++ getID sym ++ "(" ++ paramList ++ ") ;"
             paramList = intercalate' ", " (map getID params)
 
+instance HasType RawSubprogram where
+    getType (FuncDec _ params ret _ _) = mconcat (map getType params) <> getType ret
+
+
+
+
+
 -- Type
 data RawType = RawIntType | RawRealType | RawVoidType
 
@@ -33,6 +43,12 @@ instance Serializable RawType where
     serialize RawIntType = "int"
     serialize RawRealType = "real"
     serialize RawVoidType = "void"
+
+instance HasType RawType where
+    getType RawIntType    = BasicType IntType
+    getType RawRealType   = BasicType RealType
+    getType RawVoidType   = BasicType VoidType
+
 
 
 -- Variable & Parameter Declaration
@@ -49,6 +65,9 @@ instance Serializable VarDec where
 instance Serializable Parameter where
     serialize (Parameter syms t) = ids ++ ": " ++ serialize t
         where   ids = intercalate' ", " (map getID syms)
+
+instance HasType Parameter where
+    getType (Parameter _ t) = getType t
 
 
 -- Subprogram Declaration
