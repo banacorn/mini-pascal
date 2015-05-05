@@ -34,23 +34,32 @@ type ABT = Program Declaration (Statement Value)
 
 data Program dec stmt = Program
     [dec]                   --  program parameters, variable and subprogram declarations
-    [Subprogram dec stmt]   --  subprogram
+    [Subprogram dec stmt]   --  subprograms
 
 data Subprogram dec stmt = Subprogram
     [dec]                   --  variable and subprogram declarations
     [stmt]                  --  compound statement
 
 instance (Serializable a, Serializable b) => Serializable (Program a b) where
-    serialize (Program decs subScopes) = paragraph $
-            0 >>>> ["Program"]
-        ++  1 >>>> decs
-        ++  1 >>>> subScopes
+    serialize (Program decs subprogs) = paragraph $
+            0 >>>> ["\nGlobal Variable Declarations"]
+        ++  1 >>>> varDecs
+        ++  0 >>>> ["\nFunction Definitions:"]
+        ++  1 >>>> (map2 serializeSubprog funcDecs subprogs)
+        where   serializeSubprog :: (Serializable a, Serializable b) => a -> Subprogram a b -> String
+                serializeSubprog dec subprog = paragraph $
+                        0 >>>> ["\n"]
+                    ++  0 >>>> [dec]
+                    ++  1 >>>> [subprog]
+
+                varDecs = take (length decs - length subprogs - 1) decs
+                funcDecs = drop (length decs - length subprogs - 1) decs
 
 instance (Serializable a, Serializable b) => Serializable (Subprogram a b) where
     serialize (Subprogram decs stmts) = paragraph $
-            0 >>>> [" "]
-        ++  1 >>>> decs
-        ++  1 >>>> stmts
+            0 >>>> decs
+        ++  0 >>>> ["----------------"]
+        ++  0 >>>> stmts
 
 instance Bifunctor Program where
     bimap f g (Program as subprogs) = Program (map f as) (map (bimap f g) subprogs)
