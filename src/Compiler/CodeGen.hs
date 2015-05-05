@@ -54,7 +54,7 @@ genGlobalVariable (AST.Declaration (AST.Symbol name _) typ) = GlobalDefinition $
 genFunction :: AST.Declaration -> [BasicBlock] -> Definition
 genFunction (AST.Declaration (AST.Symbol label _) typ) body = GlobalDefinition $ functionDefaults {
         name        = Name label
-    ,   parameters  = ([], False)
+    ,   parameters  = ([ Parameter (genType p) (Name "p") [] | p <- AST.getParamType typ ], False)
     ,   returnType  = genType (AST.getReturnType typ)
     ,   basicBlocks = body
     }
@@ -63,19 +63,24 @@ toModule :: AST.ABT -> Module
 toModule (AST.Program decs _) = defaultModule {
         moduleName = "program"
     ,   moduleDefinitions =
-                [ genGlobalVariable dec | dec <- decs, not (AST.isFunction (AST.decType dec)) ]
-            ++  [   GlobalDefinition $ functionDefaults {
-                            name = Name "main"
-                        ,   returnType = VoidType
-                        ,   basicBlocks = [
-                                BasicBlock (Name "block entry") [] (Do $ Ret Nothing [])
-                            ]
-                        }
-                ,   GlobalDefinition $ functionDefaults {
-                            name = Name "putchar"
-                        ,   parameters = ([Parameter i32 (Name "c") []], False)
-                        ,   returnType = i32
-                        }
-
-                ]
+                [ genGlobalVariable dec | dec <- decs, AST.isVariable (AST.decType dec) ]
+            ++  [ genFunction dec []    | dec <- decs, AST.isFunction (AST.decType dec) ]
     }
+
+--
+-- ++  [
+--
+--     ,   GlobalDefinition $ functionDefaults {
+--                 name = Name "main"
+--             ,   returnType = VoidType
+--             ,   basicBlocks = [
+--                     BasicBlock (Name "block entry") [] (Do $ Ret Nothing [])
+--                 ]
+--             }
+--     ,   GlobalDefinition $ functionDefaults {
+--                 name = Name "putchar"
+--             ,   parameters = ([Parameter i32 (Name "c") []], False)
+--             ,   returnType = i32
+--             }
+--
+--     ]
