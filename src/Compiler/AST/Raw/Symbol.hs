@@ -3,11 +3,11 @@ module Compiler.AST.Raw.Symbol where
 import Compiler.AST.Type
 import Compiler.Syntax.Type
 
+-- make the main compound statement a Subprogram
 collectSymbol :: RawProgram -> Program () Symbol
-collectSymbol (RawProgram _ _ _ subprogs stmts) = Program
+collectSymbol (RawProgram _ _ _ subprogs) = Program
     []
     (map collectSubprogramSymbol subprogs)
-    (Subprogram [] (stmts >>= getSymbol))
 
 collectSubprogramSymbol :: RawSubprogram -> Subprogram () Symbol
 collectSubprogramSymbol (FuncDec _ _ _ _ stmts) = Subprogram [] (stmts >>= getSymbol)

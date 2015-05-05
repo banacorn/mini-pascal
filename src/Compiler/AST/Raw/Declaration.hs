@@ -7,10 +7,9 @@ import Compiler.AST.Raw.DataType
 import Data.Set (Set)
 
 collectDeclaration :: RawProgram -> Program (Set Declaration) ()
-collectDeclaration (RawProgram _ _ vars subprogs _) = Program
+collectDeclaration (RawProgram _ _ vars subprogs) = Program
         (partite decs)
         (map collectSubprogramDeclaration subprogs)
-        (Subprogram [] [])
         where
             decs =  (vars     >>= fromVars)
                  ++ (subprogs >>= fromSubprogs)

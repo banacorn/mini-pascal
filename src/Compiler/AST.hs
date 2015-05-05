@@ -20,10 +20,9 @@ toAST p = merge declarations bindings
             bindings = collectBinding declarations symbols
 
 collectBinding :: Program (Set Declaration) () -> Program () Symbol -> Program () Binding
-collectBinding (Program globalDecs subDecs stmts0) (Program _ subOccs stmts1) = Program
+collectBinding (Program globalDecs subDecs) (Program _ subOccs) = Program
     []
     (map (uncurry (bindSubprogram globalDecs)) (zip subDecs subOccs))
-    (bindSubprogram globalDecs stmts0 stmts1)
 
 findBinding :: [Set Declaration] -> Symbol -> Binding
 findBinding decs o@(Symbol name _) = (o, find match decs)

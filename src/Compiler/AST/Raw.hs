@@ -5,5 +5,5 @@ module Compiler.AST.Raw
     ) where
 
 import Compiler.AST.Raw.Declaration
-import Compiler.AST.Raw.Statement
+import Compiler.AST.Raw.RestoreStatement
 import Compiler.AST.Raw.Symbol

@@ -16,14 +16,12 @@ data RawProgram = RawProgram
     [Symbol]        -- program arguments
     [VarDec]        -- variable declarations
     [RawSubprogram]    -- subprogram declarations
-    [Statement Symbol] -- compound statement
 
 instance Serializable RawProgram where
-    serialize (RawProgram sym params vars subprogs stmts) = paragraph $
+    serialize (RawProgram sym params vars subprogs) = paragraph $
             0 >>>> [header]
         ++  1 >>>> vars
         ++  1 >>>> subprogs
-        ++  1 >>>> compound stmts
         where
             header = "program " ++ getID sym ++ "(" ++ paramList ++ ") ;"
             paramList = intercalate' ", " (map getID params)
