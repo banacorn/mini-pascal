@@ -1,7 +1,7 @@
 module Compiler.AST.Type
     (   module Compiler.AST.Type.Expression
     ,   module Compiler.AST.Type.Statement
-    ,   module Compiler.AST.Type.Raw
+    ,   module Compiler.AST.Raw.Type
     ,   module Compiler.AST.Type.Symbol
     ,   module Compiler.AST.Type.DataType
     ,   Program(..), Subprogram(..)
@@ -10,7 +10,7 @@ module Compiler.AST.Type
     ) where
 
 import Compiler.AST.Type.Statement
-import Compiler.AST.Type.Raw
+import Compiler.AST.Raw.Type
 import Compiler.AST.Type.Expression
 import Compiler.AST.Type.DataType
 import Compiler.AST.Type.Symbol
@@ -37,6 +37,14 @@ data Subprogram dec stmt = Subprogram
 --  Type synonyms
 --------------------------------------------------------------------------------
 
+type RawAST = RawProgram
+type AST = Program (Set Declaration) Binding
+type ABT = Program Declaration (Statement Value)
+
+--------------------------------------------------------------------------------
+--  Instances
+--------------------------------------------------------------------------------
+
 
 instance (Serializable a, Serializable b) => Serializable (Program a b) where
     serialize (Program decs subScopes stmts) = paragraph $
@@ -57,14 +65,6 @@ instance Bifunctor Program where
 
 instance Bifunctor Subprogram where
     bimap f g (Subprogram as bs) = Subprogram (map f as) (map g bs)
-
---------------------------------------------------------------------------------
---  Type synonyms
---------------------------------------------------------------------------------
-
-type RawAST = RawProgram
-type AST = Program (Set Declaration) Binding
-type ABT = Program Declaration (Statement Value)
 
 --------------------------------------------------------------------------------
 

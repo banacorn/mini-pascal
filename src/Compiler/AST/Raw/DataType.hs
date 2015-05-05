@@ -1,7 +1,6 @@
 module Compiler.AST.Raw.DataType (HasType(..)) where
 
 import Compiler.AST.Type
-
 import Data.Monoid
 
 --------------------------------------------------------------------------------
