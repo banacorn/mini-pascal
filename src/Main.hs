@@ -1,5 +1,7 @@
 module Compiler where
 
+import Control.Monad.State
+
 import Compiler.Syntax.Lexer
 import Compiler.Syntax.Parser
 import Compiler.Pipeline
@@ -16,10 +18,11 @@ main = pipeline $ do
         >>= printIt'
 
     printIt "\n=== ASSEMBLY ===\n"
-    toIRAssembly (genModule abt) >>= printIt'
+    as <- toIRAssembly (genModule abt) >>= printIt'
+    liftIO $ writeFile "./test/llvm/test.ll" as
         -- >>= printIt
         -- >>= runJIT
         -- >>= printIt'
 
-    printIt "\n=== JIT ===\n"
+    printIt "\n=== JIT ==="
     runJIT (genModule abt) >>= printIt'

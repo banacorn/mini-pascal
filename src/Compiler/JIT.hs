@@ -13,10 +13,10 @@ import LLVM.General.Context
 import LLVM.General.ExecutionEngine as EE
 import Foreign.Ptr
 
-foreign import ccall "dynamic" haskFun :: FunPtr (IO Double) -> (IO Double)
+foreign import ccall "dynamic" mkFun :: FunPtr (IO Int) -> (IO Int)
 
-run :: FunPtr a -> IO ()
-run fn = void $ haskFun (castFunPtr fn :: FunPtr (IO Double))
+run :: FunPtr a -> IO Int
+run fn = mkFun (castFunPtr fn :: FunPtr (IO Int))
 
 jit :: Context -> (EE.MCJIT -> IO a) -> IO a
 jit context = EE.withMCJIT context optLvl model ptrElim fastIns
@@ -42,8 +42,12 @@ runJIT = withModuleFromIR $ \mod -> do
             EE.withModuleInEngine engine mod $ \ee -> do
                 mainFunction <- EE.getFunction ee (IR.Name "main")
                 case mainFunction of
-                    Just fn -> run fn
-                    Nothing -> return ()
+                    Just fn -> do
+                        res <- run fn
+                        putStr $ "Evaluated to: " ++ show res
+                    Nothing -> do
+                        putStrLn "function not found"
+                        return ()
 
 toIRAssembly :: IR.Module -> Pipeline String
 toIRAssembly = withModuleFromIR moduleLLVMAssembly
