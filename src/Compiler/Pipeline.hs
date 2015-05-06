@@ -10,6 +10,8 @@ import              Compiler.PreAST
 import              Compiler.PreAST.Type
 import              Compiler.Semantics
 import              Compiler.TypeCheck
+import qualified    Compiler.AST
+import qualified    Compiler.AST.Type as AST
 
 import              Control.Exception (try, IOException)
 import              Control.Monad.Except
@@ -106,6 +108,10 @@ checkTypeError :: ABT -> Pipeline ()
 checkTypeError abt = case typeCheck abt of
     [] -> return ()
     xs -> throwSemanticsError (SemTypeError xs)
+
+
+convert :: ABT -> Pipeline AST.Program
+convert = return . Compiler.AST.convertProgram
 
 --------------------------------------------------------------------------------
 -- Diagnose and report errors
