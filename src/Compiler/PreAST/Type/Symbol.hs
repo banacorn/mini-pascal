@@ -45,18 +45,24 @@ instance Serializable Symbol where
 --------------------------------------------------------------------------------
 --  Declaration
 
+data Place = InGlobal | InParam | InLocal deriving (Eq)
 data Declaration = Declaration
     {   decSymbol :: Symbol
     ,   decType :: Type
-    ,   decParam :: Bool
+    ,   decPlace :: Place
     }
 
 instance Sym Declaration where
     getID = symID . decSymbol
     getPos = symPos . decSymbol
 
+instance Serializable Place where
+    serialize InGlobal = "G"
+    serialize InParam = "P"
+    serialize InLocal = "L"
+
 instance Serializable Declaration where
-    serialize (Declaration (Symbol name pos) typ _) = green name ++ " : " ++ serialize typ ++ " " ++ serialize pos
+    serialize (Declaration (Symbol name pos) typ place) = green name ++ " : " ++ serialize typ ++ " " ++ serialize pos ++ " " ++ serialize place
 
 -- 2 Declaration are considered equal if
 --      1. both are variables OR both are functions/procedures

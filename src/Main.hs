@@ -17,8 +17,10 @@ main = pipeline $ do
         >>= parse
         >>= checkBinding
         >>= checkType
+        >>= printIt'
         >>= convert
-        >>= printIt
+
+    return ()
     --
     -- printIt "\n=== ASSEMBLY ===\n"
     -- as <- toIRAssembly (genModule ast) >>= printIt'

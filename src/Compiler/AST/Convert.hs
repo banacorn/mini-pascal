@@ -22,24 +22,35 @@ convertVarDec :: P.Declaration -> Variable
 convertVarDec (P.Declaration (P.Symbol label _) _ _) = Variable label Declaration
 
 convertFuncDec :: P.Declaration -> P.Subprogram P.Declaration (P.Statement P.Value) -> Function
-convertFuncDec (P.Declaration (P.Symbol label _) typ _) (P.Subprogram decs stmts) =
-    Function label returnType parameters varDecs []
+convertFuncDec (P.Declaration (P.Symbol label _) typ _) (P.Subprogram decs statements) =
+    Function label returnType parameters varDecs body
     where   returnType = DT.getReturnType typ == DT.BasicType DT.VoidType
-            parameters = [ convertDeclaration dec | dec <- decs, P.decParam dec ]
-            varDecs    = [ convertDeclaration dec | dec <- decs, not (P.decParam dec) ]
-
+            parameters = [ convertDeclaration dec | dec <- decs, P.decPlace dec == P.InParam ]
+            varDecs    = [ convertDeclaration dec | dec <- decs, P.decPlace dec == P.InLocal ]
+            body = map convertStatement statements
 
 convertDeclaration :: P.Declaration -> Variable
 convertDeclaration (P.Declaration (P.Symbol label _) _ _) = Variable label Declaration
 
+-- convertValue :: P.Value -> Variable
+-- convertValue (P.Variable label _) =
 
--- data Program dec stmt = Program
---     [dec]                   --  program parameters, variable and subprogram declarations
---     [Subprogram dec stmt]   --  subprograms
+
+-- data Value  = Variable Symbol Declaration
+--             | IntLiteral Int Position
+--             | RealLiteral Double Position
+-- convertStatement :: P.Statement P.Value -> Statement
+-- convertStatement (P.Assignment var expr) = Assignment _ _
+convertStatement _ = undefined
+-- convertStatement (P.Return expr) = _
+-- convertStatement (P.Invocation var expr) = _
+-- convertStatement (P.Compound stmts) = _
+-- convertStatement (P.Branch expr stmt0 stmt1) = _
+-- convertStatement (P.Loop expr stmt) = _
 --
--- data Subprogram dec stmt = Subprogram
---     [dec]                   --  variable and subprogram declarations
---     [stmt]                  --  compound statement
-
--- data Function = Function String Bool [Variable] [Variable] [Statement]
--- data Program = Program [Variable] [Function]
+-- data Statement  = Assignment Variable
+--                 | Return Expression
+--                 | Invocation Variable Expression
+--                 | Compound [Statement]
+--                 | Branch Expression Statement Statement
+--                 | Loop Expression Statement

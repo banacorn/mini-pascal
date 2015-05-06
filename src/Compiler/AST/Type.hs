@@ -37,7 +37,7 @@ data RelOp = S | L | E | NE | SE | LE
 --  Statement
 --------------------------------------------------------------------------------
 
-data Statement  = Assignment Variable
+data Statement  = Assignment Variable Expression
                 | Return Expression
                 | Invocation Variable Expression
                 | Compound [Statement]

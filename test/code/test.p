@@ -1,7 +1,7 @@
 program foo(input, output, error) ;
 
     // global variable declarations
-    var a, b, c: integer;
+    var a, b, c, d: integer;
     // var g, h: real;
 
     // global function declarations
@@ -16,7 +16,7 @@ program foo(input, output, error) ;
     function haaha(a, b: integer) : integer;
       var c: integer;   // local variable declaration
       begin
-         c := a + b;
+         c := a + d;
          return 1
       end;
 
