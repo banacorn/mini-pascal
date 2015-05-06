@@ -18,8 +18,13 @@ instance Serializable Program where
     serialize (Program decs funcs) = paragraph $
             0 >>>> ["\nGlobal Variable Declarations"]
         ++  1 >>>> decs
-        -- ++  0 >>>> ["\nFunction Definitions:"]
-        -- ++  1 >>>> funcs
+        ++  0 >>>> ["\nFunction Definitions:"]
+        ++  1 >>>> funcs
+
+instance Serializable Function where
+    serialize (Function label ret decs body) = ""-- paragraph $
+            -- 0 >>>> decs
+
     --
     -- instance (Serializable a, Serializable b) => Serializable (Subprogram a b) where
     --     serialize (Subprogram decs stmts) = paragraph $
