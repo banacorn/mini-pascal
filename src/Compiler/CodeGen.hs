@@ -14,9 +14,9 @@ import LLVM.General.AST.Type
 import LLVM.General.AST
 import LLVM.General.AST.Global as Glb
 import LLVM.General.AST.Constant as C
+import LLVM.General.AST.Float as F
 import LLVM.General.AST.CallingConvention as CC
-
-
+import LLVM.General.AST.Linkage as L
 type SymbolTable = [(String, Operand)]
 
 data CodegenState = CodegenState {
@@ -37,22 +37,24 @@ data BlockState = BlockState {
 newtype Codegen a = Codegen { unCodegen :: State CodegenState a }
     deriving (Functor, Applicative, Monad, MonadState CodegenState )
 
+emptyCodegen :: CodegenState
+emptyCodegen = CodegenState (Name "entry") Map.empty 1 Map.empty 0 Map.empty
 
-insertBlock :: Name -> BlockState -> Codegen ()
-insertBlock name state = modify $ \s -> s { blocks = Map.insert name state (blocks s)  }
+execCodegen :: Codegen a -> (a, CodegenState)
+execCodegen c = runState (unCodegen c) emptyCodegen
 
+-- blockCount
 incrBlockCount :: Codegen ()
 incrBlockCount = modify $ \s -> s { blockCount = blockCount s + 1 }
 
-insertName :: String -> Int -> Codegen ()
-insertName name no = modify $ \s -> s { names = Map.insert name no (names s)  }
-
+-- count
 freshNo :: Codegen Word
 freshNo = do
     i <- gets count
     modify $ \s -> s { count = i + 1 }
     return (i + 1)
 
+-- name
 freshName :: String -> Codegen Name
 freshName name = do
     names' <- gets names
@@ -63,18 +65,12 @@ freshName name = do
         Just ix -> do
             insertName name (ix + 1)
             return (Name $ name ++ show ix)
-
+    where
+            insertName :: String -> Int -> Codegen ()
+            insertName name no = modify $ \s -> s { names = Map.insert name no (names s)  }
+-- block
 emptyBlock :: Int -> BlockState
 emptyBlock i = BlockState i [] Nothing
-
-emptyCodegen :: CodegenState
-emptyCodegen = CodegenState (Name "entry") Map.empty 1 Map.empty 0 Map.empty
-
-runCodegen :: Codegen a -> (a, CodegenState)
-runCodegen c = runState (unCodegen c) emptyCodegen
-
-f = do
-    freshBlock "hello"
 
 freshBlock :: String -> Codegen Name
 freshBlock name = do
@@ -84,17 +80,8 @@ freshBlock name = do
     incrBlockCount
     return  name'
 
-setVar :: String -> Operand -> Codegen ()
-setVar var x = do
-    table <- gets symtab
-    modify $ \s -> s { symtab = Map.insert var x table }
-
-getVar :: String -> Codegen Operand
-getVar var = do
-    table <- gets symtab
-    case Map.lookup var table of
-        Just x  -> return x
-        Nothing -> error $ "Local variable not in scope: " ++ show var
+    where   insertBlock :: Name -> BlockState -> Codegen ()
+            insertBlock name state = modify $ \s -> s { blocks = Map.insert name state (blocks s)  }
 
 currentBlock :: Codegen BlockState
 currentBlock = do
@@ -109,59 +96,78 @@ modifyBlock new = do
     current <- gets currentBlockName
     modify $ \s -> s { blocks = Map.insert current new (blocks s) }
 
-instr :: Type -> Instruction -> Codegen Operand
-instr typ ins = do
+-- symtab
+setVar :: String -> Operand -> Codegen ()
+setVar var x = do
+    table <- gets symtab
+    modify $ \s -> s { symtab = Map.insert var x table }
+
+getVar :: String -> Codegen Operand
+getVar var = do
+    table <- gets symtab
+    case Map.lookup var table of
+        Just x  -> return x
+        Nothing -> error $ "Local variable not in scope: " ++ show var
+
+--
+instr :: Instruction -> Codegen Operand
+instr ins = do
     n <- freshNo
     block <- currentBlock
     let i = stack block
     let ref = (UnName n)
     modifyBlock $ block { stack = i ++ [ref := ins] }
-    return (LocalReference typ ref)
+    return (LocalReference i32 ref)
 
 
-
--- entry :: Codegen Name
--- entry = gets currentBlock
---
--- addBlock :: String -> Codegen Name
--- addBlock bname = do
---     bls <- gets blocks
---     ix  <- gets blockCount
---     nms <- gets names
---
---     let new = emptyBlock ix
---         (qname, supply) = uniqueName bname nms
---
---     modify $ \s -> s { blocks = Map.insert (Name qname) new bls
---                      , blockCount = ix + 1
---                      , names = supply
---                      }
---     return (Name qname)
---
--- setBlock :: Name -> Codegen Name
--- setBlock bname = do
---     modify $ \s -> s { currentBlock = bname }
---     return bname
---
--- getBlock :: Codegen Name
--- getBlock = gets currentBlock
---
--- modifyBlock :: BlockState -> Codegen ()
--- modifyBlock new = do
---     active <- gets currentBlock
---     modify $ \s -> s { blocks = Map.insert active new (blocks s) }
---
--- current :: Codegen BlockState
--- current = do
---     c <- gets currentBlock
---     blks <- gets blocks
---     case Map.lookup c blks of
---         Just x -> return x
---         Nothing -> error $ "No such block: " ++ show c
---
---
 ret :: Operand -> Named Terminator
 ret val = Do $ Ret (Just val) []
+
+call :: Operand -> [Operand] -> Codegen Operand
+call fn args = instr $ Call False CC.C [] (Right fn) (map toArg args) [] []
+    where   toArg a = (a, [])
+
+alloca :: Type -> Codegen Operand
+alloca ty = instr $ Alloca ty Nothing 0 []
+
+store :: Operand -> Operand -> Codegen Operand
+store ptr val = instr $ Store False ptr val Nothing 0 []
+
+load :: Operand -> Codegen Operand
+load ptr = instr $ Load False ptr Nothing 0 []
+
+-- genFactor :: AST.Factor AST.Value -> Codegen Operand
+-- genFactor (AST.VariableFactor val) = do
+--      load
+-- genFactor (AST.NumberFactor lit) = genLiteral lit
+-- genFactor (AST.InvocationFactor func params) = _
+-- genFactor (AST.SubFactor expr) = _
+-- genFactor (AST.NotFactor factor) = _
+
+-- genVariable :: AST.Value -> Codegen Operand
+-- genVariable (AST.Variable sym _) = return $
+-- genVariable _ = error "not variable"
+
+genLiteral :: AST.Value -> Codegen Operand
+genLiteral (AST.IntLiteral n _) = return $ ConstantOperand (C.Int 32 (toInteger n))
+genLiteral (AST.RealLiteral n _) = return $ ConstantOperand (C.Float (F.Double n))
+genLiteral _ = error "not literal"
+--
+--
+-- data Value  = Variable Symbol Declaration
+--             | IntLiteral Int Position
+--             | RealLiteral Double Position
+--             deriving (Eq, Ord)
+
+--
+-- genExpression :: AST.Expression Value -> Codegen Operand
+-- genExpression (UnaryExpression a) =
+-- genExpression (BinaryExpression a op b) =
+--
+--
+-- genSimpleExpression :: AST.SimpleExpression Value -> Codegen Operand
+-- genSimpleExpression (TermSimpleExpression a) =
+-- genSimpleExpression (OpSimpleExpression a op b) =
 
 -- Definitions
 genType :: AST.Type -> Type
@@ -174,6 +180,8 @@ genGlobalVariable :: AST.Declaration -> Definition
 genGlobalVariable (AST.Declaration (AST.Symbol name _) typ) = GlobalDefinition $ globalVariableDefaults {
         Glb.name = Name name
     ,   Glb.type' = genType typ
+    ,   Glb.linkage = L.Common
+    ,   Glb.initializer = Just (C.Int 32 0)
     }
 
 genFunction :: AST.Declaration -> [BasicBlock] -> Definition
@@ -199,8 +207,11 @@ genModule (AST.Program decs _) = defaultModule {
                         ,   returnType = VoidType
                         ,   basicBlocks = [
                                 BasicBlock (Name "block entry") [
-                                    Do (Call False CC.C [] (Right (ConstantOperand (GlobalReference (FunctionType i32 [i32] False) (Name "putchar")))) [(ConstantOperand (Int 32 99), [])] [] [])
-                                ,   Do (Call False CC.C [] (Right (ConstantOperand (GlobalReference (FunctionType i32 [i32] False) (Name "putchar")))) [(ConstantOperand (Int 32 101), [])] [] [])
+                                    -- Name "new" := Alloca i32 Nothing 0 [] --(Just (ConstantOperand (GlobalReference i32 (Name "b"))))
+                                    Do $ Store False (ConstantOperand (GlobalReference i32 (Name "b"))) (ConstantOperand (C.Int 32 97)) Nothing 0 []
+                                    -- Do $
+                                ,   Name "temp" := Load False (ConstantOperand (GlobalReference i32 (Name "b"))) Nothing 0 []
+                                ,   Do (Call False CC.C [] (Right (ConstantOperand (GlobalReference (FunctionType i32 [i32] False) (Name "putchar")))) [(LocalReference i32 (Name "temp"), [])] [] [])
                                 ] (Do $ Ret Nothing [])
                             ]
                         }

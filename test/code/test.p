@@ -2,7 +2,7 @@ program foo(input, output, error) ;
 
     // global variable declarations
     var a, b, c: integer;
-    var g, h: real;
+    // var g, h: real;
 
     // global function declarations
     function addition(a, b: integer) : integer;

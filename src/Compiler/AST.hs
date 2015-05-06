@@ -38,3 +38,12 @@ bindSubprogram globalDecs (Subprogram localDecs _) (Subprogram _ occurs) =
 
 toABT :: RawAST -> AST -> ABT
 toABT raw ast = restoreStatement raw (bimap Set.findMin toValue ast)
+-- 
+-- --------------------------------------------------------------------------------
+-- -- Final
+-- --------------------------------------------------------------------------------
+--
+-- data DataType = IntType | RealType
+-- data VarDec = VarDec Type String
+--
+-- data Final = Program VarDec Statement

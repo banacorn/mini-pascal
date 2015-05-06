@@ -138,6 +138,7 @@ diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass (Just (Token 
 diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass (Just (Token tok pos))) = [ParseError path src tok pos]
 diagnoseError (Zustand (Just path) (Just src) _) (SyntaxErrorClass Nothing) = [NotEnoughInput path src]
 diagnoseError (Zustand (Just path) (Just src) err) SemanticsErrorClass = diagnoseSemanticsError path src (sort err)
+diagnoseError (Zustand (Just path) (Just src) err) (CompileErrorClass str) = [LLVMError str]
 
 diagnoseSemanticsError :: FilePath -> Source -> [SemanticsError] -> [Error]
 diagnoseSemanticsError path src [] = []

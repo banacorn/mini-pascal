@@ -43,6 +43,7 @@ data Error  = InvalidArgument           -- EINVAL
             | DeclarationDuplicatedError FilePath Source (Set Declaration)
             | VariableUndeclaredError FilePath Source Symbol
             | TypeCheckError FilePath Source TypeError
+            | LLVMError String
 
 instance Serializable Error where
     serialize InvalidArgument =  paragraphPadded $
@@ -74,6 +75,8 @@ instance Serializable Error where
         ++  1 >>>> codeMaps
         where   pos = getPos typeError
                 codeMaps = toCodeMaps path src [pos]
+    serialize (LLVMError str) = paragraphPadded $
+            0 >>>> [red "LLVM error: " ++ yellow str]
 data SemanticsError = SemDeclarationDuplicated [Set Declaration]
                     | SemVariableUndeclared [Symbol]
                     | SemTypeError [TypeError]
