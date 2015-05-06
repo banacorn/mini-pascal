@@ -111,7 +111,7 @@ checkTypeError abt = case typeCheck abt of
 
 
 convert :: ABT -> Pipeline AST.Program
-convert = return . Compiler.AST.convertProgram
+convert = return . Compiler.AST.convert
 
 --------------------------------------------------------------------------------
 -- Diagnose and report errors

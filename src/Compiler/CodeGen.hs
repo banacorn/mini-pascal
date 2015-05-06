@@ -119,7 +119,7 @@ instr ins = do
     modifyBlock $ block { stack = i ++ [ref := ins] }
     return (LocalReference i32 ref)
 
-
+--s
 ret :: Operand -> Named Terminator
 ret val = Do $ Ret (Just val) []
 
@@ -135,6 +135,10 @@ store ptr val = instr $ Store False ptr val Nothing 0 []
 
 load :: Operand -> Codegen Operand
 load ptr = instr $ Load False ptr Nothing 0 []
+
+
+
+
 
 -- genFactor :: AST.Factor AST.Value -> Codegen Operand
 -- genFactor (AST.VariableFactor val) = do
@@ -175,66 +179,48 @@ load ptr = instr $ Load False ptr Nothing 0 []
 -- genType (AST.BasicType AST.RealType) = double
 -- genType (AST.BasicType AST.VoidType) = void
 -- genType (AST.FunctionType _) = error "can't gen higher order type"
---
--- genGlobalVariable :: AST.Declaration -> Definition
--- genGlobalVariable (AST.Declaration (AST.Symbol name _) typ) = GlobalDefinition $ globalVariableDefaults {
---         Glb.name = Name name
---     ,   Glb.type' = genType typ
---     ,   Glb.linkage = L.Common
---     ,   Glb.initializer = Just (C.Int 32 0)
---     }
---
--- genFunction :: AST.Declaration -> [BasicBlock] -> Definition
--- genFunction (AST.Declaration (AST.Symbol label _) typ) body = GlobalDefinition $ functionDefaults {
---         name        = Name label
---     ,   parameters  = ([ Parameter (genType p) (Name "p") [] | p <- AST.getParamType typ ], False)
---     ,   returnType  = genType (AST.getReturnType typ)
---     ,   basicBlocks = body
---     }
 
-genModule :: AST.ABT -> Module
-genModule (AST.Program decs _) = defaultModule {
+genBlocks :: [AST.Statement] -> [BasicBlock]
+genBlocks _ = undefined
+
+genGlobalVariable :: AST.Variable -> Definition
+genGlobalVariable (AST.Variable label _) = GlobalDefinition $ globalVariableDefaults {
+        Glb.name = Name label
+    ,   Glb.type' = i32
+    ,   Glb.linkage = L.Common
+    ,   Glb.initializer = Just (C.Int 32 0)
+    }
+
+genFunction :: AST.Function -> Definition
+genFunction (AST.Function label ret params decs body) = GlobalDefinition $ functionDefaults {
+        name        = Name label
+    ,   parameters  = ([ Parameter i32 (Name name) [] | AST.Variable name _ <- params ], False)
+    ,   returnType  = if ret then void else i32
+    ,   basicBlocks = genBlocks body
+    }
+
+genModule :: AST.Program -> Module
+genModule (AST.Program vars funcs) = defaultModule {
         moduleName = "program"
-    ,   moduleDefinitions =
-                [ genGlobalVariable dec | dec <- decs, AST.isVariable (AST.decType dec) ]
-            -- ++  [ genFunction dec []    | dec <- decs, AST.isFunction (AST.decType dec) ]
-            ++  [putchar]
-            ++  [main]
+    ,   moduleDefinitions = (map genGlobalVariable vars)
+                         ++ (map genFunction funcs)
     }
     where
-            main = GlobalDefinition $ functionDefaults {
-                            name = Name "main"
-                        ,   returnType = VoidType
-                        ,   basicBlocks = [
-                                BasicBlock (Name "block entry") [
-                                    -- Name "new" := Alloca i32 Nothing 0 [] --(Just (ConstantOperand (GlobalReference i32 (Name "b"))))
-                                    Do $ Store False (ConstantOperand (GlobalReference i32 (Name "b"))) (ConstantOperand (C.Int 32 97)) Nothing 0 []
-                                    -- Do $
-                                ,   Name "temp" := Load False (ConstantOperand (GlobalReference i32 (Name "b"))) Nothing 0 []
-                                ,   Do (Call False CC.C [] (Right (ConstantOperand (GlobalReference (FunctionType i32 [i32] False) (Name "putchar")))) [(LocalReference i32 (Name "temp"), [])] [] [])
-                                ] (Do $ Ret Nothing [])
-                            ]
-                        }
-            putchar = GlobalDefinition $ functionDefaults {
-                            name = Name "putchar"
-                        ,   parameters = ([Parameter i32 (Name "c") []], False)
-                        ,   returnType = i32
-                        }
-
---
--- ++  [
---
---     ,   GlobalDefinition $ functionDefaults {
---                 name = Name "main"
---             ,   returnType = VoidType
---             ,   basicBlocks = [
---                     BasicBlock (Name "block entry") [] (Do $ Ret Nothing [])
---                 ]
---             }
---     ,   GlobalDefinition $ functionDefaults {
---                 name = Name "putchar"
---             ,   parameters = ([Parameter i32 (Name "c") []], False)
---             ,   returnType = i32
---             }
---
---     ]
+            -- main = GlobalDefinition $ functionDefaults {
+            --                 name = Name "main"
+            --             ,   returnType = VoidType
+            --             ,   basicBlocks = [
+            --                     BasicBlock (Name "block entry") [
+            --                         -- Name "new" := Alloca i32 Nothing 0 [] --(Just (ConstantOperand (GlobalReference i32 (Name "b"))))
+            --                         Do $ Store False (ConstantOperand (GlobalReference i32 (Name "b"))) (ConstantOperand (C.Int 32 97)) Nothing 0 []
+            --                         -- Do $
+            --                     ,   Name "temp" := Load False (ConstantOperand (GlobalReference i32 (Name "b"))) Nothing 0 []
+            --                     ,   Do (Call False CC.C [] (Right (ConstantOperand (GlobalReference (FunctionType i32 [i32] False) (Name "putchar")))) [(LocalReference i32 (Name "temp"), [])] [] [])
+            --                     ] (Do $ Ret Nothing [])
+            --                 ]
+            --             }
+            -- putchar = GlobalDefinition $ functionDefaults {
+            --                 name = Name "putchar"
+            --             ,   parameters = ([Parameter i32 (Name "c") []], False)
+            --             ,   returnType = i32
+            --             }
