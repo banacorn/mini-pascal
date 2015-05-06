@@ -6,22 +6,21 @@ program foo(input, output, error) ;
 
     // global function declarations
     function addition(a, b: integer) : integer;
-      var c, d, e, f: integer;   // local variable declaration
-      begin
-         return 1
-      end;
+        var c, d, e, f: integer;   // local variable declaration
+            begin
+                return 1
+            end;
 
-    // global function declarations
-    function haaha(a, b: integer) : integer;
-      var c: integer;   // local variable declaration
-      begin
-         return 2
-      end;
+    function id(a: integer) : integer;
+        begin
+            a := 98;
+            return a
+        end;
 
 
     // compound statements, "main"
     begin
-        putchar(97)
+        putchar(id(97))
         // addition(2, 1);
         // putchar(3)
     end.

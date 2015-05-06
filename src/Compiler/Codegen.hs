@@ -168,8 +168,8 @@ call :: Operand -> [Operand] -> Codegen Operand
 call fn args = instr $ Call False CC.C [] (Right fn) (map toArg args) [] []
     where   toArg a = (a, [])
 
-alloca :: Type -> Codegen Operand
-alloca ty = instr $ Alloca ty Nothing 0 []
+alloca :: Codegen Operand
+alloca = instr $ Alloca i32 Nothing 0 []
 
 store :: Operand -> Operand -> Codegen Operand
 store ptr val = instr $ Store False ptr val Nothing 0 []
@@ -198,6 +198,11 @@ makeBlock (label, (BlockState _ s t)) = BasicBlock label s (maketerm t)
     where   maketerm (Just x) = x
             maketerm Nothing = error $ "Block has no terminator:" ++ (show label)
 
+genLocalVariable :: AST.Variable -> Codegen ()
+genLocalVariable (AST.Variable label _) = do
+    new <- alloca
+    setVar label new
+
 genVariable :: AST.Variable -> Codegen Operand
 genVariable (AST.Variable label AST.Global) = return $ global (Name label)
 genVariable (AST.Variable label AST.Local) = return $ local (Name label)
@@ -206,29 +211,40 @@ genVariable (AST.Variable label AST.Declaration) = error "shouldn't be referenci
 
 genExpression :: AST.Expression -> Codegen Operand
 genExpression (AST.UnaryExpression expr) = genSimpleExpression expr
-genExpression (AST.BinaryExpression expr0 relOp expr1) = undefined
+genExpression (AST.BinaryExpression expr0 relOp expr1) = error "genExpression non-exhaustive"
 
 genSimpleExpression :: AST.SimpleExpression -> Codegen Operand
 genSimpleExpression (AST.TermSimpleExpression term) = genTerm term
-genSimpleExpression (AST.OpSimpleExpression simpleExpr addOp term) = undefined
+genSimpleExpression (AST.OpSimpleExpression simpleExpr addOp term) = error "genSimpleExpression non-exhaustive"
 
 genTerm :: AST.Term -> Codegen Operand
 genTerm (AST.FactorTerm factor) = genFactor factor
-genTerm (AST.OpTerm term mulOp factor) = undefined -- OpTerm (convertTerm term) (convertMulOp mulOp) (convertFactor factor)
-genTerm (AST.NegTerm factor) = undefined -- NegTerm (convertFactor factor)
+genTerm (AST.OpTerm term mulOp factor) = error "genTerm non-exhaustive" -- OpTerm (convertTerm term) (convertMulOp mulOp) (convertFactor factor)
+genTerm (AST.NegTerm factor) = error "genTerm non-exhaustive" -- NegTerm (convertFactor factor)
 
 genFactor :: AST.Factor -> Codegen Operand
+genFactor (AST.VariableFactor (AST.Variable label AST.Global)) = return $ global (Name label)
+genFactor (AST.VariableFactor (AST.Variable label AST.Local)) = do
+    var <- getVar label
+    load var
+genFactor (AST.VariableFactor (AST.Variable label AST.Declaration)) = error "shouldn't be referencing stuffs"
 genFactor (AST.LiteralFactor lit) = return $ literal lit
 genFactor (AST.InvocationFactor var exprs) = do
     fn <- genVariable var
     args <- mapM genExpression exprs
     call fn args
-genFactor _ = undefined
--- genFactor (VariableFactor var) = -- VariableFactor (convertVariable var)
+genFactor _ = error "genFactor non-exhaustive"
 -- genFactor (SubFactor expr) = SubFactor (convertExpression expr)
 -- genFactor (NotFactor factor) = NotFactor (convertFactor factor)
 
 genStatement :: AST.Statement -> Codegen ()
+-- genStatement (AST.Assignment (AST.Variable label AST.Global) expr) = do
+genStatement (AST.Assignment (AST.Variable label AST.Local) expr) = do
+    var <- getVar label
+    val <- genExpression expr
+    store var val
+    return ()
+genStatement (AST.Assignment (AST.Variable label AST.Declaration) expr) = error "shouldn't be referencing stuffs"
 genStatement (AST.Return expr) = do
     genExpression expr >>= ret
     return ()
@@ -237,6 +253,13 @@ genStatement (AST.Invocation var exprs) = do
     args <- mapM genExpression exprs
     call fn args
     return ()
+
+-- data Statement  = Assignment Variable Expression
+--                 | Return Expression
+--                 | Invocation Variable [Expression]
+--                 | Compound [Statement]
+--                 | Branch Expression Statement Statement
+--                 | Loop Expression Statement
 
 genGlobalVariable :: AST.Variable -> Definition
 genGlobalVariable (AST.Variable label _) = GlobalDefinition $ globalVariableDefaults {
@@ -253,6 +276,9 @@ genFunction (AST.Function label ret params decs body) = GlobalDefinition $ funct
     ,   returnType  = if ret then void else i32
     ,   basicBlocks = createBlocks . execCodegen $ do
             freshBlock "entry"
+
+            sequence_ (map genLocalVariable params)
+            sequence_ (map genLocalVariable decs)
             sequence_ (map genStatement body)
             -- if null body then return () else
             --     genStatement (head body)

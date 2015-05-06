@@ -612,7 +612,7 @@ happyReduction_12 ((HappyAbsSyn11  happy_var_10) `HappyStk`
 	_ `HappyStk`
 	happyRest)
 	 = HappyAbsSyn9
-		 (FuncDec (toSym happy_var_2) happy_var_4 happy_var_7 happy_var_9 happy_var_10
+		 (FuncDec (toSym happy_var_2) (reverse happy_var_4) happy_var_7 happy_var_9 happy_var_10
 	) `HappyStk` happyRest
 
 happyReduce_13 = happySpecReduce_3  10 happyReduction_13
@@ -1027,25 +1027,6 @@ parseError tokens = throwError (SyntaxErrorClass (maybeHead tokens))
 
 
 {-# LINE 8 "<command-line>" #-}
-{-# LINE 1 "/usr/local/lib/ghc-7.10.1/include/ghcversion.h" #-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{-# LINE 8 "<command-line>" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 -- Id: GenericTemplate.hs,v 1.26 2005/01/14 14:47:22 simonmar Exp 
 
@@ -1237,7 +1218,7 @@ happyDoSeq   a b = a `seq` b
 happyDontSeq a b = b
 
 -----------------------------------------------------------------------------
--- Don't inline any functions from the template.  GHC has a nPreASTy habit
+-- Don't inline any functions from the template.  GHC has a nasty habit
 -- of deciding to inline happyGoto everywhere, which increases the size of
 -- the generated parser quite a bit.
 
