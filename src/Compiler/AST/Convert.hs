@@ -32,25 +32,77 @@ convertFuncDec (P.Declaration (P.Symbol label _) typ _) (P.Subprogram decs state
 convertDeclaration :: P.Declaration -> Variable
 convertDeclaration (P.Declaration (P.Symbol label _) _ _) = Variable label Declaration
 
--- convertValue :: P.Value -> Variable
--- convertValue (P.Variable label _) =
+convertVariable :: P.Value -> Variable
+convertVariable (P.Variable (P.Symbol label _) (P.Declaration _ _ P.InGlobal)) = Variable label Global
+convertVariable (P.Variable (P.Symbol label _) (P.Declaration _ _ P.InParam)) = Variable label Local
+convertVariable (P.Variable (P.Symbol label _) (P.Declaration _ _ P.InLocal)) = Variable label Local
+convertVariable _ = error "not variable"
 
+convertLiteral :: P.Value -> Literal
+convertLiteral (P.IntLiteral n _) = Literal n
+convertLiteral _ = error "not int literal"
 
 -- data Value  = Variable Symbol Declaration
 --             | IntLiteral Int Position
 --             | RealLiteral Double Position
--- convertStatement :: P.Statement P.Value -> Statement
--- convertStatement (P.Assignment var expr) = Assignment _ _
+convertStatement :: P.Statement P.Value -> Statement
+convertStatement (P.Assignment var expr) = Assignment (convertVariable var) (convertExpression expr)
 convertStatement _ = undefined
 -- convertStatement (P.Return expr) = _
 -- convertStatement (P.Invocation var expr) = _
 -- convertStatement (P.Compound stmts) = _
 -- convertStatement (P.Branch expr stmt0 stmt1) = _
 -- convertStatement (P.Loop expr stmt) = _
---
+
+convertExpression :: P.Expression P.Value -> Expression
+convertExpression _ = undefined
+
 -- data Statement  = Assignment Variable
 --                 | Return Expression
 --                 | Invocation Variable Expression
 --                 | Compound [Statement]
 --                 | Branch Expression Statement Statement
 --                 | Loop Expression Statement
+
+-- Convert
+
+convertFactor :: P.Factor P.Value -> Factor
+convertFactor (P.VariableFactor var) = VariableFactor (convertVariable var)
+convertFactor (P.NumberFactor lit) = LiteralFactor (convertLiteral lit)
+convertFactor (P.InvocationFactor var exprs) = InvocationFactor (convertVariable var) (map convertExpression exprs)
+convertFactor (P.SubFactor expr) = SubFactor (convertExpression expr)
+convertFactor (P.NotFactor factor) = NotFactor (convertFactor factor)
+
+
+convertAddOp :: P.AddOp -> AddOp
+convertAddOp P.Plus = Plus
+convertAddOp P.Minus = Minus
+
+convertMulOp :: P.MulOp -> MulOp
+convertMulOp P.Mul = Mul
+convertMulOp P.Div = Div
+
+convertRelOp :: P.RelOp -> RelOp
+convertRelOp P.S = S
+convertRelOp P.L = L
+convertRelOp P.E = E
+convertRelOp P.NE = NE
+convertRelOp P.SE = SE
+convertRelOp P.LE = LE
+--
+--
+-- data Expression = UnaryExpression SimpleExpression
+--                 | BinaryExpression SimpleExpression RelOp SimpleExpression
+--
+-- data SimpleExpression = TermSimpleExpression Term
+--                       | OpSimpleExpression SimpleExpression AddOp Term
+--
+-- data Term = FactorTerm Factor
+--           | OpTerm Term MulOp Factor
+--           | NegTerm Factor
+--
+-- data Factor = VariableFactor    Variable
+--             | LiteralFactor     Literal
+--             | InvocationFactor  Variable [Expression]   -- id()
+--             | SubFactor         Expression              -- (...)
+--             | NotFactor         Factor                  -- -id
