@@ -16,7 +16,7 @@ main = pipeline $ do
         >>= scan
         >>= parse
         >>= checkBinding
-        >>= checkType
+        -- >>= checkType
         >>= convert
         >>= printIt'
 

@@ -141,15 +141,16 @@ terminateAnyway isVoid = do
 
 literal :: Int -> Operand
 literal n = ConstantOperand $ C.Int 32 (toInteger n)
--- -- References
--- local ::  Name -> Operand
--- local = LocalReference double
---
--- global ::  Name -> C.Constant
--- global = C.GlobalReference double
---
+
+-- References
+local ::  Name -> Operand
+local = LocalReference i32
+
+global ::  Name -> Operand
+global = ConstantOperand . C.GlobalReference i32
+
 -- externf :: Name -> Operand
--- externf = ConstantOperand . C.GlobalReference double
+-- externf = ConstantOperand . C.GlobalReference i32
 
 -- Arithmetic and Constants
 add :: Operand -> Operand -> Codegen Operand
@@ -197,6 +198,12 @@ makeBlock (label, (BlockState _ s t)) = BasicBlock label s (maketerm t)
     where   maketerm (Just x) = x
             maketerm Nothing = error $ "Block has no terminator:" ++ (show label)
 
+genVariable :: AST.Variable -> Codegen Operand
+genVariable (AST.Variable label AST.Global) = return $ global (Name label)
+genVariable (AST.Variable label AST.Local) = return $ local (Name label)
+genVariable (AST.Variable label AST.Declaration) = error "shouldn't be referencing stuffs"
+
+
 genExpression :: AST.Expression -> Codegen Operand
 genExpression (AST.UnaryExpression expr) = genSimpleExpression expr
 genExpression (AST.BinaryExpression expr0 relOp expr1) = undefined
@@ -212,9 +219,12 @@ genTerm (AST.NegTerm factor) = undefined -- NegTerm (convertFactor factor)
 
 genFactor :: AST.Factor -> Codegen Operand
 genFactor (AST.LiteralFactor lit) = return $ literal lit
+genFactor (AST.InvocationFactor var exprs) = do
+    fn <- genVariable var
+    args <- mapM genExpression exprs
+    call fn args
 genFactor _ = undefined
 -- genFactor (VariableFactor var) = -- VariableFactor (convertVariable var)
--- genFactor (InvocationFactor var exprs) = InvocationFactor (convertVariable var) (map convertExpression exprs)
 -- genFactor (SubFactor expr) = SubFactor (convertExpression expr)
 -- genFactor (NotFactor factor) = NotFactor (convertFactor factor)
 
@@ -222,7 +232,11 @@ genStatement :: AST.Statement -> Codegen ()
 genStatement (AST.Return expr) = do
     genExpression expr >>= ret
     return ()
-
+genStatement (AST.Invocation var exprs) = do
+    fn <- genVariable var
+    args <- mapM genExpression exprs
+    call fn args
+    return ()
 
 genGlobalVariable :: AST.Variable -> Definition
 genGlobalVariable (AST.Variable label _) = GlobalDefinition $ globalVariableDefaults {

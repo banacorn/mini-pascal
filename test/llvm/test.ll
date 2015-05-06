@@ -17,6 +17,7 @@ entry:
 
 define void @main() {
 entry:
+  %0 = call i32 @putchar(i32 97)
   ret void
 }
 

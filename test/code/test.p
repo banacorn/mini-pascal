@@ -21,6 +21,7 @@ program foo(input, output, error) ;
 
     // compound statements, "main"
     begin
+        putchar(97)
         // addition(2, 1);
         // putchar(3)
     end.
