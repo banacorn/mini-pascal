@@ -5,7 +5,6 @@ import Compiler.AST.Type
 import qualified    Compiler.PreAST.Type as P
 import qualified    Compiler.PreAST.Type.DataType as DT
 
-
 map2 :: (a -> b -> c) -> [a] -> [b] -> [c]
 map2 f a b = map (uncurry f) (zip a b)
 
@@ -42,29 +41,26 @@ convertLiteral :: P.Value -> Literal
 convertLiteral (P.IntLiteral n _) = Literal n
 convertLiteral _ = error "not int literal"
 
--- data Value  = Variable Symbol Declaration
---             | IntLiteral Int Position
---             | RealLiteral Double Position
 convertStatement :: P.Statement P.Value -> Statement
 convertStatement (P.Assignment var expr) = Assignment (convertVariable var) (convertExpression expr)
-convertStatement _ = undefined
--- convertStatement (P.Return expr) = _
--- convertStatement (P.Invocation var expr) = _
--- convertStatement (P.Compound stmts) = _
--- convertStatement (P.Branch expr stmt0 stmt1) = _
--- convertStatement (P.Loop expr stmt) = _
+convertStatement (P.Return expr) = Return (convertExpression expr)
+convertStatement (P.Invocation var exprs) = Invocation (convertVariable var) (map convertExpression exprs)
+convertStatement (P.Compound stmts) = Compound (map convertStatement stmts)
+convertStatement (P.Branch expr stmt0 stmt1) = Branch (convertExpression expr) (convertStatement stmt0) (convertStatement stmt1)
+convertStatement (P.Loop expr stmt) = Loop (convertExpression expr) (convertStatement stmt)
 
 convertExpression :: P.Expression P.Value -> Expression
-convertExpression _ = undefined
+convertExpression (P.UnaryExpression simpleExpr) = UnaryExpression (convertSimpleExpression simpleExpr)
+convertExpression (P.BinaryExpression simpleExpr0 relOp simpleExpr1) = BinaryExpression (convertSimpleExpression simpleExpr0) (convertRelOp relOp) (convertSimpleExpression simpleExpr1)
 
--- data Statement  = Assignment Variable
---                 | Return Expression
---                 | Invocation Variable Expression
---                 | Compound [Statement]
---                 | Branch Expression Statement Statement
---                 | Loop Expression Statement
+convertSimpleExpression :: P.SimpleExpression P.Value -> SimpleExpression
+convertSimpleExpression (P.TermSimpleExpression term) = TermSimpleExpression (convertTerm term)
+convertSimpleExpression (P.OpSimpleExpression simpleExpr addOp term) = OpSimpleExpression (convertSimpleExpression simpleExpr) (convertAddOp addOp) (convertTerm term)
 
--- Convert
+convertTerm :: P.Term P.Value -> Term
+convertTerm (P.FactorTerm factor) = FactorTerm (convertFactor factor)
+convertTerm (P.OpTerm term mulOp factor) = OpTerm (convertTerm term) (convertMulOp mulOp) (convertFactor factor)
+convertTerm (P.NegTerm factor) = NegTerm (convertFactor factor)
 
 convertFactor :: P.Factor P.Value -> Factor
 convertFactor (P.VariableFactor var) = VariableFactor (convertVariable var)
@@ -72,7 +68,6 @@ convertFactor (P.NumberFactor lit) = LiteralFactor (convertLiteral lit)
 convertFactor (P.InvocationFactor var exprs) = InvocationFactor (convertVariable var) (map convertExpression exprs)
 convertFactor (P.SubFactor expr) = SubFactor (convertExpression expr)
 convertFactor (P.NotFactor factor) = NotFactor (convertFactor factor)
-
 
 convertAddOp :: P.AddOp -> AddOp
 convertAddOp P.Plus = Plus
@@ -89,20 +84,3 @@ convertRelOp P.E = E
 convertRelOp P.NE = NE
 convertRelOp P.SE = SE
 convertRelOp P.LE = LE
---
---
--- data Expression = UnaryExpression SimpleExpression
---                 | BinaryExpression SimpleExpression RelOp SimpleExpression
---
--- data SimpleExpression = TermSimpleExpression Term
---                       | OpSimpleExpression SimpleExpression AddOp Term
---
--- data Term = FactorTerm Factor
---           | OpTerm Term MulOp Factor
---           | NegTerm Factor
---
--- data Factor = VariableFactor    Variable
---             | LiteralFactor     Literal
---             | InvocationFactor  Variable [Expression]   -- id()
---             | SubFactor         Expression              -- (...)
---             | NotFactor         Factor                  -- -id
