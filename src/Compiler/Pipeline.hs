@@ -51,14 +51,14 @@ readSource path = do
 
 checkBinding :: RawAST -> Pipeline ABT
 checkBinding rawAST = do
-    let ast = toAST rawAST
+    let adt = toADT rawAST
 
     checkSemanticsError $ do
-        checkDeclarationDuplicated ast
-        checkVariableUndeclared ast
+        checkDeclarationDuplicated adt
+        checkVariableUndeclared adt
 
-    -- the AST is good enough to build ABT
-    return (toABT rawAST ast)
+    -- the ADT is good enough to build ABT
+    return (toABT rawAST adt)
 
 --------------------------------------------------------------------------------
 --      Exception: all sorts of TypeErrors
@@ -92,13 +92,13 @@ throwSemanticsError err = do
         { zustandSemanticsError = err : errors }
 
 
-checkDeclarationDuplicated :: AST -> Pipeline ()
-checkDeclarationDuplicated ast = case declarationDuplicated ast of
+checkDeclarationDuplicated :: ADT -> Pipeline ()
+checkDeclarationDuplicated adt = case declarationDuplicated adt of
     [] -> return ()
     xs -> throwSemanticsError (SemDeclarationDuplicated xs)
 
-checkVariableUndeclared :: AST -> Pipeline ()
-checkVariableUndeclared ast = case variableUndeclared ast of
+checkVariableUndeclared :: ADT -> Pipeline ()
+checkVariableUndeclared adt = case variableUndeclared adt of
     [] -> return ()
     xs -> throwSemanticsError (SemVariableUndeclared xs)
 

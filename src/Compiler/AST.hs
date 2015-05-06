@@ -1,4 +1,4 @@
-module Compiler.AST (toAST, toABT) where
+module Compiler.AST (toADT, toABT) where
 
 import Compiler.AST.Type
 import Compiler.AST.Raw
@@ -10,11 +10,11 @@ import qualified    Data.Set as Set
 import              Data.Bifunctor
 
 --------------------------------------------------------------------------------
--- AST
+-- ADT
 --------------------------------------------------------------------------------
 
-toAST :: RawAST -> AST
-toAST p = merge declarations bindings
+toADT :: RawAST -> ADT
+toADT p = merge declarations bindings
     where   declarations = collectDeclaration p
             symbols = collectSymbol p
             bindings = collectBinding declarations symbols
@@ -36,9 +36,9 @@ bindSubprogram globalDecs (Subprogram localDecs _) (Subprogram _ occurs) =
 -- ABT
 --------------------------------------------------------------------------------
 
-toABT :: RawAST -> AST -> ABT
+toABT :: RawAST -> ADT -> ABT
 toABT raw ast = restoreStatement raw (bimap Set.findMin toValue ast)
--- 
+--
 -- --------------------------------------------------------------------------------
 -- -- Final
 -- --------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ module Compiler.AST.Type
     ,   module Compiler.AST.Type.Symbol
     ,   module Compiler.AST.Type.DataType
     ,   Program(..), Subprogram(..)
-    ,   RawAST, AST, ABT
+    ,   RawAST, ADT, ABT
     ,   merge, extractFirst, extractSecond, map2
     ) where
 
@@ -25,7 +25,7 @@ import Data.Set (Set, findMin)
 --------------------------------------------------------------------------------
 
 type RawAST = RawProgram
-type AST = Program (Set Declaration) Binding
+type ADT = Program (Set Declaration) Binding
 type ABT = Program Declaration (Statement Value)
 
 --------------------------------------------------------------------------------
