@@ -4,16 +4,17 @@ import Compiler.AST.Type
 import Compiler.Serializable
 
 
--- import Data.List (intercalate)
+--------------------------------------------------------------------------------
+--  Serializable
+--------------------------------------------------------------------------------
 
 instance Serializable Literal where
     serialize (Literal n) = show n
 
 instance Serializable Variable where
-    serialize (Variable label binding) =
-        if binding == Declaration
-            then green label
-            else yellow label ++ " : " ++ serialize binding
+    serialize (Variable label Declaration) = green label
+    serialize (Variable label Local) = yellow label
+    serialize (Variable label Global) = red label
 
 instance Serializable Binding where
     serialize Declaration = "dec"
@@ -32,63 +33,59 @@ instance Serializable Function where
             0 >>>> ["\n"]
         ++  0 >>>> [returnType ++ cyan label ++ parameters]
         ++  1 >>>> [intercalate' ", " decs]
+        ++  1 >>>> ["------------"]
+        ++  1 >>>> body
+
         where   returnType = if void then "void " else "int "
                 parameters = "(" ++ intercalate' ", " params ++ ")"
-                -- varDecs = decs
-    --
-    -- instance (Serializable a, Serializable b) => Serializable (Subprogram a b) where
-    --     serialize (Subprogram decs stmts) = paragraph $
-    --             0 >>>> decs
-    --         ++  0 >>>> ["----------------"]
-    --         ++  0 >>>> stmts
 
---------------------------------------------------------------------------------
---  Serializable
---------------------------------------------------------------------------------
---
--- data Literal = Literal Int
--- data Binding = Declaration | Local | Global
--- data Variable = Variable String Binding
---
--- --------------------------------------------------------------------------------
--- --  Expression
--- --------------------------------------------------------------------------------
---
--- data Expression = UnaryExpression SimpleExpression
---                 | BinaryExpression SimpleExpression RelOp SimpleExpression
---
--- data SimpleExpression = TermSimpleExpression Term
---                       | OpSimpleExpression SimpleExpression AddOp Term
---
--- data Term = FactorTerm Factor
---           | OpTerm Term MulOp Factor
---           | NegTerm Factor
---
--- data Factor = VariableFactor    Variable
---             | LiteralFactor     Literal
---             | InvocationFactor  Variable [Expression]   -- id()
---             | SubFactor         Expression              -- (...)
---             | NotFactor         Factor                  -- -id
---
--- data AddOp = Plus | Minus
--- data MulOp = Mul | Div
--- data RelOp = S | L | E | NE | SE | LE
---
---
--- --------------------------------------------------------------------------------
--- --  Statement
--- --------------------------------------------------------------------------------
---
--- data Statement  = Assignment Variable
---                 | Return Expression
---                 | Invocation Variable Expression
---                 | Compound [Statement]
---                 | Branch Expression Statement Statement
---                 | Loop Expression Statement
---
--- --------------------------------------------------------------------------------
--- --  Program
--- --------------------------------------------------------------------------------
---
--- data Function = Function String Bool [Variable] [Statement]
--- data Program = Program [Variable] [Function]
+instance Serializable Statement where
+    serialize (Assignment v e) = serialize v ++ " := " ++ serialize e
+    serialize (Return e) = "return " ++ serialize e
+    serialize (Invocation sym []) = serialize sym
+    serialize (Invocation sym exprs) = serialize sym ++ "(" ++ intercalate' ", " exprs ++ ")"
+    serialize (Compound stmts) = paragraph $ compound stmts
+    serialize (Branch e s t) = paragraph $
+            0 >>>> ["if " ++ serialize e]
+        ++  1 >>>> ["then " ++ serialize s]
+        ++  1 >>>> ["else " ++ serialize s]
+    serialize (Loop e s) = paragraph $
+            0 >>>> ["while " ++ serialize e ++ " do"]
+        ++  1 >>>> [s]
+
+instance Serializable Expression where
+    serialize (UnaryExpression e) = serialize e
+    serialize (BinaryExpression a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+
+instance Serializable SimpleExpression where
+    serialize (TermSimpleExpression t) = serialize t
+    serialize (OpSimpleExpression a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+
+
+instance Serializable Term where
+    serialize (FactorTerm f) = serialize f
+    serialize (OpTerm a o b) = serialize a ++ " " ++ serialize o ++ " " ++ serialize b
+    serialize (NegTerm f) = "-" ++ serialize f
+
+instance Serializable Factor where
+    serialize (VariableFactor sym) = serialize sym
+    serialize (InvocationFactor sym exprs)  = serialize sym ++ "(" ++ intercalate' ", " exprs ++ ")"
+    serialize (LiteralFactor s) = serialize s
+    serialize (SubFactor e) = "(" ++ serialize e ++ ")"
+    serialize (NotFactor f) = "not " ++ serialize f
+
+instance Serializable AddOp where
+    serialize Plus = "+"
+    serialize Minus = "-"
+
+instance Serializable MulOp where
+    serialize Mul = "*"
+    serialize Div = "/"
+
+instance Serializable RelOp where
+    serialize S = "<"
+    serialize L = ">"
+    serialize E = "="
+    serialize NE = "!="
+    serialize SE = "<="
+    serialize LE = ">="
