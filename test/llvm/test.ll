@@ -23,15 +23,14 @@ entry:
   %0 = alloca i32
   store i32 %a, i32* %0
   %1 = load i32* %0
-  store i32 %1, i32* @b
-  %2 = load i32* @b
-  ret i32 %2
+  ret i32 %1
 }
 
 define void @main() {
 entry:
-  %0 = call i32 @id(i32 97)
-  %1 = call i32 @putchar(i32 %0)
+  %0 = call i32 @id(i32 98)
+  %1 = add nuw nsw i32 %0, 5
+  %2 = call i32 @putchar(i32 %1)
   ret void
 }
 

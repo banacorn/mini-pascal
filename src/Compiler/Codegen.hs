@@ -19,6 +19,8 @@ import qualified LLVM.General.AST.Constant as C
 import qualified LLVM.General.AST.Float as F
 import qualified LLVM.General.AST.CallingConvention as CC
 import qualified LLVM.General.AST.Linkage as L
+import qualified LLVM.General.AST.IntegerPredicate as IP
+
 type SymbolTable = [(String, Operand)]
 
 data CodegenState = CodegenState {
@@ -162,6 +164,12 @@ sub a b = instr $ Sub True True a b []
 mul :: Operand -> Operand -> Codegen Operand
 mul a b = instr $ Mul True True a b []
 
+sdiv :: Operand -> Operand -> Codegen Operand
+sdiv a b = instr $ SDiv True a b []
+
+cmp :: Operand -> Operand -> IP.IntegerPredicate -> Codegen Operand
+cmp a b ip = instr $ ICmp ip a b []
+
 
 -- Effects
 call :: Operand -> [Operand] -> Codegen Operand
@@ -216,20 +224,43 @@ genVariable (AST.Variable label AST.Global) = return $ global (Name label)
 genVariable (AST.Variable label AST.Local) = return $ local (Name label)
 genVariable (AST.Variable label AST.Declaration) = error "shouldn't be referencing stuffs"
 
-
 genExpression :: AST.Expression -> Codegen Operand
 genExpression (AST.UnaryExpression expr) = genSimpleExpression expr
--- genExpression (AST.BinaryExpression expr0 relOp expr1) = error "genExpression non-exhaustive"
+genExpression (AST.BinaryExpression expr0 relOp expr1) = do
+    a <- genSimpleExpression expr0
+    b <- genSimpleExpression expr1
+    cmp a b (toIP relOp)
+    where   toIP AST.S = IP.SLT
+            toIP AST.L = IP.SGT
+            toIP AST.E = IP.EQ
+            toIP AST.NE = IP.NE
+            toIP AST.SE = IP.SLE
+            toIP AST.LE = IP.SGE
 
 genSimpleExpression :: AST.SimpleExpression -> Codegen Operand
 genSimpleExpression (AST.TermSimpleExpression term) = genTerm term
--- genSimpleExpression (AST.OpSimpleExpression simpleExpr addOp term) = error "genSimpleExpression non-exhaustive"
+genSimpleExpression (AST.OpSimpleExpression simpleExpr AST.Plus term) = do
+    a <- genSimpleExpression simpleExpr
+    b <- genTerm term
+    add a b
+genSimpleExpression (AST.OpSimpleExpression simpleExpr AST.Minus term) = do
+    a <- genSimpleExpression simpleExpr
+    b <- genTerm term
+    sub a b
 
 genTerm :: AST.Term -> Codegen Operand
 genTerm (AST.FactorTerm factor) = genFactor factor
--- genTerm (AST.OpTerm term mulOp factor) = error "genTerm non-exhaustive" -- OpTerm (convertTerm term) (convertMulOp mulOp) (convertFactor factor)
--- genTerm (AST.NegTerm factor) = error "genTerm non-exhaustive" -- NegTerm (convertFactor factor)
-
+genTerm (AST.OpTerm term AST.Mul factor) = do
+    a <- genTerm term
+    b <- genFactor factor
+    mul a b
+genTerm (AST.OpTerm term AST.Div factor) = do
+    a <- genTerm term
+    b <- genFactor factor
+    sdiv a b
+genTerm (AST.NegTerm factor) = do
+    val <- genFactor factor
+    sub (literal 0) val
 genFactor :: AST.Factor -> Codegen Operand
 genFactor (AST.VariableFactor (AST.Variable label AST.Global)) = do
     load $ global (Name label)
@@ -242,9 +273,9 @@ genFactor (AST.InvocationFactor var exprs) = do
     fn <- genVariable var
     args <- mapM genExpression exprs
     call fn args
--- genFactor _ = error "genFactor non-exhaustive"
--- genFactor (SubFactor expr) = SubFactor (convertExpression expr)
--- genFactor (NotFactor factor) = NotFactor (convertFactor factor)
+genFactor (AST.SubFactor expr) = genExpression expr
+-- genFactor (NotFactor factor) = do
+--     val <- genFactor factor
 
 genStatement :: AST.Statement -> Codegen ()
 genStatement (AST.Assignment (AST.Variable label AST.Global) expr) = do
@@ -292,10 +323,7 @@ genFunction (AST.Function label ret params decs body) = GlobalDefinition $ funct
             sequence_ (map genParameter params)
             sequence_ (map genLocalVariable decs)
             sequence_ (map genStatement body)
-            -- if null body then return () else
-            --     genStatement (head body)
             terminateAnyway ret
-            -- ret $ genExpression (AST.UnaryExpression (AST.TermSimpleExpression (AST.FactorTerm (AST.LiteralFactor 3))))
     }
 
 genModule :: AST.Program -> Module

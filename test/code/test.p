@@ -1,26 +1,19 @@
-program foo(input, output, error) ;
+program foo(boo);
 
-    // global variable declarations
     var a, b, c, d: integer;
-    // var g, h: real;
 
-    // global function declarations
     function addition(a, b: integer) : integer;
-        var c, d, e, f: integer;   // local variable declaration
+        var c, d, e, f: integer;
             begin
                 return 1
             end;
 
     function id(a: integer) : integer;
         begin
-            b := a;
-            return b
+            return a
         end;
-
 
     // compound statements, "main"
     begin
-        putchar(id(97))
-        // addition(2, 1);
-        // putchar(3)
+        putchar(id(98) + 5)
     end.
