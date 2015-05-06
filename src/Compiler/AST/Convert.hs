@@ -23,8 +23,15 @@ convertVarDec (P.Declaration (P.Symbol label _) _ _) = Variable label Declaratio
 
 convertFuncDec :: P.Declaration -> P.Subprogram P.Declaration (P.Statement P.Value) -> Function
 convertFuncDec (P.Declaration (P.Symbol label _) typ _) (P.Subprogram decs stmts) =
-    Function label returnType [] []
+    Function label returnType parameters varDecs []
     where   returnType = DT.getReturnType typ == DT.BasicType DT.VoidType
+            parameters = [ convertDeclaration dec | dec <- decs, P.decParam dec ]
+            varDecs    = [ convertDeclaration dec | dec <- decs, not (P.decParam dec) ]
+
+
+convertDeclaration :: P.Declaration -> Variable
+convertDeclaration (P.Declaration (P.Symbol label _) _ _) = Variable label Declaration
+
 
 -- data Program dec stmt = Program
 --     [dec]                   --  program parameters, variable and subprogram declarations
@@ -34,5 +41,5 @@ convertFuncDec (P.Declaration (P.Symbol label _) typ _) (P.Subprogram decs stmts
 --     [dec]                   --  variable and subprogram declarations
 --     [stmt]                  --  compound statement
 
--- data Function = Function String Bool [Variable] [Statement]
+-- data Function = Function String Bool [Variable] [Variable] [Statement]
 -- data Program = Program [Variable] [Function]

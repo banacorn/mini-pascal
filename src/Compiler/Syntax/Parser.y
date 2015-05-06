@@ -84,7 +84,7 @@ subprogram_declaration
     : function id ':' type ';' variable_declarations compound_statement
         { FuncDec (toSym $2) [] $4 $6 $7 }
     | function id '(' parameter_list ')' ':' type ';' variable_declarations compound_statement
-        { FuncDec (toSym $2) $4 $7 $9 $10 }
+        { FuncDec (toSym $2) (reverse $4) $7 $9 $10 }
 
 parameter_list
     : identifier_list ':' type                      { Parameter $1 $3 : [] }

@@ -5,7 +5,7 @@ module Compiler.AST.Type where
 --------------------------------------------------------------------------------
 
 data Literal = Literal Int
-data Binding = Declaration | Local | Global
+data Binding = Declaration | Local | Global deriving Eq
 data Variable = Variable String Binding
 
 --------------------------------------------------------------------------------
@@ -48,5 +48,11 @@ data Statement  = Assignment Variable
 --  Program
 --------------------------------------------------------------------------------
 
-data Function = Function String Bool [Variable] [Statement]
+data Function =
+        Function
+            String          -- name
+            Bool            -- if void
+            [Variable]      -- parameters
+            [Variable]      -- local variable declarations
+            [Statement]     -- body
 data Program = Program [Variable] [Function]

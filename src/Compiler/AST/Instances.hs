@@ -3,11 +3,17 @@ module Compiler.AST.Instances where
 import Compiler.AST.Type
 import Compiler.Serializable
 
+
+-- import Data.List (intercalate)
+
 instance Serializable Literal where
     serialize (Literal n) = show n
 
 instance Serializable Variable where
-    serialize (Variable label binding) = green label ++ " : " ++ serialize binding
+    serialize (Variable label binding) =
+        if binding == Declaration
+            then green label
+            else yellow label ++ " : " ++ serialize binding
 
 instance Serializable Binding where
     serialize Declaration = "dec"
@@ -17,14 +23,18 @@ instance Serializable Binding where
 instance Serializable Program where
     serialize (Program decs funcs) = paragraph $
             0 >>>> ["\nGlobal Variable Declarations"]
-        ++  1 >>>> decs
+        ++  1 >>>> [intercalate' ", " decs]
         ++  0 >>>> ["\nFunction Definitions:"]
         ++  1 >>>> funcs
 
 instance Serializable Function where
-    serialize (Function label ret decs body) = ""-- paragraph $
-            -- 0 >>>> decs
-
+    serialize (Function label void params decs body) = paragraph $
+            0 >>>> ["\n"]
+        ++  0 >>>> [returnType ++ cyan label ++ parameters]
+        ++  1 >>>> [intercalate' ", " decs]
+        where   returnType = if void then "void " else "int "
+                parameters = "(" ++ intercalate' ", " params ++ ")"
+                -- varDecs = decs
     --
     -- instance (Serializable a, Serializable b) => Serializable (Subprogram a b) where
     --     serialize (Subprogram decs stmts) = paragraph $
