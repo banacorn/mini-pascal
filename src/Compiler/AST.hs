@@ -7,8 +7,8 @@ import qualified Compiler.PreAST.Type as P
 
 
 convert :: P.ABT -> Program
-convert = addExternFuncs . convertProgram
-
-addExternFuncs :: Program -> Program
-addExternFuncs (Program vars funcs) = Program vars (extern : funcs)
-    where   extern = Function "putchar" False [Variable "input" Local] [] []
+convert = convertProgram
+--
+-- addExternFuncs :: Program -> Program
+-- addExternFuncs (Program vars funcs) = Program vars (extern : funcs)
+--     where   extern = Function "putchar" False [Variable "input" Local] [] []

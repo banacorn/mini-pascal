@@ -38,7 +38,7 @@ convertVariable (P.Variable (P.Symbol label _) (P.Declaration _ _ P.InLocal)) = 
 convertVariable _ = error "not variable"
 
 convertLiteral :: P.Value -> Literal
-convertLiteral (P.IntLiteral n _) = Literal n
+convertLiteral (P.IntLiteral n _) = n
 convertLiteral _ = error "not int literal"
 
 convertStatement :: P.Statement P.Value -> Statement

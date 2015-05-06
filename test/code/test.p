@@ -8,7 +8,6 @@ program foo(input, output, error) ;
     function addition(a, b: integer) : integer;
       var c, d, e, f: integer;   // local variable declaration
       begin
-         c := a + b;
          return 1
       end;
 
@@ -16,14 +15,12 @@ program foo(input, output, error) ;
     function haaha(a, b: integer) : integer;
       var c: integer;   // local variable declaration
       begin
-         c := a + d;
-         return 1
+         return 2
       end;
 
 
     // compound statements, "main"
     begin
-        a := 3
         // addition(2, 1);
         // putchar(3)
     end.

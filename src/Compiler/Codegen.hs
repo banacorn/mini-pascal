@@ -1,11 +1,13 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Compiler.CodeGen where
+module Compiler.Codegen where
 
 import Control.Applicative
 import Control.Monad.State hiding (void)
 import qualified Data.Map as Map
 import Data.Word
+import Data.List (sortBy)
+import Data.Function (on)
 
 import Compiler.Type.Pipeline
 import qualified Compiler.AST.Type as AST
@@ -13,10 +15,10 @@ import qualified Compiler.AST.Type as AST
 import LLVM.General.AST.Type
 import LLVM.General.AST
 import LLVM.General.AST.Global as Glb
-import LLVM.General.AST.Constant as C
-import LLVM.General.AST.Float as F
-import LLVM.General.AST.CallingConvention as CC
-import LLVM.General.AST.Linkage as L
+import qualified LLVM.General.AST.Constant as C
+import qualified LLVM.General.AST.Float as F
+import qualified LLVM.General.AST.CallingConvention as CC
+import qualified LLVM.General.AST.Linkage as L
 type SymbolTable = [(String, Operand)]
 
 data CodegenState = CodegenState {
@@ -29,7 +31,7 @@ data CodegenState = CodegenState {
     }   deriving Show
 
 data BlockState = BlockState {
-        index :: Int                            -- Block index
+        idx   :: Int                            -- Block index
     ,   stack :: [Named Instruction]            -- Stack of instructions
     ,   term  :: Maybe (Named Terminator)       -- Block terminator
     }   deriving Show
@@ -40,8 +42,8 @@ newtype Codegen a = Codegen { unCodegen :: State CodegenState a }
 emptyCodegen :: CodegenState
 emptyCodegen = CodegenState (Name "entry") Map.empty 1 Map.empty 0 Map.empty
 
-execCodegen :: Codegen a -> (a, CodegenState)
-execCodegen c = runState (unCodegen c) emptyCodegen
+execCodegen :: Codegen a -> CodegenState
+execCodegen c = execState (unCodegen c) emptyCodegen
 
 -- blockCount
 incrBlockCount :: Codegen ()
@@ -119,10 +121,48 @@ instr ins = do
     modifyBlock $ block { stack = i ++ [ref := ins] }
     return (LocalReference i32 ref)
 
---s
-ret :: Operand -> Named Terminator
-ret val = Do $ Ret (Just val) []
+terminator :: Named Terminator -> Codegen (Named Terminator)
+terminator trm = do
+    blk <- currentBlock
+    modifyBlock (blk { term = Just trm })
+    return trm
 
+
+
+terminateAnyway :: Bool -> Codegen ()
+terminateAnyway isVoid = do
+    current <- currentBlock
+    case term current of
+        Just x -> return ()
+        Nothing -> do
+            if isVoid then retVoid else ret (literal 0)
+            return ()
+
+
+literal :: Int -> Operand
+literal n = ConstantOperand $ C.Int 32 (toInteger n)
+-- -- References
+-- local ::  Name -> Operand
+-- local = LocalReference double
+--
+-- global ::  Name -> C.Constant
+-- global = C.GlobalReference double
+--
+-- externf :: Name -> Operand
+-- externf = ConstantOperand . C.GlobalReference double
+
+-- Arithmetic and Constants
+add :: Operand -> Operand -> Codegen Operand
+add a b = instr $ Add True True a b []
+
+sub :: Operand -> Operand -> Codegen Operand
+sub a b = instr $ Sub True True a b []
+
+mul :: Operand -> Operand -> Codegen Operand
+mul a b = instr $ Mul True True a b []
+
+
+-- Effects
 call :: Operand -> [Operand] -> Codegen Operand
 call fn args = instr $ Call False CC.C [] (Right fn) (map toArg args) [] []
     where   toArg a = (a, [])
@@ -136,52 +176,53 @@ store ptr val = instr $ Store False ptr val Nothing 0 []
 load :: Operand -> Codegen Operand
 load ptr = instr $ Load False ptr Nothing 0 []
 
+-- Control Flow
+br :: Name -> Codegen (Named Terminator)
+br val = terminator $ Do $ Br val []
 
+cbr :: Operand -> Name -> Name -> Codegen (Named Terminator)
+cbr cond tr fl = terminator $ Do $ CondBr cond tr fl []
 
+retVoid :: Codegen (Named Terminator)
+retVoid = terminator $ Do $ Ret Nothing []
 
+ret :: Operand -> Codegen (Named Terminator)
+ret val = terminator $ Do $ Ret (Just val) []
 
--- genFactor :: AST.Factor AST.Value -> Codegen Operand
--- genFactor (AST.VariableFactor val) = do
---      load
--- genFactor (AST.NumberFactor lit) = genLiteral lit
--- genFactor (AST.InvocationFactor func params) = _
--- genFactor (AST.SubFactor expr) = _
--- genFactor (AST.NotFactor factor) = _
+createBlocks :: CodegenState -> [BasicBlock]
+createBlocks m = map makeBlock $ sortBy (compare `on` (idx . snd)) $ Map.toList (blocks m)
 
--- genVariable :: AST.Value -> Codegen Operand
--- genVariable (AST.Variable sym _) = return $
--- genVariable _ = error "not variable"
---
--- genLiteral :: AST.Value -> Codegen Operand
--- genLiteral (AST.IntLiteral n _) = return $ ConstantOperand (C.Int 32 (toInteger n))
--- genLiteral (AST.RealLiteral n _) = return $ ConstantOperand (C.Float (F.Double n))
--- genLiteral _ = error "not literal"
--- --
--- --
--- -- data Value  = Variable Symbol Declaration
--- --             | IntLiteral Int Position
--- --             | RealLiteral Double Position
--- --             deriving (Eq, Ord)
---
--- --
--- -- genExpression :: AST.Expression Value -> Codegen Operand
--- -- genExpression (UnaryExpression a) =
--- -- genExpression (BinaryExpression a op b) =
--- --
--- --
--- -- genSimpleExpression :: AST.SimpleExpression Value -> Codegen Operand
--- -- genSimpleExpression (TermSimpleExpression a) =
--- -- genSimpleExpression (OpSimpleExpression a op b) =
---
--- -- Definitions
--- genType :: AST.Type -> Type
--- genType (AST.BasicType AST.IntType) = i32
--- genType (AST.BasicType AST.RealType) = double
--- genType (AST.BasicType AST.VoidType) = void
--- genType (AST.FunctionType _) = error "can't gen higher order type"
+makeBlock :: (Name, BlockState) -> BasicBlock
+makeBlock (label, (BlockState _ s t)) = BasicBlock label s (maketerm t)
+    where   maketerm (Just x) = x
+            maketerm Nothing = error $ "Block has no terminator:" ++ (show label)
 
-genBlocks :: [AST.Statement] -> [BasicBlock]
-genBlocks _ = undefined
+genExpression :: AST.Expression -> Codegen Operand
+genExpression (AST.UnaryExpression expr) = genSimpleExpression expr
+genExpression (AST.BinaryExpression expr0 relOp expr1) = undefined
+
+genSimpleExpression :: AST.SimpleExpression -> Codegen Operand
+genSimpleExpression (AST.TermSimpleExpression term) = genTerm term
+genSimpleExpression (AST.OpSimpleExpression simpleExpr addOp term) = undefined
+
+genTerm :: AST.Term -> Codegen Operand
+genTerm (AST.FactorTerm factor) = genFactor factor
+genTerm (AST.OpTerm term mulOp factor) = undefined -- OpTerm (convertTerm term) (convertMulOp mulOp) (convertFactor factor)
+genTerm (AST.NegTerm factor) = undefined -- NegTerm (convertFactor factor)
+
+genFactor :: AST.Factor -> Codegen Operand
+genFactor (AST.LiteralFactor lit) = return $ literal lit
+genFactor _ = undefined
+-- genFactor (VariableFactor var) = -- VariableFactor (convertVariable var)
+-- genFactor (InvocationFactor var exprs) = InvocationFactor (convertVariable var) (map convertExpression exprs)
+-- genFactor (SubFactor expr) = SubFactor (convertExpression expr)
+-- genFactor (NotFactor factor) = NotFactor (convertFactor factor)
+
+genStatement :: AST.Statement -> Codegen ()
+genStatement (AST.Return expr) = do
+    genExpression expr >>= ret
+    return ()
+
 
 genGlobalVariable :: AST.Variable -> Definition
 genGlobalVariable (AST.Variable label _) = GlobalDefinition $ globalVariableDefaults {
@@ -196,7 +237,13 @@ genFunction (AST.Function label ret params decs body) = GlobalDefinition $ funct
         name        = Name label
     ,   parameters  = ([ Parameter i32 (Name name) [] | AST.Variable name _ <- params ], False)
     ,   returnType  = if ret then void else i32
-    ,   basicBlocks = genBlocks body
+    ,   basicBlocks = createBlocks . execCodegen $ do
+            freshBlock "entry"
+            sequence_ (map genStatement body)
+            -- if null body then return () else
+            --     genStatement (head body)
+            terminateAnyway ret
+            -- ret $ genExpression (AST.UnaryExpression (AST.TermSimpleExpression (AST.FactorTerm (AST.LiteralFactor 3))))
     }
 
 genModule :: AST.Program -> Module
@@ -204,6 +251,7 @@ genModule (AST.Program vars funcs) = defaultModule {
         moduleName = "program"
     ,   moduleDefinitions = (map genGlobalVariable vars)
                          ++ (map genFunction funcs)
+                         ++ [putchar]
     }
     where
             -- main = GlobalDefinition $ functionDefaults {
@@ -219,8 +267,8 @@ genModule (AST.Program vars funcs) = defaultModule {
             --                     ] (Do $ Ret Nothing [])
             --                 ]
             --             }
-            -- putchar = GlobalDefinition $ functionDefaults {
-            --                 name = Name "putchar"
-            --             ,   parameters = ([Parameter i32 (Name "c") []], False)
-            --             ,   returnType = i32
-            --             }
+            putchar = GlobalDefinition $ functionDefaults {
+                            name = Name "putchar"
+                        ,   parameters = ([Parameter i32 (Name "c") []], False)
+                        ,   returnType = i32
+                        }

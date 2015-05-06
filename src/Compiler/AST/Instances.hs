@@ -8,9 +8,6 @@ import Compiler.Serializable
 --  Serializable
 --------------------------------------------------------------------------------
 
-instance Serializable Literal where
-    serialize (Literal n) = show n
-
 instance Serializable Variable where
     serialize (Variable label Declaration) = green label
     serialize (Variable label Local) = yellow label

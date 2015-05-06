@@ -4,7 +4,7 @@ module Compiler.AST.Type where
 --  Symbols
 --------------------------------------------------------------------------------
 
-data Literal = Literal Int
+type Literal = Int
 data Binding = Declaration | Local | Global deriving Eq
 data Variable = Variable String Binding
 

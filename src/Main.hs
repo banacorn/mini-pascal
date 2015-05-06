@@ -5,7 +5,7 @@ import Control.Monad.State
 import Compiler.Syntax.Lexer
 import Compiler.Syntax.Parser
 import Compiler.Pipeline
-import Compiler.CodeGen
+import Compiler.Codegen
 import Compiler.JIT
 
 import  Compiler.AST.Instances
