@@ -1,9 +1,9 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Compiler.AST.Type.Expression where
+module Compiler.PreAST.Type.Expression where
 
 import Compiler.Serializable
-import Compiler.AST.Type.Symbol
+import Compiler.PreAST.Type.Symbol
 
 --------------------------------------------------------------------------------
 -- Expression (with >/>=/=....)

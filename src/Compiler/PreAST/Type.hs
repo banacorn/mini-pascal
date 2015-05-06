@@ -1,19 +1,19 @@
-module Compiler.AST.Type
-    (   module Compiler.AST.Type.Expression
-    ,   module Compiler.AST.Type.Statement
-    ,   module Compiler.AST.Raw.Type
-    ,   module Compiler.AST.Type.Symbol
-    ,   module Compiler.AST.Type.DataType
+module Compiler.PreAST.Type
+    (   module Compiler.PreAST.Type.Expression
+    ,   module Compiler.PreAST.Type.Statement
+    ,   module Compiler.PreAST.Raw.Type
+    ,   module Compiler.PreAST.Type.Symbol
+    ,   module Compiler.PreAST.Type.DataType
     ,   Program(..), Subprogram(..)
-    ,   RawAST, ADT, ABT
+    ,   RawPreAST, ADT, ABT
     ,   merge, extractFirst, extractSecond, map2
     ) where
 
-import Compiler.AST.Type.Statement
-import Compiler.AST.Raw.Type
-import Compiler.AST.Type.Expression
-import Compiler.AST.Type.DataType
-import Compiler.AST.Type.Symbol
+import Compiler.PreAST.Type.Statement
+import Compiler.PreAST.Raw.Type
+import Compiler.PreAST.Type.Expression
+import Compiler.PreAST.Type.DataType
+import Compiler.PreAST.Type.Symbol
 import Compiler.Syntax.Type
 import Compiler.Serializable
 
@@ -24,7 +24,7 @@ import Data.Set (Set, findMin)
 --  Type synonyms
 --------------------------------------------------------------------------------
 
-type RawAST = RawProgram
+type RawPreAST = RawProgram
 type ADT = Program (Set Declaration) Binding
 type ABT = Program Declaration (Statement Value)
 

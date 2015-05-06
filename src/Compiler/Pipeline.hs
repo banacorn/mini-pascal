@@ -6,8 +6,8 @@ import Compiler.Serializable
 import Compiler.Syntax.Type
 
 
-import              Compiler.AST
-import              Compiler.AST.Type
+import              Compiler.PreAST
+import              Compiler.PreAST.Type
 import              Compiler.Semantics
 import              Compiler.TypeCheck
 
@@ -49,16 +49,16 @@ readSource path = do
 --------------------------------------------------------------------------------
 --      Exception: Declaration Duplicated or Variable Undeclared
 
-checkBinding :: RawAST -> Pipeline ABT
-checkBinding rawAST = do
-    let adt = toADT rawAST
+checkBinding :: RawPreAST -> Pipeline ABT
+checkBinding rawPreAST = do
+    let adt = toADT rawPreAST
 
     checkSemanticsError $ do
         checkDeclarationDuplicated adt
         checkVariableUndeclared adt
 
     -- the ADT is good enough to build ABT
-    return (toABT rawAST adt)
+    return (toABT rawPreAST adt)
 
 --------------------------------------------------------------------------------
 --      Exception: all sorts of TypeErrors

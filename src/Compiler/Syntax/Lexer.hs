@@ -463,13 +463,13 @@ alexScanUser user input (sc)
 
 				   AlexError input'
 
-	(AlexLastSkip input'' len, _) ->
+	(AlexLPreASTSkip input'' len, _) ->
 
 
 
 		AlexSkip input'' len
 
-	(AlexLastAcc k input''' len, _) ->
+	(AlexLPreASTAcc k input''' len, _) ->
 
 
 
@@ -479,7 +479,7 @@ alexScanUser user input (sc)
 -- Push the input through the DFA, remembering the most recent accepting
 -- state it encountered.
 
-alex_scan_tkn user orig_input len input s last_acc =
+alex_scan_tkn user orig_input len input s lPreAST_acc =
   input `seq` -- strict in the input
   let 
 	new_acc = (check_accs (alex_accept `quickIndex` (s)))
@@ -510,31 +510,31 @@ alex_scan_tkn user orig_input len input s last_acc =
 			new_input new_s new_acc
       }
   where
-	check_accs (AlexAccNone) = last_acc
-	check_accs (AlexAcc a  ) = AlexLastAcc a input (len)
-	check_accs (AlexAccSkip) = AlexLastSkip  input (len)
+	check_accs (AlexAccNone) = lPreAST_acc
+	check_accs (AlexAcc a  ) = AlexLPreASTAcc a input (len)
+	check_accs (AlexAccSkip) = AlexLPreASTSkip  input (len)
 
 	check_accs (AlexAccPred a predx rest)
 	   | predx user orig_input (len) input
-	   = AlexLastAcc a input (len)
+	   = AlexLPreASTAcc a input (len)
 	   | otherwise
 	   = check_accs rest
 	check_accs (AlexAccSkipPred predx rest)
 	   | predx user orig_input (len) input
-	   = AlexLastSkip input (len)
+	   = AlexLPreASTSkip input (len)
 	   | otherwise
 	   = check_accs rest
 
 
-data AlexLastAcc a
+data AlexLPreASTAcc a
   = AlexNone
-  | AlexLastAcc a !AlexInput !Int
-  | AlexLastSkip  !AlexInput !Int
+  | AlexLPreASTAcc a !AlexInput !Int
+  | AlexLPreASTSkip  !AlexInput !Int
 
-instance Functor AlexLastAcc where
+instance Functor AlexLPreASTAcc where
     fmap f AlexNone = AlexNone
-    fmap f (AlexLastAcc x y z) = AlexLastAcc (f x) y z
-    fmap f (AlexLastSkip x y) = AlexLastSkip x y
+    fmap f (AlexLPreASTAcc x y z) = AlexLPreASTAcc (f x) y z
+    fmap f (AlexLPreASTSkip x y) = AlexLPreASTSkip x y
 
 data AlexAcc a user
   = AlexAccNone

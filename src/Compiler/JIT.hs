@@ -5,7 +5,7 @@ import Control.Applicative
 
 import Control.Monad.Except
 import Compiler.Type.Pipeline
-import Compiler.AST.Type
+import Compiler.PreAST.Type
 
 import LLVM.General
 import qualified LLVM.General.AST as IR
@@ -19,12 +19,12 @@ run :: FunPtr a -> IO Int
 run fn = mkFun (castFunPtr fn :: FunPtr (IO Int))
 
 jit :: Context -> (EE.MCJIT -> IO a) -> IO a
-jit context = EE.withMCJIT context optLvl model ptrElim fastIns
+jit context = EE.withMCJIT context optLvl model ptrElim fPreASTIns
     where
         optLvl   = Just 2  -- optimization level
         model    = Nothing -- code model ( Default )
         ptrElim  = Nothing -- frame pointer elimination
-        fastIns  = Nothing -- fast instruction
+        fPreASTIns  = Nothing -- fPreAST instruction
 
 withModuleFromIR :: (Module -> IO a) -> IR.Module -> Pipeline a
 withModuleFromIR f mod = do

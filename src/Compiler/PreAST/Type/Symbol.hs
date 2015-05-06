@@ -1,9 +1,9 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 
-module Compiler.AST.Type.Symbol where
+module Compiler.PreAST.Type.Symbol where
 
 import Compiler.Syntax.Type.Position
-import Compiler.AST.Type.DataType
+import Compiler.PreAST.Type.DataType
 import Compiler.Serializable
 
 import           Data.Maybe (fromJust)
@@ -88,7 +88,7 @@ data Value  = Variable Symbol Declaration
             | RealLiteral Double Position
             deriving (Eq, Ord)
 
-instance HasType Value where
+instance HPreASType Value where
     getType (Variable sym dec) = decType dec
     getType (IntLiteral i _) = BasicType IntType
     getType (RealLiteral i _) = BasicType RealType

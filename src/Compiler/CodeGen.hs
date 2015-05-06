@@ -8,7 +8,7 @@ import qualified Data.Map as Map
 import Data.Word
 
 import Compiler.Type.Pipeline
-import qualified Compiler.AST.Type as AST
+import qualified Compiler.PreAST.Type as PreAST
 
 import LLVM.General.AST.Type
 import LLVM.General.AST
@@ -136,21 +136,21 @@ store ptr val = instr $ Store False ptr val Nothing 0 []
 load :: Operand -> Codegen Operand
 load ptr = instr $ Load False ptr Nothing 0 []
 
--- genFactor :: AST.Factor AST.Value -> Codegen Operand
--- genFactor (AST.VariableFactor val) = do
+-- genFactor :: PreAST.Factor PreAST.Value -> Codegen Operand
+-- genFactor (PreAST.VariableFactor val) = do
 --      load
--- genFactor (AST.NumberFactor lit) = genLiteral lit
--- genFactor (AST.InvocationFactor func params) = _
--- genFactor (AST.SubFactor expr) = _
--- genFactor (AST.NotFactor factor) = _
+-- genFactor (PreAST.NumberFactor lit) = genLiteral lit
+-- genFactor (PreAST.InvocationFactor func params) = _
+-- genFactor (PreAST.SubFactor expr) = _
+-- genFactor (PreAST.NotFactor factor) = _
 
--- genVariable :: AST.Value -> Codegen Operand
--- genVariable (AST.Variable sym _) = return $
+-- genVariable :: PreAST.Value -> Codegen Operand
+-- genVariable (PreAST.Variable sym _) = return $
 -- genVariable _ = error "not variable"
 
-genLiteral :: AST.Value -> Codegen Operand
-genLiteral (AST.IntLiteral n _) = return $ ConstantOperand (C.Int 32 (toInteger n))
-genLiteral (AST.RealLiteral n _) = return $ ConstantOperand (C.Float (F.Double n))
+genLiteral :: PreAST.Value -> Codegen Operand
+genLiteral (PreAST.IntLiteral n _) = return $ ConstantOperand (C.Int 32 (toInteger n))
+genLiteral (PreAST.RealLiteral n _) = return $ ConstantOperand (C.Float (F.Double n))
 genLiteral _ = error "not literal"
 --
 --
@@ -160,44 +160,44 @@ genLiteral _ = error "not literal"
 --             deriving (Eq, Ord)
 
 --
--- genExpression :: AST.Expression Value -> Codegen Operand
+-- genExpression :: PreAST.Expression Value -> Codegen Operand
 -- genExpression (UnaryExpression a) =
 -- genExpression (BinaryExpression a op b) =
 --
 --
--- genSimpleExpression :: AST.SimpleExpression Value -> Codegen Operand
+-- genSimpleExpression :: PreAST.SimpleExpression Value -> Codegen Operand
 -- genSimpleExpression (TermSimpleExpression a) =
 -- genSimpleExpression (OpSimpleExpression a op b) =
 
 -- Definitions
-genType :: AST.Type -> Type
-genType (AST.BasicType AST.IntType) = i32
-genType (AST.BasicType AST.RealType) = double
-genType (AST.BasicType AST.VoidType) = void
-genType (AST.FunctionType _) = error "can't gen higher order type"
+genType :: PreAST.Type -> Type
+genType (PreAST.BasicType PreAST.IntType) = i32
+genType (PreAST.BasicType PreAST.RealType) = double
+genType (PreAST.BasicType PreAST.VoidType) = void
+genType (PreAST.FunctionType _) = error "can't gen higher order type"
 
-genGlobalVariable :: AST.Declaration -> Definition
-genGlobalVariable (AST.Declaration (AST.Symbol name _) typ) = GlobalDefinition $ globalVariableDefaults {
+genGlobalVariable :: PreAST.Declaration -> Definition
+genGlobalVariable (PreAST.Declaration (PreAST.Symbol name _) typ) = GlobalDefinition $ globalVariableDefaults {
         Glb.name = Name name
     ,   Glb.type' = genType typ
     ,   Glb.linkage = L.Common
     ,   Glb.initializer = Just (C.Int 32 0)
     }
 
-genFunction :: AST.Declaration -> [BasicBlock] -> Definition
-genFunction (AST.Declaration (AST.Symbol label _) typ) body = GlobalDefinition $ functionDefaults {
+genFunction :: PreAST.Declaration -> [BasicBlock] -> Definition
+genFunction (PreAST.Declaration (PreAST.Symbol label _) typ) body = GlobalDefinition $ functionDefaults {
         name        = Name label
-    ,   parameters  = ([ Parameter (genType p) (Name "p") [] | p <- AST.getParamType typ ], False)
-    ,   returnType  = genType (AST.getReturnType typ)
+    ,   parameters  = ([ Parameter (genType p) (Name "p") [] | p <- PreAST.getParamType typ ], False)
+    ,   returnType  = genType (PreAST.getReturnType typ)
     ,   basicBlocks = body
     }
 
-genModule :: AST.ABT -> Module
-genModule (AST.Program decs _) = defaultModule {
+genModule :: PreAST.ABT -> Module
+genModule (PreAST.Program decs _) = defaultModule {
         moduleName = "program"
     ,   moduleDefinitions =
-                [ genGlobalVariable dec | dec <- decs, AST.isVariable (AST.decType dec) ]
-            -- ++  [ genFunction dec []    | dec <- decs, AST.isFunction (AST.decType dec) ]
+                [ genGlobalVariable dec | dec <- decs, PreAST.isVariable (PreAST.decType dec) ]
+            -- ++  [ genFunction dec []    | dec <- decs, PreAST.isFunction (PreAST.decType dec) ]
             ++  [putchar]
             ++  [main]
     }

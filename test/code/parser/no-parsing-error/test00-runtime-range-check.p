@@ -1,9 +1,9 @@
 PROGRAM foo(input, output, error) ;
    // variable declaraions
    var a, b, c: integer;
-   var d, e: array [ 1 .. 10 ] of integer; 
+   var d, e: array [ 1 .. 10 ] of integer;
    var g, h: real;
-   var k: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real; 
+   var k: array [ 23 .. 57 ] of array [ 23 .. 57 ] of real;
 
    // procedure and function declarations
    procedure sort(a: array [ 1 .. 10 ] of integer);
@@ -24,7 +24,7 @@ PROGRAM foo(input, output, error) ;
       while a < 10 do
       begin
          sum := sum + a;
-         a   := a + 1 
+         a   := a + 1
       end;
       begin  // nested compound statement
          b := 1;
@@ -33,7 +33,7 @@ PROGRAM foo(input, output, error) ;
             d[b] := b + b * (b - 1);
             b := b +1
          end;
-         sort(d)   // a procedure call          
+         sort(d)   // a procedure call
       end;
       k[25][26] := 3.14;     // good
       k[25][26] := k[25][26] + 3;     // good

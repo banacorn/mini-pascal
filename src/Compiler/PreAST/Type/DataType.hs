@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Compiler.AST.Type.DataType where
+module Compiler.PreAST.Type.DataType where
 
 import Compiler.Syntax.Type.Position
 import Compiler.Serializable
@@ -19,7 +19,7 @@ data Domain = IntType
 data Type   = BasicType Domain
             | FunctionType [Domain] deriving (Eq, Ord)
 
-class HasType a where
+class HPreASType a where
     getType :: a -> Type
 
 instance Serializable Domain where

@@ -1,6 +1,6 @@
-module Compiler.AST.Raw.CollectSymbol where
+module Compiler.PreAST.Raw.CollectSymbol where
 
-import Compiler.AST.Type
+import Compiler.PreAST.Type
 import Compiler.Syntax.Type
 
 -- make the main compound statement a Subprogram

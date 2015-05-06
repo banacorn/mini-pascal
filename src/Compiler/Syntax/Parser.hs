@@ -2,7 +2,7 @@
 module Compiler.Syntax.Parser where
 
 import Compiler.Syntax.Type
-import Compiler.AST.Type
+import Compiler.PreAST.Type
 import Compiler.Type.Pipeline
 import Compiler.Syntax.Lexer
 import Control.Monad.Except
@@ -1237,7 +1237,7 @@ happyDoSeq   a b = a `seq` b
 happyDontSeq a b = b
 
 -----------------------------------------------------------------------------
--- Don't inline any functions from the template.  GHC has a nasty habit
+-- Don't inline any functions from the template.  GHC has a nPreASTy habit
 -- of deciding to inline happyGoto everywhere, which increases the size of
 -- the generated parser quite a bit.
 

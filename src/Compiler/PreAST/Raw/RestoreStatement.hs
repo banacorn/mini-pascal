@@ -1,6 +1,6 @@
-module Compiler.AST.Raw.RestoreStatement (restoreStatement) where
+module Compiler.PreAST.Raw.RestoreStatement (restoreStatement) where
 
-import Compiler.AST.Type
+import Compiler.PreAST.Type
 import Compiler.Syntax.Type
 
 import Control.Monad.State

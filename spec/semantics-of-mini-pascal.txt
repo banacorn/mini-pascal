@@ -22,7 +22,7 @@ Additional rules for the Mini-Pascal language.
     type system for mini-pascal.
 
 
-6.  We forbid to add an integer and a real number together. Explicit cast is needed.
+6.  We forbid to add an integer and a real number together. Explicit cPreAST is needed.
 
 7.  A function's value is the value of the variable whose name is the same as 
     the function. For example,

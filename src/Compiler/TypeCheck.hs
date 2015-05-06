@@ -3,7 +3,7 @@
 module Compiler.TypeCheck (typeCheckStatement, TypeError(..)) where
 
 import Compiler.Syntax.Type
-import Compiler.AST.Type
+import Compiler.PreAST.Type
 import Compiler.Serializable
 
 import Data.Maybe

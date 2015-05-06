@@ -1,7 +1,7 @@
-module Compiler.AST (toADT, toABT) where
+module Compiler.PreAST (toADT, toABT) where
 
-import Compiler.AST.Type
-import Compiler.AST.Raw
+import Compiler.PreAST.Type
+import Compiler.PreAST.Raw
 import Compiler.Syntax.Type
 
 import              Data.List (find)
@@ -13,7 +13,7 @@ import              Data.Bifunctor
 -- ADT
 --------------------------------------------------------------------------------
 
-toADT :: RawAST -> ADT
+toADT :: RawPreAST -> ADT
 toADT p = merge declarations bindings
     where   declarations = collectDeclaration p
             symbols = collectSymbol p
@@ -36,8 +36,8 @@ bindSubprogram globalDecs (Subprogram localDecs _) (Subprogram _ occurs) =
 -- ABT
 --------------------------------------------------------------------------------
 
-toABT :: RawAST -> ADT -> ABT
-toABT raw ast = restoreStatement raw (bimap Set.findMin toValue ast)
+toABT :: RawPreAST -> ADT -> ABT
+toABT raw adt = restoreStatement raw (bimap Set.findMin toValue adt)
 --
 -- --------------------------------------------------------------------------------
 -- -- Final
@@ -46,4 +46,4 @@ toABT raw ast = restoreStatement raw (bimap Set.findMin toValue ast)
 -- data DataType = IntType | RealType
 -- data VarDec = VarDec Type String
 --
--- data Final = Program VarDec Statement
+-- data PreAST = Program VarDec Statement
