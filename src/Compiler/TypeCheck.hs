@@ -54,7 +54,7 @@ instance Sym TypeError where
 --------------------------------------------------------------------------------
 
 typeCheckInvocation :: Value -> [Expression Value] -> TypeCheck
-typeCheckInvocation val@(Variable sym (Declaration sym' t)) args
+typeCheckInvocation val@(Variable sym (Declaration sym' t _)) args
     | not isFunc                                                 = Screwed [NotInvocable val]
     |     isFunc && not arityOK                                  = Screwed [FunctionArityError val funcArity argsNum]
     |     isFunc &&     arityOK && not argsOK                    = Screwed argsErrors
@@ -97,7 +97,7 @@ instance Typeable (Factor Value) where
     typeCheck (NotFactor e) = typeCheck e
 
 instance Typeable Value where
-    typeCheck v@(Variable _ (Declaration _ t)) = GotType v t
+    typeCheck v@(Variable _ (Declaration _ t _)) = GotType v t
     typeCheck v@(IntLiteral _ _)               = GotType v (BasicType IntType)
     typeCheck v@(RealLiteral _ _)              = GotType v (BasicType RealType)
 

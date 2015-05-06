@@ -13,15 +13,15 @@ collectDeclaration (RawProgram _ _ vars subprogs) = Program
             decs =  (vars     >>= fromVars)
                  ++ (subprogs >>= fromSubprogs)
                  ++ [putcharFunc]
-            fromVars (VarDec ids t) = map (flip Declaration (getType t)) ids
-            fromSubprogs n@(FuncDec sym _ ret _ _) = [Declaration sym (getType n)]
+            fromVars (VarDec ids t) = map (\label -> Declaration label (getType t) False) ids
+            fromSubprogs n@(FuncDec sym _ ret _ _) = [Declaration sym (getType n) False]
             -- printIntFunc = Declaration (Symbol "printInt" Unknown) (FunctionType [IntType])
             -- printRealFunc = Declaration (Symbol "printReal" Unknown) (FunctionType [RealType])
-            putcharFunc = Declaration (Symbol "putchar" Unknown) (FunctionType [IntType, IntType])
+            putcharFunc = Declaration (Symbol "putchar" Unknown) (FunctionType [IntType, IntType]) False
 
 collectSubprogramDeclaration :: RawSubprogram -> Subprogram (Set Declaration) ()
 collectSubprogramDeclaration (FuncDec sym params ret vars stmt) = Subprogram (partite decs) []
     where
         decs = (params >>= fromParams) ++ (vars >>= fromVars)
-        fromParams (Parameter ids t) = map (flip Declaration (getType t)) ids
-        fromVars   (VarDec    ids t) = map (flip Declaration (getType t)) ids
+        fromParams (Parameter ids t) = map (\label -> Declaration label (getType t) True) ids
+        fromVars   (VarDec    ids t) = map (\label -> Declaration label (getType t) False) ids

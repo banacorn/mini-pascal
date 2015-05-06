@@ -19,10 +19,10 @@ convertProgram (P.Program decs funcs) =
             varNo = length decs - funcNo - extern
 
 convertVarDec :: P.Declaration -> Variable
-convertVarDec (P.Declaration (P.Symbol label _) _) = Variable label Declaration
+convertVarDec (P.Declaration (P.Symbol label _) _ _) = Variable label Declaration
 
 convertFuncDec :: P.Declaration -> P.Subprogram P.Declaration (P.Statement P.Value) -> Function
-convertFuncDec (P.Declaration (P.Symbol label _) typ) (P.Subprogram decs stmts) =
+convertFuncDec (P.Declaration (P.Symbol label _) typ _) (P.Subprogram decs stmts) =
     Function label returnType [] []
     where   returnType = DT.getReturnType typ == DT.BasicType DT.VoidType
 

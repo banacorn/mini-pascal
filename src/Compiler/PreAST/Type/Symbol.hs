@@ -48,6 +48,7 @@ instance Serializable Symbol where
 data Declaration = Declaration
     {   decSymbol :: Symbol
     ,   decType :: Type
+    ,   decParam :: Bool
     }
 
 instance Sym Declaration where
@@ -55,13 +56,13 @@ instance Sym Declaration where
     getPos = symPos . decSymbol
 
 instance Serializable Declaration where
-    serialize (Declaration (Symbol name pos) typ) = green name ++ " : " ++ serialize typ ++ " " ++ serialize pos
+    serialize (Declaration (Symbol name pos) typ _) = green name ++ " : " ++ serialize typ ++ " " ++ serialize pos
 
 -- 2 Declaration are considered equal if
 --      1. both are variables OR both are functions/procedures
 --      2. have the same name
 instance Eq Declaration where
-    Declaration (Symbol i _) t == Declaration (Symbol i' _) t'
+    Declaration (Symbol i _) t p == Declaration (Symbol i' _) t' p'
         | not (isFunction t) && not (isFunction t') = i == i'
         |      isFunction t  &&      isFunction t'  = i == i'
         | otherwise                       = False

@@ -63,7 +63,7 @@ instance Serializable Error where
             0 >>>> [red "Declaration Duplicated: " ++ yellow (serialize name)]
         ++  1 >>>> codeMaps
         where   partition' = sort (Set.toList partition)              -- sort declarations base on their position
-                Declaration (Symbol name pos) typ = head partition'    -- get the foremost declaration
+                Declaration (Symbol name pos) typ _ = head partition'    -- get the foremost declaration
                 markPosition declaration = path ++ ":" ++ serialize (symPos (decSymbol declaration))
                 codeMaps = toCodeMaps path src (map (symPos . decSymbol) partition')
     serialize (VariableUndeclaredError path src (Symbol name pos)) = paragraphPadded $
