@@ -198,6 +198,14 @@ makeBlock (label, (BlockState _ s t)) = BasicBlock label s (maketerm t)
     where   maketerm (Just x) = x
             maketerm Nothing = error $ "Block has no terminator:" ++ (show label)
 
+genParameter :: AST.Variable -> Codegen ()
+genParameter v@(AST.Variable label _) = do
+    new <- alloca
+    setVar label new
+    store new (local (Name label))
+    return ()
+    -- setVar label (local (Name label))
+
 genLocalVariable :: AST.Variable -> Codegen ()
 genLocalVariable (AST.Variable label _) = do
     new <- alloca
@@ -211,19 +219,20 @@ genVariable (AST.Variable label AST.Declaration) = error "shouldn't be referenci
 
 genExpression :: AST.Expression -> Codegen Operand
 genExpression (AST.UnaryExpression expr) = genSimpleExpression expr
-genExpression (AST.BinaryExpression expr0 relOp expr1) = error "genExpression non-exhaustive"
+-- genExpression (AST.BinaryExpression expr0 relOp expr1) = error "genExpression non-exhaustive"
 
 genSimpleExpression :: AST.SimpleExpression -> Codegen Operand
 genSimpleExpression (AST.TermSimpleExpression term) = genTerm term
-genSimpleExpression (AST.OpSimpleExpression simpleExpr addOp term) = error "genSimpleExpression non-exhaustive"
+-- genSimpleExpression (AST.OpSimpleExpression simpleExpr addOp term) = error "genSimpleExpression non-exhaustive"
 
 genTerm :: AST.Term -> Codegen Operand
 genTerm (AST.FactorTerm factor) = genFactor factor
-genTerm (AST.OpTerm term mulOp factor) = error "genTerm non-exhaustive" -- OpTerm (convertTerm term) (convertMulOp mulOp) (convertFactor factor)
-genTerm (AST.NegTerm factor) = error "genTerm non-exhaustive" -- NegTerm (convertFactor factor)
+-- genTerm (AST.OpTerm term mulOp factor) = error "genTerm non-exhaustive" -- OpTerm (convertTerm term) (convertMulOp mulOp) (convertFactor factor)
+-- genTerm (AST.NegTerm factor) = error "genTerm non-exhaustive" -- NegTerm (convertFactor factor)
 
 genFactor :: AST.Factor -> Codegen Operand
-genFactor (AST.VariableFactor (AST.Variable label AST.Global)) = return $ global (Name label)
+genFactor (AST.VariableFactor (AST.Variable label AST.Global)) = do
+    load $ global (Name label)
 genFactor (AST.VariableFactor (AST.Variable label AST.Local)) = do
     var <- getVar label
     load var
@@ -233,12 +242,16 @@ genFactor (AST.InvocationFactor var exprs) = do
     fn <- genVariable var
     args <- mapM genExpression exprs
     call fn args
-genFactor _ = error "genFactor non-exhaustive"
+-- genFactor _ = error "genFactor non-exhaustive"
 -- genFactor (SubFactor expr) = SubFactor (convertExpression expr)
 -- genFactor (NotFactor factor) = NotFactor (convertFactor factor)
 
 genStatement :: AST.Statement -> Codegen ()
--- genStatement (AST.Assignment (AST.Variable label AST.Global) expr) = do
+genStatement (AST.Assignment (AST.Variable label AST.Global) expr) = do
+    let var = global (Name label)
+    val <- genExpression expr
+    store var val
+    return ()
 genStatement (AST.Assignment (AST.Variable label AST.Local) expr) = do
     var <- getVar label
     val <- genExpression expr
@@ -276,8 +289,7 @@ genFunction (AST.Function label ret params decs body) = GlobalDefinition $ funct
     ,   returnType  = if ret then void else i32
     ,   basicBlocks = createBlocks . execCodegen $ do
             freshBlock "entry"
-
-            sequence_ (map genLocalVariable params)
+            sequence_ (map genParameter params)
             sequence_ (map genLocalVariable decs)
             sequence_ (map genStatement body)
             -- if null body then return () else

@@ -13,8 +13,8 @@ program foo(input, output, error) ;
 
     function id(a: integer) : integer;
         begin
-            a := 98;
-            return a
+            b := a;
+            return b
         end;
 
 

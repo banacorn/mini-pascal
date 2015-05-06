@@ -8,7 +8,9 @@
 define i32 @addition(i32 %b, i32 %a) {
 entry:
   %0 = alloca i32
+  store i32 %b, i32* %0
   %1 = alloca i32
+  store i32 %a, i32* %1
   %2 = alloca i32
   %3 = alloca i32
   %4 = alloca i32
@@ -19,9 +21,11 @@ entry:
 define i32 @id(i32 %a) {
 entry:
   %0 = alloca i32
-  store i32 98, i32* %0
+  store i32 %a, i32* %0
   %1 = load i32* %0
-  ret i32 %1
+  store i32 %1, i32* @b
+  %2 = load i32* @b
+  ret i32 %2
 }
 
 define void @main() {
