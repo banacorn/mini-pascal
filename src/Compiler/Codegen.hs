@@ -197,7 +197,7 @@ sdiv a b = instr $ SDiv True a b []
 cmp :: Operand -> Operand -> IP.IntegerPredicate -> Codegen Operand
 cmp a b ip = do
     result <- instr $ ICmp ip a b []
-    instr $ SExt result i32 []
+    instr $ ZExt result i32 []
 
 phi :: [(Operand, Name)] -> Codegen Operand
 phi nodes = instr $ Phi i32 nodes []

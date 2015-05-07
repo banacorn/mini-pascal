@@ -20,25 +20,56 @@ entry:
   ret i32 %6
 }
 
-define i32 @id(i32 %a) {
+define i32 @getint() {
+entry:
+  %0 = alloca i32
+  %1 = call i32 @getchar()
+  store i32 %1, i32* %0
+  %2 = load i32* %0
+  %3 = sub nuw nsw i32 %2, 48
+  ret i32 %3
+}
+
+define void @newline() {
+entry:
+  %0 = call i32 @putchar(i32 10)
+  ret void
+}
+
+define void @putint(i32 %a) {
 entry:
   %0 = alloca i32
   store i32 %a, i32* %0
   %1 = load i32* %0
-  ret i32 %1
+  %2 = add nuw nsw i32 %1, 48
+  %3 = call i32 @putchar(i32 %2)
+  ret void
 }
 
 define void @main() {
 entry:
-  %0 = call i32 @getchar()
+  %0 = call i32 @getint()
   store i32 %0, i32* @a
+  call void @newline()
   %1 = load i32* @a
   %2 = icmp slt i32 %1, 5
-  %3 = sext i1 %2 to i32
-  store i32 %3, i32* @b
-  %4 = load i32* @b
-  %5 = call i32 @putchar(i32 %4)
-  %6 = call i32 @putchar(i32 10)
+  %3 = zext i1 %2 to i32
+  %4 = icmp eq i32 %3, 1
+  %5 = zext i1 %4 to i32
+  %6 = trunc i32 %5 to i1
+  br i1 %6, label %if.then, label %if.else
+
+if.then:                                          ; preds = %entry
+  %7 = call i32 @putchar(i32 97)
+  br label %if.exit
+
+if.else:                                          ; preds = %entry
+  %8 = call i32 @putchar(i32 98)
+  br label %if.exit
+
+if.exit:                                          ; preds = %if.else, %if.then
+  %9 = phi i32 [ %7, %if.then ], [ %8, %if.else ]
+  call void @newline()
   ret void
 }
 
