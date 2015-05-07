@@ -51,26 +51,25 @@ entry:
   %0 = call i32 @getint()
   store i32 %0, i32* @a
   call void @newline()
-  br label %while.test
-
-while.body:                                       ; preds = %while.test
   %1 = load i32* @a
-  call void @putint(i32 %1)
-  %2 = load i32* @a
-  %3 = add nuw nsw i32 %2, 1
-  store i32 %3, i32* @a
-  br label %while.test
+  %2 = icmp slt i32 %1, 5
+  %3 = zext i1 %2 to i32
+  %4 = icmp eq i32 %3, 1
+  %5 = zext i1 %4 to i32
+  %6 = trunc i32 %5 to i1
+  br i1 %6, label %if.then, label %if.else
 
-while.test:                                       ; preds = %while.body, %entry
-  %4 = load i32* @a
-  %5 = icmp slt i32 %4, 5
-  %6 = zext i1 %5 to i32
-  %7 = icmp eq i32 %6, 1
-  %8 = zext i1 %7 to i32
-  %9 = trunc i32 %8 to i1
-  br i1 %9, label %while.body, label %while.exit
+if.then:                                          ; preds = %entry
+  store i32 1, i32* @b
+  br label %if.exit
 
-while.exit:                                       ; preds = %while.test
+if.else:                                          ; preds = %entry
+  store i32 0, i32* @b
+  br label %if.exit
+
+if.exit:                                          ; preds = %if.else, %if.then
+  %7 = load i32* @b
+  call void @putint(i32 %7)
   call void @newline()
   ret void
 }

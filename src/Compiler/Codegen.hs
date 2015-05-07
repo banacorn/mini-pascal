@@ -314,26 +314,24 @@ genFactor (AST.SubFactor expr) = genExpression expr
 -- genFactor (NotFactor factor) = do
 --     val <- genFactor factor
 
-genStatement :: AST.Statement -> Codegen Operand
-genStatement (AST.Assignment (AST.Variable label AST.Global) expr) = do
+genStatement :: AST.Statement -> Codegen ()
+genStatement (AST.Assignment (AST.Variable label AST.Global) expr) = void $ do
     let var = global (Name label)
     val <- genExpression expr
     store var val
-genStatement (AST.Assignment (AST.Variable label AST.Local) expr) = do
+genStatement (AST.Assignment (AST.Variable label AST.Local) expr) = void $ do
     var <- getVar label
     val <- genExpression expr
     store var val
 genStatement (AST.Assignment (AST.Variable label AST.Declaration) expr) = error "shouldn't be referencing stuffs"
-genStatement (AST.Return expr) = genExpression expr >>= ret'
-genStatement (AST.Invocation var exprs) = do
+genStatement (AST.Return expr) = void $ do
+    genExpression expr >>= ret
+genStatement (AST.Invocation var exprs) = void $ do
     fn <- genFunctionRef var
     args <- mapM genExpression exprs
     call fn args
-genStatement (AST.Compound stmts) = sequence (map genStatement stmts) >>= returnLastResult
-    where   returnLastResult results = return $ if null results
-                                        then MetadataStringOperand "dummy operand"
-                                        else last results
-genStatement (AST.Branch cond tr fl) = do
+genStatement (AST.Compound stmts) = sequence_ (map genStatement stmts)
+genStatement (AST.Branch cond tr fl) = void $ do
     ifThen <- addBlock "if.then"
     ifElse <- addBlock "if.else"
     ifExit <- addBlock "if.exit"
@@ -347,49 +345,49 @@ genStatement (AST.Branch cond tr fl) = do
     -- if.then
     ------------------
     setBlock ifThen
-    trVal <- genStatement tr        -- Generate code for the true branch
+    genStatement tr                 -- Generate code for the true branch
     br ifExit                       -- Branch to the merge block
     ifThen <- getBlock
 
     -- if.else
     ------------------
     setBlock ifElse
-    flVal <- genStatement fl        -- Generate code for the false branch
+    genStatement fl                 -- Generate code for the false branch
     br ifExit                       -- Branch to the merge block
     ifElse <- getBlock
 
     -- if.exit
     ------------------
     setBlock ifExit
-    phi [(trVal, ifThen), (flVal, ifElse)]
 
 
-genStatement (AST.Loop cond body) = do
+genStatement (AST.Loop cond body) = void $ do
     whileBody <- addBlock "while.body"
     whileTest <- addBlock "while.test"
     whileExit <- addBlock "while.exit"
 
     -- entry
     ------------------
-    br whileTest                     -- Branch to the loop body block
+    br whileTest
 
     -- test
     ------------------
     setBlock whileTest
     condResult <- genExpression cond
     test <- cmp condResult (literal 1) IP.EQ
-    cbr test whileBody whileExit       -- Generate the loop condition
+    cbr test whileBody whileExit
 
     -- body
     ------------------
     setBlock whileBody
-    genStatement body              -- Generate the loop body
+    genStatement body
     br whileTest
 
     -- exit
     ------------------
     setBlock whileExit
-    return $ MetadataStringOperand "dummy operand"
+
+
 genGlobalVariable :: AST.Variable -> Definition
 genGlobalVariable (AST.Variable label _) = GlobalDefinition $ globalVariableDefaults {
         Glb.name = Name label
