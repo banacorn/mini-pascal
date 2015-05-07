@@ -23,9 +23,11 @@ main = pipeline $ do
         >>= printIt'
 
 
+    let m = genModule ast
+
     printIt "\n=== ASSEMBLY ===\n"
-    as <- toIRAssembly (genModule ast) >>= printIt'
+    as <- toAssembly m >>= printIt'
     liftIO $ writeFile "./test/llvm/test.ll" as
 
     printIt "\n=== JIT ==="
-    runJIT (genModule ast) >>= printIt'
+    runJIT m >>= printIt

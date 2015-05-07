@@ -13,17 +13,17 @@ import LLVM.General.Context
 import LLVM.General.ExecutionEngine as EE
 import Foreign.Ptr
 
-foreign import ccall "dynamic" mkFun :: FunPtr (IO Int) -> (IO Int)
+foreign import ccall "dynamic" mkFun :: FunPtr (IO ()) -> (IO ())
 
-run :: FunPtr a -> IO Int
-run fn = mkFun (castFunPtr fn :: FunPtr (IO Int))
+runForeignFunction :: FunPtr a -> IO ()
+runForeignFunction fn = mkFun (castFunPtr fn :: FunPtr (IO ()))
 
 jit :: Context -> (EE.MCJIT -> IO a) -> IO a
 jit context = EE.withMCJIT context optLvl model ptrElim fPreASTIns
     where
-        optLvl   = Just 2  -- optimization level
-        model    = Nothing -- code model ( Default )
-        ptrElim  = Nothing -- frame pointer elimination
+        optLvl      = Just 2  -- optimization level
+        model       = Nothing -- code model ( Default )
+        ptrElim     = Nothing -- frame pointer elimination
         fPreASTIns  = Nothing -- fPreAST instruction
 
 withModuleFromIR :: (Module -> IO a) -> IR.Module -> Pipeline a
@@ -36,18 +36,17 @@ withModuleFromIR f mod = do
 
 
 runJIT :: IR.Module -> Pipeline ()
-runJIT = withModuleFromIR $ \mod -> do
-    withContext $ \context -> do
-        jit context $ \engine ->
-            EE.withModuleInEngine engine mod $ \ee -> do
-                mainFunction <- EE.getFunction ee (IR.Name "main")
-                case mainFunction of
-                    Just fn -> do
-                        res <- run fn
-                        putStr $ "Evaluated to: " ++ show res
-                    Nothing -> do
-                        putStrLn "function not found"
-                        return ()
+runJIT = withModuleFromIR $ \mod ->
+            withContext $ \context ->
+                jit context $ \engine ->
+                    EE.withModuleInEngine engine mod $ \ee -> do
+                        mainFunction <- EE.getFunction ee (IR.Name "main")
+                        case mainFunction of
+                            Just fn -> runForeignFunction fn
+                            Nothing -> void $ putStrLn "function not found"
 
-toIRAssembly :: IR.Module -> Pipeline String
-toIRAssembly = withModuleFromIR moduleLLVMAssembly
+
+
+
+toAssembly :: IR.Module -> Pipeline String
+toAssembly = withModuleFromIR moduleLLVMAssembly

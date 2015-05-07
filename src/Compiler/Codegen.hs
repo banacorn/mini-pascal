@@ -22,7 +22,6 @@ import qualified LLVM.General.AST.CallingConvention as CC
 import qualified LLVM.General.AST.Linkage as L
 import qualified LLVM.General.AST.IntegerPredicate as IP
 
-type SymbolTable = [(String, Operand)]
 
 data CodegenState = CodegenState {
         currentBlock        :: Name                     -- Name of the active block to append to
