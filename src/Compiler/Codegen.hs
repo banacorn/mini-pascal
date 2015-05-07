@@ -3,6 +3,7 @@
 module Compiler.Codegen where
 
 import Control.Applicative
+import Control.Monad
 import Control.Monad.State hiding (void)
 import qualified Data.Map as Map
 import Data.Word
@@ -12,7 +13,7 @@ import Data.Function (on)
 import Compiler.Type.Pipeline
 import qualified Compiler.AST.Type as AST
 
-import LLVM.General.AST.Type
+import LLVM.General.AST.Type hiding (void)
 import LLVM.General.AST
 import LLVM.General.AST.Global as Glb
 import qualified LLVM.General.AST.Constant as C
@@ -24,7 +25,7 @@ import qualified LLVM.General.AST.IntegerPredicate as IP
 type SymbolTable = [(String, Operand)]
 
 data CodegenState = CodegenState {
-        currentBlockName    :: Name                     -- Name of the active block to append to
+        currentBlock        :: Name                     -- Name of the active block to append to
     ,   blocks              :: Map.Map Name BlockState  -- Blocks for function
     ,   blockCount          :: Int                      -- Count of basic blocks
     ,   names               :: Map.Map String Int       -- Name Supply
@@ -72,12 +73,24 @@ freshName name = do
     where
             insertName :: String -> Int -> Codegen ()
             insertName name no = modify $ \s -> s { names = Map.insert name no (names s)  }
--- block
+
+--------------------------------------------------------------------------------
+--  Blocks
+--------------------------------------------------------------------------------
+
 emptyBlock :: Int -> BlockState
 emptyBlock i = BlockState i [] Nothing
 
-freshBlock :: String -> Codegen Name
-freshBlock name = do
+setBlock :: Name -> Codegen Name
+setBlock name = do
+    modify $ \s -> s { currentBlock = name }
+    return name
+
+getBlock :: Codegen Name
+getBlock = gets currentBlock
+
+addBlock :: String -> Codegen Name
+addBlock name = do
     index <- gets blockCount
     name' <- freshName name
     insertBlock name' (emptyBlock index)
@@ -87,9 +100,9 @@ freshBlock name = do
     where   insertBlock :: Name -> BlockState -> Codegen ()
             insertBlock name state = modify $ \s -> s { blocks = Map.insert name state (blocks s)  }
 
-currentBlock :: Codegen BlockState
-currentBlock = do
-    current <- gets currentBlockName
+getCurrentBlock :: Codegen BlockState
+getCurrentBlock = do
+    current <- gets currentBlock
     blks <- gets blocks
     case Map.lookup current blks of
         Just x -> return x
@@ -97,10 +110,21 @@ currentBlock = do
 
 modifyBlock :: BlockState -> Codegen ()
 modifyBlock new = do
-    current <- gets currentBlockName
+    current <- gets currentBlock
     modify $ \s -> s { blocks = Map.insert current new (blocks s) }
 
--- symtab
+createBlocks :: CodegenState -> [BasicBlock]
+createBlocks m = map makeBlock $ sortBy (compare `on` (idx . snd)) $ Map.toList (blocks m)
+
+makeBlock :: (Name, BlockState) -> BasicBlock
+makeBlock (label, (BlockState _ s t)) = BasicBlock label s (maketerm t)
+    where   maketerm (Just x) = x
+            maketerm Nothing = Do $ Ret Nothing [] -- error $ "Block has no terminator:" ++ (show label)
+
+--------------------------------------------------------------------------------
+--  Symbol Table
+--------------------------------------------------------------------------------
+
 setVar :: String -> Operand -> Codegen ()
 setVar var x = do
     table <- gets symtab
@@ -113,11 +137,14 @@ getVar var = do
         Just x  -> return x
         Nothing -> error $ "Local variable not in scope: " ++ show var
 
---
+--------------------------------------------------------------------------------
+--  Instructions
+--------------------------------------------------------------------------------
+
 instr :: Instruction -> Codegen Operand
 instr ins = do
     n <- freshNo
-    block <- currentBlock
+    block <- getCurrentBlock
     let i = stack block
     let ref = (UnName n)
     modifyBlock $ block { stack = i ++ [ref := ins] }
@@ -125,36 +152,36 @@ instr ins = do
 
 terminator :: Named Terminator -> Codegen (Named Terminator)
 terminator trm = do
-    blk <- currentBlock
-    modifyBlock (blk { term = Just trm })
+    current <- getCurrentBlock
+    modifyBlock (current { term = Just trm })
     return trm
-
-
 
 terminateAnyway :: Bool -> Codegen ()
 terminateAnyway isVoid = do
-    current <- currentBlock
+    current <- getCurrentBlock
     case term current of
         Just x -> return ()
         Nothing -> do
             if isVoid then retVoid else ret (literal 0)
             return ()
 
+--------------------------------------------------------------------------------
+--  Reference
+--------------------------------------------------------------------------------
 
-literal :: Int -> Operand
-literal n = ConstantOperand $ C.Int 32 (toInteger n)
-
--- References
 local ::  Name -> Operand
 local = LocalReference i32
 
 global ::  Name -> Operand
 global = ConstantOperand . C.GlobalReference i32
 
--- externf :: Name -> Operand
--- externf = ConstantOperand . C.GlobalReference i32
+--------------------------------------------------------------------------------
+--  Arithmetic and Constants
+--------------------------------------------------------------------------------
 
--- Arithmetic and Constants
+literal :: Int -> Operand
+literal n = ConstantOperand $ C.Int 32 (toInteger n)
+
 add :: Operand -> Operand -> Codegen Operand
 add a b = instr $ Add True True a b []
 
@@ -170,8 +197,14 @@ sdiv a b = instr $ SDiv True a b []
 cmp :: Operand -> Operand -> IP.IntegerPredicate -> Codegen Operand
 cmp a b ip = instr $ ICmp ip a b []
 
+phi :: [(Operand, Name)] -> Codegen Operand
+phi nodes = instr $ Phi i32 nodes []
 
--- Effects
+
+--------------------------------------------------------------------------------
+--  Effects
+--------------------------------------------------------------------------------
+
 call :: Operand -> [Operand] -> Codegen Operand
 call fn args = instr $ Call False CC.C [] (Right fn) (map toArg args) [] []
     where   toArg a = (a, [])
@@ -185,7 +218,10 @@ store ptr val = instr $ Store False ptr val Nothing 0 []
 load :: Operand -> Codegen Operand
 load ptr = instr $ Load False ptr Nothing 0 []
 
--- Control Flow
+--------------------------------------------------------------------------------
+--  Control Flow
+--------------------------------------------------------------------------------
+
 br :: Name -> Codegen (Named Terminator)
 br val = terminator $ Do $ Br val []
 
@@ -198,20 +234,18 @@ retVoid = terminator $ Do $ Ret Nothing []
 ret :: Operand -> Codegen (Named Terminator)
 ret val = terminator $ Do $ Ret (Just val) []
 
-createBlocks :: CodegenState -> [BasicBlock]
-createBlocks m = map makeBlock $ sortBy (compare `on` (idx . snd)) $ Map.toList (blocks m)
+ret' :: Operand -> Codegen Operand
+ret' val = ret val >> return val
 
-makeBlock :: (Name, BlockState) -> BasicBlock
-makeBlock (label, (BlockState _ s t)) = BasicBlock label s (maketerm t)
-    where   maketerm (Just x) = x
-            maketerm Nothing = error $ "Block has no terminator:" ++ (show label)
+--------------------------------------------------------------------------------
+--  Convert Program AST to Codegen
+--------------------------------------------------------------------------------
 
-genParameter :: AST.Variable -> Codegen ()
+genParameter :: AST.Variable -> Codegen Operand
 genParameter v@(AST.Variable label _) = do
     new <- alloca
     setVar label new
     store new (local (Name label))
-    return ()
     -- setVar label (local (Name label))
 
 genLocalVariable :: AST.Variable -> Codegen ()
@@ -219,10 +253,9 @@ genLocalVariable (AST.Variable label _) = do
     new <- alloca
     setVar label new
 
-genVariable :: AST.Variable -> Codegen Operand
-genVariable (AST.Variable label AST.Global) = return $ global (Name label)
-genVariable (AST.Variable label AST.Local) = return $ local (Name label)
-genVariable (AST.Variable label AST.Declaration) = error "shouldn't be referencing stuffs"
+genFunctionRef :: AST.Variable -> Codegen Operand
+genFunctionRef (AST.Variable label AST.Global) = return $ global (Name label)
+genFunctionRef (AST.Variable label _) = error "not a referencing a function"
 
 genExpression :: AST.Expression -> Codegen Operand
 genExpression (AST.UnaryExpression expr) = genSimpleExpression expr
@@ -270,39 +303,64 @@ genFactor (AST.VariableFactor (AST.Variable label AST.Local)) = do
 genFactor (AST.VariableFactor (AST.Variable label AST.Declaration)) = error "shouldn't be referencing stuffs"
 genFactor (AST.LiteralFactor lit) = return $ literal lit
 genFactor (AST.InvocationFactor var exprs) = do
-    fn <- genVariable var
+    fn <- genFunctionRef var
     args <- mapM genExpression exprs
     call fn args
 genFactor (AST.SubFactor expr) = genExpression expr
 -- genFactor (NotFactor factor) = do
 --     val <- genFactor factor
 
-genStatement :: AST.Statement -> Codegen ()
+genStatement :: AST.Statement -> Codegen Operand
 genStatement (AST.Assignment (AST.Variable label AST.Global) expr) = do
     let var = global (Name label)
     val <- genExpression expr
     store var val
-    return ()
 genStatement (AST.Assignment (AST.Variable label AST.Local) expr) = do
     var <- getVar label
     val <- genExpression expr
     store var val
-    return ()
 genStatement (AST.Assignment (AST.Variable label AST.Declaration) expr) = error "shouldn't be referencing stuffs"
 genStatement (AST.Return expr) = do
-    genExpression expr >>= ret
-    return ()
+    genExpression expr >>= ret'
 genStatement (AST.Invocation var exprs) = do
-    fn <- genVariable var
+    fn <- genFunctionRef var
     args <- mapM genExpression exprs
     call fn args
-    return ()
+genStatement (AST.Compound stmts) = sequence (map genStatement stmts) >>= returnLastResult
+    where   returnLastResult results = return $ if null results
+                                        then MetadataStringOperand "dummy operand"
+                                        else last results
+genStatement (AST.Branch cond a b) = do
+    ifThen <- addBlock "if.then"
+    ifElse <- addBlock "if.else"
+    ifExit <- addBlock "if.exit"
 
--- data Statement  = Assignment Variable Expression
---                 | Return Expression
---                 | Invocation Variable [Expression]
---                 | Compound [Statement]
---                 | Branch Expression Statement Statement
+    -- entry
+    ------------------
+    c <- genExpression cond
+    test <- cmp c (literal 1) IP.EQ
+    cbr test ifThen ifElse
+
+    -- if.then
+    ------------------
+    setBlock ifThen
+    aVal <- genStatement a          -- Generate code for the A branch
+    br ifExit                       -- Branch to the merge block
+    ifThen <- getBlock
+
+    -- if.else
+    ------------------
+    setBlock ifElse
+    bVal <- genStatement b          -- Generate code for the B branch
+    br ifExit                       -- Branch to the merge block
+    ifElse <- getBlock
+
+    -- if.exit
+    ------------------
+    setBlock ifExit
+    phi [(aVal, ifThen), (bVal, ifElse)]
+
+
 --                 | Loop Expression Statement
 
 genGlobalVariable :: AST.Variable -> Definition
@@ -313,16 +371,23 @@ genGlobalVariable (AST.Variable label _) = GlobalDefinition $ globalVariableDefa
     ,   Glb.initializer = Just (C.Int 32 0)
     }
 
+
+returnLastResult :: [Operand] -> Codegen ()
+returnLastResult results = if null results
+    then return ()
+    else void $ ret $ last results
+
 genFunction :: AST.Function -> Definition
 genFunction (AST.Function label ret params decs body) = GlobalDefinition $ functionDefaults {
         name        = Name label
     ,   parameters  = ([ Parameter i32 (Name name) [] | AST.Variable name _ <- params ], False)
-    ,   returnType  = if ret then void else i32
+    ,   returnType  = if ret then VoidType else i32
     ,   basicBlocks = createBlocks . execCodegen $ do
-            freshBlock "entry"
-            sequence_ (map genParameter params)
-            sequence_ (map genLocalVariable decs)
-            sequence_ (map genStatement body)
+            entry <- addBlock "entry"
+            setBlock entry
+            sequence (map genParameter params)
+            sequence (map genLocalVariable decs)
+            sequence (map genStatement body)
             terminateAnyway ret
     }
 

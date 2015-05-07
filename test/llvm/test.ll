@@ -12,10 +12,12 @@ entry:
   %1 = alloca i32
   store i32 %a, i32* %1
   %2 = alloca i32
-  %3 = alloca i32
-  %4 = alloca i32
-  %5 = alloca i32
-  ret i32 1
+  %3 = load i32* %1
+  %4 = load i32* %0
+  %5 = add nuw nsw i32 %3, %4
+  store i32 %5, i32* %2
+  %6 = load i32* %2
+  ret i32 %6
 }
 
 define i32 @id(i32 %a) {
@@ -28,9 +30,19 @@ entry:
 
 define void @main() {
 entry:
-  %0 = call i32 @id(i32 98)
-  %1 = add nuw nsw i32 %0, 5
-  %2 = call i32 @putchar(i32 %1)
+  ret void
+
+if.then:                                          ; No predecessors!
+  %0 = call i32 @putchar(i32 96)
+  br label %if.exit
+
+if.else:                                          ; No predecessors!
+  %1 = call i32 @putchar(i32 98)
+  br label %if.exit
+
+if.exit:                                          ; preds = %if.else, %if.then
+  %2 = phi i32 [ %0, %if.then ], [ %1, %if.else ]
+  %3 = call i32 @putchar(i32 10)
   ret void
 }
 

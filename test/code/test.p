@@ -3,9 +3,12 @@ program foo(boo);
     var a, b, c, d: integer;
 
     function addition(a, b: integer) : integer;
-        var c, d, e, f: integer;
+        var c: integer;
             begin
-                return 1
+                begin
+                    c := a + b
+                end;
+                return c
             end;
 
     function id(a: integer) : integer;
@@ -15,5 +18,8 @@ program foo(boo);
 
     // compound statements, "main"
     begin
-        putchar(id(98) + 5)
+        if 3 < 5
+            then    putchar(96)
+            else    putchar(98);
+        putchar(10)
     end.
