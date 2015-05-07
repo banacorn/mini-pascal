@@ -182,12 +182,6 @@ global = ConstantOperand . C.GlobalReference i32
 literal :: Int -> Operand
 literal n = ConstantOperand $ C.Int 32 (toInteger n)
 
-true :: Operand
-true = ConstantOperand $ C.Int 1 1
-
-false :: Operand
-false = ConstantOperand $ C.Int 1 0
-
 add :: Operand -> Operand -> Codegen Operand
 add a b = instr $ Add True True a b []
 
@@ -201,7 +195,9 @@ sdiv :: Operand -> Operand -> Codegen Operand
 sdiv a b = instr $ SDiv True a b []
 
 cmp :: Operand -> Operand -> IP.IntegerPredicate -> Codegen Operand
-cmp a b ip = instr $ ICmp ip a b []
+cmp a b ip = do
+    result <- instr $ ICmp ip a b []
+    instr $ SExt result i32 []
 
 phi :: [(Operand, Name)] -> Codegen Operand
 phi nodes = instr $ Phi i32 nodes []
@@ -232,7 +228,9 @@ br :: Name -> Codegen (Named Terminator)
 br val = terminator $ Do $ Br val []
 
 cbr :: Operand -> Name -> Name -> Codegen (Named Terminator)
-cbr cond tr fl = terminator $ Do $ CondBr cond tr fl []
+cbr cond tr fl = do
+    cond' <- instr $ Trunc cond i1 []
+    terminator $ Do $ CondBr cond' tr fl []
 
 retVoid :: Codegen (Named Terminator)
 retVoid = terminator $ Do $ Ret Nothing []
@@ -344,7 +342,7 @@ genStatement (AST.Branch cond a b) = do
     -- entry
     ------------------
     condResult <- genExpression cond
-    test <- cmp condResult true IP.EQ
+    test <- cmp condResult (literal 1) IP.EQ
     cbr test ifThen ifElse
 
     -- if.then

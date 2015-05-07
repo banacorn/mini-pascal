@@ -30,7 +30,7 @@ entry:
 
 define void @main() {
 entry:
-  br i1 true, label %if.then, label %if.else
+  br i1 false, label %if.then, label %if.else
 
 if.then:                                          ; preds = %entry
   %0 = call i32 @putchar(i32 97)
