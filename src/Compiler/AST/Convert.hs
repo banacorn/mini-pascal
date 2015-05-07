@@ -14,7 +14,7 @@ convertProgram (P.Program decs funcs) =
     where   varDecs = take varNo decs
             funcDecs = drop varNo decs
             funcNo = length funcs
-            extern = 1
+            extern = 2
             varNo = length decs - funcNo - extern
 
 convertVarDec :: P.Declaration -> Variable

@@ -20,7 +20,7 @@ data Statement a = Assignment a (Expression a)
 instance (Serializable a, Sym a) => Serializable (Statement a) where
     serialize (Assignment v e) = serialize v ++ " := " ++ serialize e
     serialize (Return e) = "return " ++ serialize e
-    serialize (Invocation sym []) = serialize sym
+    serialize (Invocation sym []) = serialize sym ++ "()"
     serialize (Invocation sym exprs) = serialize sym ++ "(" ++ exprs' ++ ")"
         where   exprs' = intercalate' ", " exprs
     serialize (Compound stmts) = paragraph $ compound stmts

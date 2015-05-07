@@ -39,7 +39,7 @@ instance Serializable Function where
 instance Serializable Statement where
     serialize (Assignment v e) = serialize v ++ " := " ++ serialize e
     serialize (Return e) = "return " ++ serialize e
-    serialize (Invocation sym []) = serialize sym
+    serialize (Invocation sym []) = serialize sym ++ "()"
     serialize (Invocation sym exprs) = serialize sym ++ "(" ++ intercalate' ", " exprs ++ ")"
     serialize (Compound stmts) = paragraph $ compound stmts
     serialize (Branch e s t) = paragraph $

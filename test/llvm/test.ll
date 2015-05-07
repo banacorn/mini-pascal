@@ -30,20 +30,18 @@ entry:
 
 define void @main() {
 entry:
-  br i1 false, label %if.then, label %if.else
-
-if.then:                                          ; preds = %entry
-  %0 = call i32 @putchar(i32 97)
-  br label %if.exit
-
-if.else:                                          ; preds = %entry
-  %1 = call i32 @putchar(i32 98)
-  br label %if.exit
-
-if.exit:                                          ; preds = %if.else, %if.then
-  %2 = phi i32 [ %0, %if.then ], [ %1, %if.else ]
-  %3 = call i32 @putchar(i32 10)
+  %0 = call i32 @getchar()
+  store i32 %0, i32* @a
+  %1 = load i32* @a
+  %2 = icmp slt i32 %1, 5
+  %3 = sext i1 %2 to i32
+  store i32 %3, i32* @b
+  %4 = load i32* @b
+  %5 = call i32 @putchar(i32 %4)
+  %6 = call i32 @putchar(i32 10)
   ret void
 }
+
+declare i32 @getchar()
 
 declare i32 @putchar(i32)

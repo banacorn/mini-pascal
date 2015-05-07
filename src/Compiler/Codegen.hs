@@ -400,7 +400,7 @@ genModule (AST.Program vars funcs) = defaultModule {
         moduleName = "program"
     ,   moduleDefinitions = (map genGlobalVariable vars)
                          ++ (map genFunction funcs)
-                         ++ [putchar]
+                         ++ [getchar, putchar]
     }
     where
             -- main = GlobalDefinition $ functionDefaults {
@@ -416,6 +416,12 @@ genModule (AST.Program vars funcs) = defaultModule {
             --                     ] (Do $ Ret Nothing [])
             --                 ]
             --             }
+            getchar = GlobalDefinition $ functionDefaults {
+                            name = Name "getchar"
+                        ,   parameters = ([], False)
+                        ,   returnType = i32
+                        }
+
             putchar = GlobalDefinition $ functionDefaults {
                             name = Name "putchar"
                         ,   parameters = ([Parameter i32 (Name "c") []], False)

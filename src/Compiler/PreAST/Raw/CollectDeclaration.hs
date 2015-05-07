@@ -12,11 +12,11 @@ collectDeclaration (RawProgram _ _ vars subprogs) = Program
         where
             decs =  (vars     >>= fromVars)
                  ++ (subprogs >>= fromSubprogs)
+                 ++ [getcharFunc]
                  ++ [putcharFunc]
             fromVars (VarDec ids t) = map (\label -> Declaration label (getType t) InGlobal) ids
             fromSubprogs n@(FuncDec sym _ ret _ _) = [Declaration sym (getType n) InGlobal]
-            -- printIntFunc = Declaration (Symbol "printInt" Unknown) (FunctionType [IntType])
-            -- printRealFunc = Declaration (Symbol "printReal" Unknown) (FunctionType [RealType])
+            getcharFunc = Declaration (Symbol "getchar" Unknown) (FunctionType [IntType]) InGlobal
             putcharFunc = Declaration (Symbol "putchar" Unknown) (FunctionType [IntType, IntType]) InGlobal
 
 collectSubprogramDeclaration :: RawSubprogram -> Subprogram (Set Declaration) ()

@@ -103,13 +103,13 @@ statement_list
 statement
     : id ':=' expression                            { Assignment (toSym $1) $3 }
     | return expression                             { Return $2 }
-    | id                                            { Invocation (toSym $1) [] }
     | id '(' expression_list ')'                    { Invocation (toSym $1) $3 }
     | compound_statement                            { Compound $1 }
     | if expression then statement else statement   { Branch $2 $4 $6 }
     | while expression do statement                 { Loop $2 $4 }
 
-expression_list : expression                        { $1 : [] }
+expression_list : {- empty -}                       { [] }
+                | expression                        { $1 : [] }
                 | expression_list ',' expression    { $3 : $1 }
 
 

@@ -15,6 +15,8 @@ main = pipeline $ do
     ast <- readSource "./test/code/test.p"
         >>= scan
         >>= parse
+
+        >>= printIt'
         >>= checkBinding
         -- >>= checkType
         >>= convert
