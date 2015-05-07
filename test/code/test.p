@@ -32,8 +32,9 @@ program foo(boo);
     begin
         a := getint();
         newline();
-        if a < 5
-            then    putchar(97)
-            else    putchar(98);
+        while a < 5 do begin
+            putint(a);
+            a := a + 1
+        end;
         newline()
     end.

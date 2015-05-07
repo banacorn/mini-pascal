@@ -324,8 +324,7 @@ genStatement (AST.Assignment (AST.Variable label AST.Local) expr) = do
     val <- genExpression expr
     store var val
 genStatement (AST.Assignment (AST.Variable label AST.Declaration) expr) = error "shouldn't be referencing stuffs"
-genStatement (AST.Return expr) = do
-    genExpression expr >>= ret'
+genStatement (AST.Return expr) = genExpression expr >>= ret'
 genStatement (AST.Invocation var exprs) = do
     fn <- genFunctionRef var
     args <- mapM genExpression exprs
@@ -334,7 +333,7 @@ genStatement (AST.Compound stmts) = sequence (map genStatement stmts) >>= return
     where   returnLastResult results = return $ if null results
                                         then MetadataStringOperand "dummy operand"
                                         else last results
-genStatement (AST.Branch cond a b) = do
+genStatement (AST.Branch cond tr fl) = do
     ifThen <- addBlock "if.then"
     ifElse <- addBlock "if.else"
     ifExit <- addBlock "if.exit"
@@ -348,25 +347,49 @@ genStatement (AST.Branch cond a b) = do
     -- if.then
     ------------------
     setBlock ifThen
-    aVal <- genStatement a          -- Generate code for the A branch
+    trVal <- genStatement tr        -- Generate code for the true branch
     br ifExit                       -- Branch to the merge block
     ifThen <- getBlock
 
     -- if.else
     ------------------
     setBlock ifElse
-    bVal <- genStatement b          -- Generate code for the B branch
+    flVal <- genStatement fl        -- Generate code for the false branch
     br ifExit                       -- Branch to the merge block
     ifElse <- getBlock
 
     -- if.exit
     ------------------
     setBlock ifExit
-    phi [(aVal, ifThen), (bVal, ifElse)]
+    phi [(trVal, ifThen), (flVal, ifElse)]
 
 
---                 | Loop Expression Statement
+genStatement (AST.Loop cond body) = do
+    whileBody <- addBlock "while.body"
+    whileTest <- addBlock "while.test"
+    whileExit <- addBlock "while.exit"
 
+    -- entry
+    ------------------
+    br whileTest                     -- Branch to the loop body block
+
+    -- test
+    ------------------
+    setBlock whileTest
+    condResult <- genExpression cond
+    test <- cmp condResult (literal 1) IP.EQ
+    cbr test whileBody whileExit       -- Generate the loop condition
+
+    -- body
+    ------------------
+    setBlock whileBody
+    genStatement body              -- Generate the loop body
+    br whileTest
+
+    -- exit
+    ------------------
+    setBlock whileExit
+    return $ MetadataStringOperand "dummy operand"
 genGlobalVariable :: AST.Variable -> Definition
 genGlobalVariable (AST.Variable label _) = GlobalDefinition $ globalVariableDefaults {
         Glb.name = Name label
