@@ -199,10 +199,6 @@ cmp a b ip = do
     result <- instr $ ICmp ip a b []
     instr $ ZExt result i32 []
 
-phi :: [(Operand, Name)] -> Codegen Operand
-phi nodes = instr $ Phi i32 nodes []
-
-
 --------------------------------------------------------------------------------
 --  Effects
 --------------------------------------------------------------------------------
@@ -250,7 +246,6 @@ genParameter v@(AST.Variable label _) = do
     new <- alloca
     setVar label new
     store new (local (Name label))
-    -- setVar label (local (Name label))
 
 genLocalVariable :: AST.Variable -> Codegen ()
 genLocalVariable (AST.Variable label _) = do
@@ -259,7 +254,7 @@ genLocalVariable (AST.Variable label _) = do
 
 genFunctionRef :: AST.Variable -> Codegen Operand
 genFunctionRef (AST.Variable label AST.Global) = return $ global (Name label)
-genFunctionRef (AST.Variable label _) = error "not a referencing a function"
+genFunctionRef (AST.Variable label _) = error "not a reference to a function"
 
 genExpression :: AST.Expression -> Codegen Operand
 genExpression (AST.UnaryExpression expr) = genSimpleExpression expr
@@ -311,8 +306,9 @@ genFactor (AST.InvocationFactor var exprs) = do
     args <- mapM genExpression exprs
     call fn args
 genFactor (AST.SubFactor expr) = genExpression expr
--- genFactor (NotFactor factor) = do
---     val <- genFactor factor
+genFactor (AST.NotFactor factor) = do
+    val <- genFactor factor
+    cmp val (literal 0) IP.EQ
 
 genStatement :: AST.Statement -> Codegen ()
 genStatement (AST.Assignment (AST.Variable label AST.Global) expr) = void $ do
@@ -339,7 +335,7 @@ genStatement (AST.Branch cond tr fl) = void $ do
     -- entry
     ------------------
     condResult <- genExpression cond
-    test <- cmp condResult (literal 1) IP.EQ
+    test <- cmp condResult (literal 0) IP.NE
     cbr test ifThen ifElse
 
     -- if.then
@@ -374,7 +370,7 @@ genStatement (AST.Loop cond body) = void $ do
     ------------------
     setBlock whileTest
     condResult <- genExpression cond
-    test <- cmp condResult (literal 1) IP.EQ
+    test <- cmp condResult (literal 0) IP.NE
     cbr test whileBody whileExit
 
     -- body
@@ -395,12 +391,6 @@ genGlobalVariable (AST.Variable label _) = GlobalDefinition $ globalVariableDefa
     ,   Glb.linkage = L.Common
     ,   Glb.initializer = Just (C.Int 32 0)
     }
-
-
-returnLastResult :: [Operand] -> Codegen ()
-returnLastResult results = if null results
-    then return ()
-    else void $ ret $ last results
 
 genFunction :: AST.Function -> Definition
 genFunction (AST.Function label ret params decs body) = GlobalDefinition $ functionDefaults {
@@ -424,19 +414,6 @@ genModule (AST.Program vars funcs) = defaultModule {
                          ++ [getchar, putchar]
     }
     where
-            -- main = GlobalDefinition $ functionDefaults {
-            --                 name = Name "main"
-            --             ,   returnType = VoidType
-            --             ,   basicBlocks = [
-            --                     BasicBlock (Name "block entry") [
-            --                         -- Name "new" := Alloca i32 Nothing 0 [] --(Just (ConstantOperand (GlobalReference i32 (Name "b"))))
-            --                         Do $ Store False (ConstantOperand (GlobalReference i32 (Name "b"))) (ConstantOperand (C.Int 32 97)) Nothing 0 []
-            --                         -- Do $
-            --                     ,   Name "temp" := Load False (ConstantOperand (GlobalReference i32 (Name "b"))) Nothing 0 []
-            --                     ,   Do (Call False CC.C [] (Right (ConstantOperand (GlobalReference (FunctionType i32 [i32] False) (Name "putchar")))) [(LocalReference i32 (Name "temp"), [])] [] [])
-            --                     ] (Do $ Ret Nothing [])
-            --                 ]
-            --             }
             getchar = GlobalDefinition $ functionDefaults {
                             name = Name "getchar"
                         ,   parameters = ([], False)

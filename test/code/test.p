@@ -32,22 +32,22 @@ program foo(boo);
     begin
         a := getint();
         newline();
+        putint(not a);
+        newline();
+
+
+
 
         if a < 5 then
-            b := 1
+            putint(0)
         else
-            b := 0;
-        putint(b);
-
-        newline()
-
-
-
+            putint(1);
 
 
         //while a < 5 do begin
         //    putint(a);
         //    a := a + 1
         //end;
-        //newline()
+
+        newline()
     end.
