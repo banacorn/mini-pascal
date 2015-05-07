@@ -18,8 +18,8 @@ program foo(boo);
 
     // compound statements, "main"
     begin
-        if 3 < 5
-            then    putchar(96)
+        if 7 < 8
+            then    putchar(97)
             else    putchar(98);
         putchar(10)
     end.

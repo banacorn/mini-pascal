@@ -182,6 +182,12 @@ global = ConstantOperand . C.GlobalReference i32
 literal :: Int -> Operand
 literal n = ConstantOperand $ C.Int 32 (toInteger n)
 
+true :: Operand
+true = ConstantOperand $ C.Int 1 1
+
+false :: Operand
+false = ConstantOperand $ C.Int 1 0
+
 add :: Operand -> Operand -> Codegen Operand
 add a b = instr $ Add True True a b []
 
@@ -337,8 +343,8 @@ genStatement (AST.Branch cond a b) = do
 
     -- entry
     ------------------
-    c <- genExpression cond
-    test <- cmp c (literal 1) IP.EQ
+    condResult <- genExpression cond
+    test <- cmp condResult true IP.EQ
     cbr test ifThen ifElse
 
     -- if.then

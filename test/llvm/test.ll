@@ -30,13 +30,13 @@ entry:
 
 define void @main() {
 entry:
-  ret void
+  br i1 true, label %if.then, label %if.else
 
-if.then:                                          ; No predecessors!
-  %0 = call i32 @putchar(i32 96)
+if.then:                                          ; preds = %entry
+  %0 = call i32 @putchar(i32 97)
   br label %if.exit
 
-if.else:                                          ; No predecessors!
+if.else:                                          ; preds = %entry
   %1 = call i32 @putchar(i32 98)
   br label %if.exit
 
