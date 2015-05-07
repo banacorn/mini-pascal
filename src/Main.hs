@@ -4,30 +4,41 @@ import Control.Monad.State
 
 import Compiler.Syntax.Lexer
 import Compiler.Syntax.Parser
+import Compiler.Type.Pipeline
+import Compiler.Serializable
 import Compiler.Pipeline
 import Compiler.Codegen
 import Compiler.JIT
 
-import  Compiler.AST.Instances
+import Compiler.AST.Type
+import Compiler.AST.Instances
 
 main :: IO ()
 main = pipeline $ do
-    ast <- readSource "./test/code/test.p"
-        >>= scan
-        >>= parse
 
-        >>= printIt'
-        >>= checkBinding
-        -- >>= checkType
-        >>= convert
-        >>= printIt'
-
+    ast <- buildAST "./test/code/sampl.p"
 
     let m = genModule ast
 
-    printIt "\n=== ASSEMBLY ===\n"
-    as <- toAssembly m >>= printIt'
-    liftIO $ writeFile "./test/llvm/test.ll" as
+    assembly <- toAssembly m
 
-    printIt "\n=== JIT ==="
+    printIt $ cyan "\n=== Mini Pascal AST ===\n"
+    printIt ast
+
+
+    printIt $ cyan "\n=== ASSEMBLY ===\n"
+    printIt assembly
+    liftIO (writeFile "./test/code/test.ll" assembly)
+
+    printIt $ cyan "\n=== JIT ==="
     runJIT m >>= printIt
+
+
+
+
+buildAST :: String -> Pipeline Program
+buildAST src = readSource src
+                >>= scan
+                >>= parse
+                >>= checkBinding
+                >>= convert
